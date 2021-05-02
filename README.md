@@ -11,6 +11,7 @@ The mod can be downloaded from [here](https://vtolvr-mods.com/ on the VTOLVR-Mod
 You also need to have .Net 4.5 installed to build the mod.
 
 ## Contributors
+![image](https://user-images.githubusercontent.com/34219942/116811170-b9987d80-ab3f-11eb-8474-c2187eada3b3.png)
 
 [Ketkev](https://github.com/ketkev "Ketkev's Github") for their code which creates a name tag above the player's heads with their steam name.
 
