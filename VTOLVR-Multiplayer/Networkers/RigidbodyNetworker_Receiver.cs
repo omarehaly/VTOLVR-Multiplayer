@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+using System.Collections;
 /// <summary>
 /// Updates objects with a  rigidbody over the network using velocity and position.
 /// </summary>
@@ -20,7 +21,8 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
     private float rotSmoothingTime = 0.2f;
     private float velSmoothingTime = 1.0f;//actor velocity for using with the gunsight, should stop the jitter
     private float latency = 0.0f;
-
+    private bool firstUpdate = true;
+    public bool pauseDetection = false;
     public PlayerManager.Player playerWeRepresent = null;
 
     private ulong mostCurrentUpdateNumber;
@@ -51,7 +53,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
         Networker.RigidbodyUpdate += RigidbodyUpdate;
 
-
+        StartCoroutine(ReactivateDetection());
         mostCurrentUpdateNumber = 0;
     }
 
@@ -92,7 +94,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (playerWeRepresent != null)
         {
             //delta time needs to be added to latency as this runs after packet has arrived for a while
-            latency = (latency * 0.5f) + (playerWeRepresent.ping * 0.5f);
+            latency = (latency * 0.75f) + (playerWeRepresent.ping * 0.25f);
         }
 
         globalTargetPosition += new Vector3D(targetVelocity * Time.fixedDeltaTime);
@@ -119,7 +121,8 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         //Debug.Log($"Rigidbody Update\nOur Network ID = {networkUID} Packet Network ID = {rigidbodyUpdate.networkUID}");
         if (rigidbodyUpdate.networkUID != networkUID)
             return;
-
+ 
+       
         if (rigidbodyUpdate.sequenceNumber <= mostCurrentUpdateNumber)
             return;
         mostCurrentUpdateNumber = rigidbodyUpdate.sequenceNumber;
@@ -136,6 +139,11 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
             //Debug.Log("Outside of thresh hold, moving " + gameObject.name);
             transform.position = localTargetPosition;
             transform.rotation = rigidbodyUpdate.rotation;
+        }
+        if (pauseDetection)
+        {
+            PlayerManager.pauseDetectionCount -= 1;
+            pauseDetection = false;
         }
     }
 
@@ -161,8 +169,22 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
     public void OnDestroy()
     {
         Networker.RigidbodyUpdate -= RigidbodyUpdate;
-
+        if (pauseDetection)
+        {
+            PlayerManager.pauseDetectionCount -= 1;
+            pauseDetection = false;
+        }
         Debug.Log("Destroyed Rigidbody Update");
         Debug.Log(gameObject.name);
+    }
+
+    private IEnumerator ReactivateDetection()
+    {
+        yield return new WaitForSeconds(2.5f);
+        if (pauseDetection)
+        {
+            PlayerManager.pauseDetectionCount -= 1;
+            pauseDetection = false;
+        }
     }
 }

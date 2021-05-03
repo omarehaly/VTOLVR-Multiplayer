@@ -35,7 +35,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
             }
         }
 
-        thisMissile.explodeRadius *= 2.0f;
+        thisMissile.explodeRadius *= 2.485f;
         traverseML = Traverse.Create(thisML);
         traverseMSL = Traverse.Create(thisMissile);
         traverseMSL.Field("detonated").SetValue(true);
@@ -101,7 +101,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
                             }
                         }
                        
-                        rbReceiver.smoothingTime =0.2f;
+                        rbReceiver.smoothingTime =0.4f;
                     }
                 }
             }

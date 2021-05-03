@@ -38,7 +38,7 @@ public static class PlayerManager
     public static UnityAction<CustomPlaneDef> onSpawnClient = null;
     public static Transform LeftPTT = null;
     public static bool safeToForceDetect = false;
-
+    public static int pauseDetectionCount = 0;
     public static bool networkedDetection = false;
     /// <summary>
     /// This is the queue for people waiting to get a spawn point,
@@ -140,6 +140,8 @@ public static class PlayerManager
         SetPrefabs();
         CUSTOM_API.loadDisplayPrefab();
         GameObject.Destroy(FlightSceneManager.instance.playerActor.gameObject.GetComponent<DashMapDisplay>());
+
+
 
         FlightSceneManager.instance.playerActor.gameObject.AddComponent<DashMapDisplay>();
         carrierStart = FlightSceneManager.instance.playerActor.unitSpawn.unitSpawner.linkedToCarrier;
@@ -325,8 +327,6 @@ public static class PlayerManager
                         airportManager.team = Teams.Allied;
                     }
                 }
-
-
             var rearmPoints = GameObject.FindObjectsOfType<ReArmingPoint>();
             //back up option below
 
@@ -366,6 +366,7 @@ public static class PlayerManager
             Debug.Log("Starting map loaded host routines");
             Networker.hostLoaded = true;
             Networker.hostReady = true;
+            FlightSceneManager.instance.playerActor.gameObject.AddComponent<DashMapDisplay>();
             foreach (var actor in TargetManager.instance.allActors)
             {
                 AIManager.setupAIAircraft(actor);
@@ -1525,11 +1526,12 @@ public static class PlayerManager
             Debug.LogError("Spawn Representation couldn't find a player id.");
         }
         //Player player = ref players[playerID];
-
+        
          if (players[playerID].vehicle != null)
             GameObject.Destroy(players[playerID].vehicle);
 
         GameObject newVehicle = null;
+        pauseDetectionCount += 1;
         switch (vehicle)
         {
             case VTOLVehicles.None:
@@ -1572,6 +1574,8 @@ public static class PlayerManager
         }
         RigidbodyNetworker_Receiver rbNetworker = newVehicle.AddComponent<RigidbodyNetworker_Receiver>();
         rbNetworker.networkUID = networkID;
+        rbNetworker.pauseDetection = true;
+
         //rbNetworker.smoothingTime = 0.25f;
         PlaneNetworker_Receiver planeReceiver = newVehicle.AddComponent<PlaneNetworker_Receiver>();
         planeReceiver.networkUID = networkID;
@@ -1643,10 +1647,14 @@ public static class PlayerManager
         if (isLeft != PlayerManager.teamLeftie)
         {
             aIPilot.actor.team = Teams.Enemy;
+            aIPilot.actor.permanentDiscovery = false;
+            
+            //aIPilot.actor.detectedByAllied = true;
         }
         TargetManager.instance.RegisterActor(aIPilot.actor);
         aIPilot.actor.hideDeathLog = true;
-        if(!players[playerID].customPlane)
+    
+        if (!players[playerID].customPlane)
         ((AIAircraftSpawn)aIPilot.actor.unitSpawn).vehicleName +=" " +players[playerID].nameTag;
         else
         ((AIAircraftSpawn)aIPilot.actor.unitSpawn).vehicleName = players[playerID].customPlaneName+ " " + players[playerID].nameTag;
@@ -1900,7 +1908,7 @@ public static class PlayerManager
         OPFORbuttonMade = false;
         timeinGame = 0;
         Networker.hostLoaded = false;
-
+        pauseDetectionCount = 0;
         PlayerManager.allowStart = false;
     }
 
