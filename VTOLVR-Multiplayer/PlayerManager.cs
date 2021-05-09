@@ -140,9 +140,6 @@ public static class PlayerManager
         SetPrefabs();
         CUSTOM_API.loadDisplayPrefab();
         GameObject.Destroy(FlightSceneManager.instance.playerActor.gameObject.GetComponent<DashMapDisplay>());
-
-
-
         FlightSceneManager.instance.playerActor.gameObject.AddComponent<DashMapDisplay>();
         carrierStart = FlightSceneManager.instance.playerActor.unitSpawn.unitSpawner.linkedToCarrier;
         if (carrierStart && !Networker.isHost)
@@ -389,6 +386,7 @@ public static class PlayerManager
                 localVehicle.transform.position = hostTrans.position;
 
                 SpawnLocalVehicleAndInformOtherClients(localVehicle, hostTrans.transform.position, hostTrans.transform.rotation, localUID, true, 0);
+             
                 ScreenFader.FadeIn(0.25f);
                }
             else
@@ -1066,7 +1064,8 @@ public static class PlayerManager
             {
                 foreach (ReArmingPoint p in space.rearmPoints)
                 {
-                    if (p.radius > 18.9f)
+                    if(!p.gameObject.transform.parent.name.Contains("heli"))
+                    if (p.radius > 18.8f)
                         rearmPointList.Add(p);
                 }
             }
@@ -1191,7 +1190,7 @@ public static class PlayerManager
 
         RigidbodyNetworker_Sender rbSender = localVehicle.AddComponent<RigidbodyNetworker_Sender>();
         rbSender.networkUID = UID;
-        rbSender.tickRate = 20;
+        rbSender.tickRate = 20.0f;
         //rbSender.SetSpawn(pos, rot);
         if (currentVehicle == VTOLVehicles.AV42C)
         {
@@ -1648,10 +1647,11 @@ public static class PlayerManager
         {
             aIPilot.actor.team = Teams.Enemy;
             aIPilot.actor.permanentDiscovery = false;
-            
+            aIPilot.actor.discovered = false;
             //aIPilot.actor.detectedByAllied = true;
         }
-        TargetManager.instance.RegisterActor(aIPilot.actor);
+        
+         
         aIPilot.actor.hideDeathLog = true;
     
         if (!players[playerID].customPlane)

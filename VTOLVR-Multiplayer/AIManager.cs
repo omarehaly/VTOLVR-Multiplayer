@@ -128,7 +128,7 @@ public static class AIManager
                 actor.team = Teams.Enemy;
                 foreach (Actor subActor in newAI.GetComponentsInChildren<Actor>())
                 {
-                    subActor.team = Teams.Enemy;
+                    subActor.team = Teams.Enemy; subActor.discovered = false;
                     TargetManager.instance.UnregisterActor(subActor);
                     TargetManager.instance.RegisterActor(subActor);
                 }

@@ -94,7 +94,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (playerWeRepresent != null)
         {
             //delta time needs to be added to latency as this runs after packet has arrived for a while
-            latency = (latency * 0.75f) + (playerWeRepresent.ping * 0.25f);
+          latency = playerWeRepresent.ping;
         }
 
         globalTargetPosition += new Vector3D(targetVelocity * Time.fixedDeltaTime);
@@ -180,7 +180,8 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
     private IEnumerator ReactivateDetection()
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(5.5f);
+       TargetManager.instance.RegisterActor(actor);
         if (pauseDetection)
         {
             PlayerManager.pauseDetectionCount -= 1;

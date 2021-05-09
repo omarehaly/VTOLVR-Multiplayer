@@ -15,6 +15,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
     private RadarLockData lockData;
     // private Rigidbody rigidbody; see missileSender for why i not using rigidbody
     private bool hasFired = false;
+    private bool exploded = false;
     private List<int> colliderLayers = new List<int>();
     private void Start()
     {
@@ -148,7 +149,8 @@ public class MissileNetworker_Receiver : MonoBehaviour
         }
 
         //explode missle after it has done its RB physics fixed timestep
-        if (lastMessage.hasExploded)
+        if (!exploded)
+            if (lastMessage.hasExploded)
         {
 
             Debug.Log("Missile exploded.");
