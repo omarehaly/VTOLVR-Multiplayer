@@ -63,22 +63,22 @@ public class PacketCompressedBatch : Packet
         messages.Add(msg);
         MemoryStream memoryStream = new MemoryStream();
         binaryFormatter.Serialize(memoryStream, msg);
-        //UnityEngine.Debug.Log("buffer " + messagesNum);
+        //Debug.Log("buffer " + messagesNum);
         /*foreach( byte b in memoryStream.ToArray())
         {
             uncompressedData.Add(b);
         }*/
         uncompressedData.AddRange(memoryStream.ToArray());
         messagesSize[messagesNum] = (int)memoryStream.Length;
-        //UnityEngine.Debug.Log("serlized size" + messagesSize[messagesNum]);
+        //Debug.Log("serlized size" + messagesSize[messagesNum]);
         messagesNum += 1;
 
-        // UnityEngine.Debug.Log("uncompressedData size" + uncompressedData.Count);
+        // Debug.Log("uncompressedData size" + uncompressedData.Count);
     }
     public void prepareForSend()
     {
-        // UnityEngine.Debug.Log("messagesNum " + messagesNum);
-        //UnityEngine.Debug.Log("messagesNumlist " + messages.Count);
+        // Debug.Log("messagesNum " + messagesNum);
+        //Debug.Log("messagesNumlist " + messages.Count);
         CompressMessages();
     }
 
@@ -107,9 +107,9 @@ public class PacketCompressedBatch : Packet
     public void generateMessageList()
     {
 
-        // UnityEngine.Debug.Log("post uncompressedData size" + decomperessedBuffer.Length);
+        // Debug.Log("post uncompressedData size" + decomperessedBuffer.Length);
         messages.Clear();
-        // UnityEngine.Debug.Log("messagesNum " + messagesNum);
+        // Debug.Log("messagesNum " + messagesNum);
         int index = 0;
         for (int i = 0; i < messagesNum; i++)
         {
