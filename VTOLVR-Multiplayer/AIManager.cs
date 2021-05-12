@@ -128,7 +128,7 @@ public static class AIManager
                 actor.team = Teams.Enemy;
                 foreach (Actor subActor in newAI.GetComponentsInChildren<Actor>())
                 {
-                    subActor.team = Teams.Enemy;
+                    subActor.team = Teams.Enemy; subActor.discovered = false;
                     TargetManager.instance.UnregisterActor(subActor);
                     TargetManager.instance.RegisterActor(subActor);
                 }
@@ -201,6 +201,8 @@ public static class AIManager
                 rbNetworker.networkUID = message.networkIDs[currentSubActorID];
                 if(child.gameObject.GetComponent<RefuelPlane>() != null)
                 rbNetworker.smoothingTime =1.5f;
+                PlayerManager.pauseDetectionCount += 1;
+                rbNetworker.pauseDetection = true;
             }
             if (child.role == Actor.Roles.Air)
             {

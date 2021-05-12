@@ -77,7 +77,7 @@ public class Multiplayer : VTOLMOD
     public bool replaceWingmenWithClients = true;
     private UnityAction<bool> replaceWingmenWithClients_changed;
 
-    public bool restrictToHostMods = true;
+    public bool restrictToHostMods = false;
     private UnityAction<bool> restrictToHostMods_changed;
 
     public bool debugLogs = false;
@@ -223,7 +223,7 @@ public class Multiplayer : VTOLMOD
 
         restrictToHostMods_changed += restrictToHostMods_Settings;
         settings.CreateCustomLabel("Require clients to use the same mods as host.");
-        settings.CreateBoolSetting("Default = True", restrictToHostMods_changed, restrictToHostMods);
+        settings.CreateBoolSetting("Default = False", restrictToHostMods_changed, restrictToHostMods);
 
         /*forceWinds_changed += forceWinds_Settings;
         settings.CreateCustomLabel("Force winds on for clients (Not functional).");

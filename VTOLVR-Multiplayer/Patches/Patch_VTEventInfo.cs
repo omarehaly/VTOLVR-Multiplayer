@@ -245,8 +245,19 @@ class Patch3
     }
 }
 
-//patch to grab all the events being loaded on creation this replaces original method
-[HarmonyPatch(typeof(MissionObjective), "CompleteObjective")]
+[HarmonyPatch(typeof(TargetManager), "GetRandomVisualTarget")]
+class Patch54
+{
+    static bool Prefix(TargetManager __instance)
+    {
+        if(PlayerManager.pauseDetectionCount>0)
+            return false;
+        else 
+            return true;
+    }
+}
+        //patch to grab all the events being loaded on creation this replaces original method
+        [HarmonyPatch(typeof(MissionObjective), "CompleteObjective")]
 class Patch4
 {
     static bool Prefix(MissionObjective __instance)
