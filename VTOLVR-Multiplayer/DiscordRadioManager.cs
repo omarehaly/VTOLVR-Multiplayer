@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public static class DiscordRadioManager
 {
+    private const string discordFolder = "discordsdk";
     public static Discord.Discord discord;
     public static bool connectedToDiscord;
 
@@ -25,9 +26,12 @@ public static class DiscordRadioManager
     public static string freqLabelTableNetworkString = "122.8";
     public static void start()
     {
-        Debug.Log("loading discord");
-        var dllDirectory = @"VTOLVR_ModLoader\mods\Multiplayer\discordsdk";
+        Debug.Log("Loading DiscordRadioManager");
+        string modFolder = Multiplayer._instance.ThisMod.ModFolder;
+        string vtolFolder = System.IO.Directory.GetCurrentDirectory() + "\\";
+        string dllDirectory = modFolder.Replace(vtolFolder, string.Empty) + $"\\{discordFolder}";
         Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + dllDirectory);
+
         var clientID = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
         if (clientID == null)
         {

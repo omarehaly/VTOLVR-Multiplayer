@@ -121,6 +121,7 @@ public class Multiplayer : VTOLMOD
     public override void ModLoaded()
     {
         Log($"VTOL VR Multiplayer v{ ModVersionString.ModVersionNumber } - branch: { ModVersionString.ReleaseBranch }");
+        Start();
 
         GameSettings.SetGameSettingValue("USE_OVERCLOUD", false, true);
 #if DEBUG
