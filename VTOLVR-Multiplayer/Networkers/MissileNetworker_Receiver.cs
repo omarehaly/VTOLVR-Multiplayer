@@ -102,7 +102,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
                             }
                         }
                        
-                        rbReceiver.smoothingTime =0.4f;
+                        rbReceiver.smoothingTime =0.2f;
                     }
                 }
             }
@@ -137,7 +137,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
                 thisML.FireMissile();
                 RigidbodyNetworker_Receiver rbReceiver = gameObject.AddComponent<RigidbodyNetworker_Receiver>();
                 rbReceiver.networkUID = networkUID;
-                rbReceiver.smoothingTime = 0.1f;
+                rbReceiver.smoothingTime = 0.2f;
             }
             if (hasFired != thisMissile.fired)
             {
