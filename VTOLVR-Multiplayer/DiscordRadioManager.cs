@@ -25,7 +25,7 @@ public static class DiscordRadioManager
     public static string freqLabelTableNetworkString = "122.8";
     public static void start()
     {
-        UnityEngine.Debug.Log("loading discord");
+        Debug.Log("loading discord");
         var dllDirectory = @"VTOLVR_ModLoader\mods\Multiplayer\discordsdk";
         Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + dllDirectory);
         var clientID = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
@@ -33,7 +33,7 @@ public static class DiscordRadioManager
         {
             clientID = "759675844971986975";
         }
-        connectedToDiscord = true; 
+        connectedToDiscord = true;
         PersonaName = Steamworks.SteamFriends.GetPersonaName();
 
         radioFreq = 0;
@@ -61,7 +61,7 @@ public static class DiscordRadioManager
             userID = currentUser.Id;
         };
 
-  
+
     }
 
     public static void reloadFrequencyTextFiles()
@@ -85,14 +85,14 @@ public static class DiscordRadioManager
             readText = System.IO.File.ReadAllText(dllDirectory + @"\freq.txt");
             string[] values = readText.Split(',');
             frequencyTable.Add(values);
-            UnityEngine.Debug.Log("loading freqs");
+            Debug.Log("loading freqs");
             freqTableNetworkString += "," + readText;
         }
 
         if (System.IO.File.Exists(dllDirectory + @"\freqlabels.txt"))
         {
             readText = System.IO.File.ReadAllText(dllDirectory + @"\freqlabels.txt");
-            UnityEngine.Debug.Log("loading freqlabels");
+            Debug.Log("loading freqlabels");
             string[] values = readText.Split(',');
             frequencyTableLabels.Add(values);
             freqLabelTableNetworkString += "," + readText;
@@ -151,7 +151,7 @@ public static class DiscordRadioManager
         reloadFrequencyTextFiles();
         connected = false;
         radioFreq = 0;
-    
+
         lobbyManager.DisconnectVoice(lobbyID, (result) =>
         {
             if (result == Discord.Result.Ok)
@@ -227,7 +227,7 @@ public static class DiscordRadioManager
     {
         if (!connectedToDiscord)
             return;
-     
+
 
         if (!steamIDtoFreq.ContainsKey(name))
             steamIDtoFreq.Add(name, 0);
@@ -238,7 +238,7 @@ public static class DiscordRadioManager
     {
         if (!connectedToDiscord)
             return;
-        // UnityEngine.Debug.Log("setting freq of player "+ name + "to"+ freq);
+        // Debug.Log("setting freq of player "+ name + "to"+ freq);
         if (!steamIDtoFreq.ContainsKey(name))
             steamIDtoFreq.Add(name, freq);
         else
@@ -316,7 +316,7 @@ public static class DiscordRadioManager
             {
                 if (steamIDtoFreq.ContainsKey(play.nameTag))
                 {
-                    if(steamIDtoFreq[play.nameTag] == 9999)
+                    if (steamIDtoFreq[play.nameTag] == 9999)
                     {
                         mutePlayer(play, play.nameTag, false);
                         FlightLogger.Log("command");
@@ -324,7 +324,7 @@ public static class DiscordRadioManager
                     else
                     if (steamIDtoFreq[play.nameTag] != radioFreq)
                     {
-                        mutePlayer(play,play.nameTag, true);
+                        mutePlayer(play, play.nameTag, true);
                     }
                     else
                     {
@@ -335,7 +335,7 @@ public static class DiscordRadioManager
         }
     }
 
-    public static void mutePlayer(PlayerManager.Player play,string name, bool state)
+    public static void mutePlayer(PlayerManager.Player play, string name, bool state)
     {
         if (!connectedToDiscord)
             return;
@@ -346,19 +346,19 @@ public static class DiscordRadioManager
 
             if (play.discordID == ids)
             {
-               
+
                 if (userID != ids)
                 {
                     if (state)
                     {
-                         discord.GetVoiceManager().SetLocalVolume(ids, 0);
+                        discord.GetVoiceManager().SetLocalVolume(ids, 0);
                         //discord.GetVoiceManager().SetLocalMute(discordid, true);
                     }
 
                     else
                     {
-                    //    discord.GetVoiceManager().SetLocalMute(discordid, false);
-                    discord.GetVoiceManager().SetLocalVolume(ids, 100);
+                        //    discord.GetVoiceManager().SetLocalMute(discordid, false);
+                        discord.GetVoiceManager().SetLocalVolume(ids, 100);
                     }
 
                 }

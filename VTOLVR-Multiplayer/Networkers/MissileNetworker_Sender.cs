@@ -21,7 +21,7 @@ public class MissileNetworker_Sender : MonoBehaviour
         ownerActor = GetComponentInParent<Actor>();
         thisMissile.OnMissileDetonated += OnDetonated;
 
-        thisMissile.explodeRadius *= 2.0f;
+        thisMissile.explodeRadius *= 2.485f;
 
         tick += UnityEngine.Random.Range(0.0f, 1.0f / tickRate);
     }
@@ -54,7 +54,7 @@ public class MissileNetworker_Sender : MonoBehaviour
 
                 RigidbodyNetworker_Sender rbSender = gameObject.AddComponent<RigidbodyNetworker_Sender>();
                 rbSender.networkUID = networkUID;
-                rbSender.tickRate = 10.0f;
+                rbSender.tickRate = 20.0f;
 
             }
             if (thisMissile != null && thisMissile.fired)
@@ -123,6 +123,7 @@ public class MissileNetworker_Sender : MonoBehaviour
     public void OnDestroy()
     {
         lastMessage.hasExploded = true;
+        SendMessage(false);
         SendMessage(true);
     }
 
@@ -132,7 +133,11 @@ public class MissileNetworker_Sender : MonoBehaviour
         //{
         if (Networker.isHost)
         {
-            NetworkSenderThread.Instance.SendPacketAsHostToAllClients(lastMessage, isDestoryed ? Steamworks.EP2PSend.k_EP2PSendReliable : Steamworks.EP2PSend.k_EP2PSendUnreliable);
+            if(!isDestoryed)
+            Networker.addToUnreliableSendBuffer(lastMessage);
+            else
+                NetworkSenderThread.Instance.SendPacketAsHostToAllClients( lastMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
+
         }
         else
         {

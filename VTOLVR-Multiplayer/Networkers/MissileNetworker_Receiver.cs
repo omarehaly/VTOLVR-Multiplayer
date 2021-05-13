@@ -15,6 +15,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
     private RadarLockData lockData;
     // private Rigidbody rigidbody; see missileSender for why i not using rigidbody
     private bool hasFired = false;
+    private bool exploded = false;
     private List<int> colliderLayers = new List<int>();
     private void Start()
     {
@@ -35,7 +36,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
             }
         }
 
-        thisMissile.explodeRadius *= 2.0f;
+        thisMissile.explodeRadius *= 2.485f;
         traverseML = Traverse.Create(thisML);
         traverseMSL = Traverse.Create(thisMissile);
         traverseMSL.Field("detonated").SetValue(true);
@@ -101,7 +102,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
                             }
                         }
                        
-                        rbReceiver.smoothingTime =0.2f;
+                        rbReceiver.smoothingTime =0.4f;
                     }
                 }
             }
@@ -148,7 +149,8 @@ public class MissileNetworker_Receiver : MonoBehaviour
         }
 
         //explode missle after it has done its RB physics fixed timestep
-        if (lastMessage.hasExploded)
+        if (!exploded)
+            if (lastMessage.hasExploded)
         {
 
             Debug.Log("Missile exploded.");

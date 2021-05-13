@@ -77,7 +77,7 @@ public class Multiplayer : VTOLMOD
     public bool replaceWingmenWithClients = true;
     private UnityAction<bool> replaceWingmenWithClients_changed;
 
-    public bool restrictToHostMods = true;
+    public bool restrictToHostMods = false;
     private UnityAction<bool> restrictToHostMods_changed;
 
     public bool debugLogs = false;
@@ -108,7 +108,7 @@ public class Multiplayer : VTOLMOD
         }
         _instance = this;
         Networker.SetMultiplayerInstance(this);
-        
+
     }
     public static void callback()
     {
@@ -122,7 +122,7 @@ public class Multiplayer : VTOLMOD
     {
         Log($"VTOL VR Multiplayer v{ ModVersionString.ModVersionNumber } - branch: { ModVersionString.ReleaseBranch }");
 
-         GameSettings.SetGameSettingValue("USE_OVERCLOUD", false, true);
+        GameSettings.SetGameSettingValue("USE_OVERCLOUD", false, true);
 #if DEBUG
         Log("Running in Debug Mode");
 #else
@@ -142,7 +142,7 @@ public class Multiplayer : VTOLMOD
         base.ModLoaded();
         CreateUI();
         gameObject.AddComponent<Networker>();
-     
+
         debugLog_Settings(debugLogs);
     }
 
@@ -205,8 +205,8 @@ public class Multiplayer : VTOLMOD
 
         settings.CreateCustomLabel("Fog strength");
         fog_changed += fog_Settings;
-        settings.CreateFloatSetting("Default = 0.0f", fog_changed, 0.0f,0.0f,1.0f);
-       
+        settings.CreateFloatSetting("Default = 0.0f", fog_changed, 0.0f, 0.0f, 1.0f);
+
         /*spawnRemainingPlayersAtAirBase_changed += spawnRemainingPlayersAtAirBase_Setting;
         settings.CreateCustomLabel("Spawn players at airbase if there are no wingmen available.");
         settings.CreateBoolSetting("Default = False", spawnRemainingPlayersAtAirBase_changed, spawnRemainingPlayersAtAirBase);*/
@@ -223,7 +223,7 @@ public class Multiplayer : VTOLMOD
 
         restrictToHostMods_changed += restrictToHostMods_Settings;
         settings.CreateCustomLabel("Require clients to use the same mods as host.");
-        settings.CreateBoolSetting("Default = True", restrictToHostMods_changed, restrictToHostMods);
+        settings.CreateBoolSetting("Default = False", restrictToHostMods_changed, restrictToHostMods);
 
         /*forceWinds_changed += forceWinds_Settings;
         settings.CreateCustomLabel("Force winds on for clients (Not functional).");
@@ -274,11 +274,11 @@ public class Multiplayer : VTOLMOD
     {
         debugLogs = newval;
         if (ModVersionString.ReleaseBranch == "Release")
-            Debug.logger.logEnabled = newval;
+            Debug.ShowDebugMessages = newval;
         else
         {
-            if (Debug.logger.logEnabled != true)
-                Debug.logger.logEnabled = true;
+            if (Debug.ShowDebugMessages != true)
+                Debug.ShowDebugMessages = true;
         }
     }
 
@@ -316,9 +316,9 @@ public class Multiplayer : VTOLMOD
     }
     public void ptt_Settings(bool newval)
     {
-        ptt = newval; 
+        ptt = newval;
     }
-    
+
     void OnGUI()//the 2d ping display, feel free to move elsewhere
     {
         if (displayPing)
@@ -365,7 +365,7 @@ public class Multiplayer : VTOLMOD
         {
             case VTOLScenes.ReadyRoom:
                 CreateUI();
-             
+
                 break;
             case VTOLScenes.Akutan:
                 Log("Map Loaded from vtol scenes akutan");
@@ -380,13 +380,13 @@ public class Multiplayer : VTOLMOD
                 StartCoroutine(PlayerManager.MapLoaded());
                 break;
             case VTOLScenes.CustomMapBase_OverCloud:
-                   Log("Map Loaded from vtol scenes custom map base");
+                Log("Map Loaded from vtol scenes custom map base");
                 waitingForJoin = null;
                 DestroyLoadingSceneObjects();
                 StartCoroutine(PlayerManager.MapLoaded());
                 break;
             case VTOLScenes.LoadingScene:
-                
+
                 if (playingMP)
                 {
                     Log("Create Loading Scene");
@@ -766,7 +766,7 @@ public class Multiplayer : VTOLMOD
             PilotSaveManager.currentCampaign + "\n" +
             PilotSaveManager.currentVehicle);
 
-       
+
     }
 
     public void Host()
@@ -815,7 +815,7 @@ public class Multiplayer : VTOLMOD
 
     public void Join()
     {
-      
+
         playingMP = true;
         if (Networker.hostID == new Steamworks.CSteamID(0) && waitingForJoin == null)
         {
