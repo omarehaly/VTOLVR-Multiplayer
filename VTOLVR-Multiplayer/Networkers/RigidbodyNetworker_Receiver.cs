@@ -15,7 +15,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
     private Rigidbody rb;
     private Actor actor;
     private KinematicPlane kplane;
-    private float positionThreshold = 25.5f;
+    private float positionThreshold = 90.0f;
     public float smoothingTime = 1.0f;
     private float rotSmoothingTime = 0.2f;
     private float velSmoothingTime = 1.0f;//actor velocity for using with the gunsight, should stop the jitter
@@ -120,7 +120,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (rigidbodyUpdate.networkUID != networkUID)
             return;
 
-        if (rigidbodyUpdate.sequenceNumber <= mostCurrentUpdateNumber)
+        if (rigidbodyUpdate.sequenceNumber <  mostCurrentUpdateNumber  )
             return;
         mostCurrentUpdateNumber = rigidbodyUpdate.sequenceNumber;
 

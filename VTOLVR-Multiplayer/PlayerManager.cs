@@ -562,21 +562,7 @@ public static class PlayerManager
                     rad.ForceDetect(actors);
         }
 
-        if (!rad)
-        {
-            OpticalTargeter opt = FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<OpticalTargeter>();
-            foreach (var actors in TargetManager.instance.allActors)
-            {
-
-                if (actors.team == Teams.Allied)
-                {
-                    actors.DiscoverActor(); actors.DetectActor(Teams.Allied);
-
-                }
-
-            }
-        }
-
+      
         foreach (var actors in enemyDetectedList)
         {
             if (actors != null)
@@ -955,22 +941,11 @@ public static class PlayerManager
             if(actors!= act)
             if (rad && actors.team == Teams.Allied)
                 rad.ForceDetect(actors);
+            else
+                     if (actors.team == Teams.Allied) actors.DiscoverActor(); actors.DetectActor(Teams.Allied);
         }
 
-        if (!rad)
-        {
-            OpticalTargeter opt = act.gameObject.GetComponentInChildren<OpticalTargeter>();
-            foreach (var actors in TargetManager.instance.allActors)
-            {
-
-                if (actors.team == Teams.Allied)
-                {
-                    actors.DiscoverActor(); actors.DetectActor(Teams.Allied);
-                    
-                }
-                 
-            }
-        }
+      
 
         foreach (var actors in enemyDetectedList)
         {
@@ -1643,6 +1618,7 @@ public static class PlayerManager
         if (isLeft != PlayerManager.teamLeftie)
         {
             aIPilot.actor.team = Teams.Enemy;
+            aIPilot.actor.discovered = false;
         }
         TargetManager.instance.RegisterActor(aIPilot.actor);
         aIPilot.actor.hideDeathLog = true;

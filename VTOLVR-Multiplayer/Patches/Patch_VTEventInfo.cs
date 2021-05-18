@@ -190,7 +190,7 @@ class Patch2
    
             if (Networker.isHost)
         {
-            FlightLogger.Log("Host sent Event action" + __instance.eventName + " of type " + __instance.methodName + " for target " + __instance.targetID);
+            //FlightLogger.Log("Host sent Event action" + __instance.eventName + " of type " + __instance.methodName + " for target " + __instance.targetID);
             if (ObjectiveNetworker_Reciever.reverseScenarioActionsList.ContainsKey(__instance))
             {
                 int hash = 0;

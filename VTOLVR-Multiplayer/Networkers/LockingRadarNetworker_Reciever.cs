@@ -10,6 +10,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
     private ulong lastLock;
     private bool lastLocked;
     private Actor lastActor;
+    private bool disable;
     private void Awake()
     {
         lockingRadar = gameObject.GetComponentInChildren<LockingRadar>();
@@ -57,6 +58,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
             lockingRadar.radar = gameObject.GetComponentInChildren<Radar>();
             if (lockingRadar.radar == null)
             {
+                return;
                 //Debug.Log($"Radar was null on network uID {networkUID}");
             }
         }
@@ -79,7 +81,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
 
             if (VTOLVR_Multiplayer.AIDictionaries.allActors.TryGetValue(lastLockingMessage.actorUID, out lastActor))
             {
-                // if (gameObject.name == null)
+                 if (lastActor == null) return;
                 //Debug.Log($"Radar {networkUID} found its lock " + lastActor.name + $" with an id of {lastLock} while trying to lock id {lastLockingMessage.actorUID}. Trying to force a lock.");
                 //else
                 //Debug.Log($"Radar " + gameObject.name + " found its lock " + lastActor.name + $" with an id of {lastLock} while trying to lock id {lastLockingMessage.actorUID}. Trying to force a lock.");
