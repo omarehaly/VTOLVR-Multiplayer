@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public static class DiscordRadioManager
 {
+    private const string discordFolder = "discordsdk";
     public static Discord.Discord discord;
     public static bool connectedToDiscord;
 
@@ -25,15 +26,18 @@ public static class DiscordRadioManager
     public static string freqLabelTableNetworkString = "122.8";
     public static void start()
     {
-        UnityEngine.Debug.Log("loading discord");
-        var dllDirectory = @"VTOLVR_ModLoader\mods\Multiplayer\discordsdk";
+        Debug.Log("Loading DiscordRadioManager");
+        string modFolder = Multiplayer._instance.ThisMod.ModFolder;
+        string vtolFolder = System.IO.Directory.GetCurrentDirectory() + "\\";
+        string dllDirectory = modFolder.Replace(vtolFolder, string.Empty) + $"\\{discordFolder}";
         Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" + dllDirectory);
+
         var clientID = Environment.GetEnvironmentVariable("DISCORD_CLIENT_ID");
         if (clientID == null)
         {
             clientID = "759675844971986975";
         }
-        connectedToDiscord = true; 
+        connectedToDiscord = true;
         PersonaName = Steamworks.SteamFriends.GetPersonaName();
 
         radioFreq = 0;
@@ -61,7 +65,7 @@ public static class DiscordRadioManager
             userID = currentUser.Id;
         };
 
-  
+
     }
 
     public static void reloadFrequencyTextFiles()
@@ -85,14 +89,14 @@ public static class DiscordRadioManager
             readText = System.IO.File.ReadAllText(dllDirectory + @"\freq.txt");
             string[] values = readText.Split(',');
             frequencyTable.Add(values);
-            UnityEngine.Debug.Log("loading freqs");
+            Debug.Log("loading freqs");
             freqTableNetworkString += "," + readText;
         }
 
         if (System.IO.File.Exists(dllDirectory + @"\freqlabels.txt"))
         {
             readText = System.IO.File.ReadAllText(dllDirectory + @"\freqlabels.txt");
-            UnityEngine.Debug.Log("loading freqlabels");
+            Debug.Log("loading freqlabels");
             string[] values = readText.Split(',');
             frequencyTableLabels.Add(values);
             freqLabelTableNetworkString += "," + readText;
@@ -232,7 +236,7 @@ public static class DiscordRadioManager
     {
         if (!connectedToDiscord)
             return;
-     
+
 
         if (!steamIDtoFreq.ContainsKey(name))
             steamIDtoFreq.Add(name, 0);
@@ -243,7 +247,7 @@ public static class DiscordRadioManager
     {
         if (!connectedToDiscord)
             return;
-        // UnityEngine.Debug.Log("setting freq of player "+ name + "to"+ freq);
+        // Debug.Log("setting freq of player "+ name + "to"+ freq);
         if (!steamIDtoFreq.ContainsKey(name))
             steamIDtoFreq.Add(name, freq);
         else

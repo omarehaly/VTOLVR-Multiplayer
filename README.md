@@ -11,16 +11,17 @@ The mod can be downloaded from [here](https://vtolvr-mods.com/mod/qs6jxkt2/) on 
 You also need to have .Net 4.5 installed to build the mod.
 
 ## Contributors
+![image](https://user-images.githubusercontent.com/34219942/116811170-b9987d80-ab3f-11eb-8474-c2187eada3b3.png)
 
 [Ketkev](https://github.com/ketkev "Ketkev's Github") for their code which creates a name tag above the player's heads with their steam name.
 
-[MarshMellow0](https://github.com/MarshMello0 "MarshMello0's Github") for making the foundation of the multiplayer mod, so others can finish the fight.
+[MarshMello](https://github.com/MarshMello0 "MarshMello0's Github") for making the foundation of the multiplayer mod, so others can finish the fight.
 
 [Dib](https://github.com/Nisenogen "Dib's Github") for being someone we can ask general C# questions about, and casually threading the networker class.
 
 [THEGREATOVERLORDLORDOFALLCHEESE](https://github.com/THE-GREAT-OVERLORD-LORD-OF-ALL-CHEESE "Cheese's Github") for syncing features of the aircraft such as wingfold, and making the small details work, along with the aircraft carrier.
 
-[mrdoctorsurgeon](https://github.com/omarehaly "surgeon's Github") for understanding how objectives work in game and helping us out with making it happen, he's the only reason objectives work.
+[mrdoctorsurgeon](https://github.com/omarehaly "surgeon's Github") Objectives, Events, compression, Performance testing, Fixing missiles, Fixing bugs, Comms, Man Objects Inverse kinemateics and current maintainer
 
 [nebriv](https://github.com/nebriv "Nebriv's Github") for making the UI look pretty and general things with mods and hashes.
 
@@ -32,6 +33,3 @@ Contributions are welcomed, if you would like to help out with creating multipla
 
 - [Steam Networking Documentation](https://partner.steamgames.com/doc/api/ISteamNetworking "https://partner.steamgames.com/doc/api/ISteamNetworking")
 - [Modding Discord](https://discord.gg/XZeeafp "https://discord.gg/XZeeafp")
-
-
-Nebriv was here :)

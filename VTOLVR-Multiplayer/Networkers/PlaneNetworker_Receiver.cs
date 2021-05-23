@@ -104,14 +104,22 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         }
 
 
-
-        StartCoroutine(colliderTimer());
+        if (vehicleType == VTOLVehicles.F45A)
+        {
+            ModuleEngine[] engines = ownerActor.gameObject.GetComponentsInChildren<ModuleEngine>();
+            foreach (ModuleEngine eng in engines)
+            {
+                eng.thrustHeatMult *= 4.0f;
+            }
+        }
+       
+            StartCoroutine(colliderTimer());
     }
 
     private void Start()
     {
         if (gameObject.name.Contains("Client"))
-        {
+        {           
             setupManReciever();
             Networker.IKUpdate += IKUpdate;
             //if (gameObject.name.Contains("Client"))

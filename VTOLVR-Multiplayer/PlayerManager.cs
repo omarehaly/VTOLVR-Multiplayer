@@ -140,7 +140,6 @@ public static class PlayerManager
         SetPrefabs();
         CUSTOM_API.loadDisplayPrefab();
         GameObject.Destroy(FlightSceneManager.instance.playerActor.gameObject.GetComponent<DashMapDisplay>());
-
         FlightSceneManager.instance.playerActor.gameObject.AddComponent<DashMapDisplay>();
         carrierStart = FlightSceneManager.instance.playerActor.unitSpawn.unitSpawner.linkedToCarrier;
         if (carrierStart && !Networker.isHost)
@@ -325,8 +324,6 @@ public static class PlayerManager
                         airportManager.team = Teams.Allied;
                     }
                 }
-
-
             var rearmPoints = GameObject.FindObjectsOfType<ReArmingPoint>();
             //back up option below
 
@@ -1039,7 +1036,8 @@ public static class PlayerManager
             {
                 foreach (ReArmingPoint p in space.rearmPoints)
                 {
-                    if (p.radius > 18.9f)
+                    if(!p.gameObject.transform.parent.name.Contains("heli"))
+                    if (p.radius > 18.8f)
                         rearmPointList.Add(p);
                 }
             }
@@ -1164,7 +1162,7 @@ public static class PlayerManager
 
         RigidbodyNetworker_Sender rbSender = localVehicle.AddComponent<RigidbodyNetworker_Sender>();
         rbSender.networkUID = UID;
-        rbSender.tickRate = 20;
+        rbSender.tickRate = 20.0f;
         //rbSender.SetSpawn(pos, rot);
         if (currentVehicle == VTOLVehicles.AV42C)
         {
@@ -1499,11 +1497,12 @@ public static class PlayerManager
             Debug.LogError("Spawn Representation couldn't find a player id.");
         }
         //Player player = ref players[playerID];
-
+        
          if (players[playerID].vehicle != null)
             GameObject.Destroy(players[playerID].vehicle);
 
         GameObject newVehicle = null;
+        pauseDetectionCount += 1;
         switch (vehicle)
         {
             case VTOLVehicles.None:
@@ -1546,6 +1545,8 @@ public static class PlayerManager
         }
         RigidbodyNetworker_Receiver rbNetworker = newVehicle.AddComponent<RigidbodyNetworker_Receiver>();
         rbNetworker.networkUID = networkID;
+        rbNetworker.pauseDetection = true;
+
         //rbNetworker.smoothingTime = 0.25f;
         PlaneNetworker_Receiver planeReceiver = newVehicle.AddComponent<PlaneNetworker_Receiver>();
         planeReceiver.networkUID = networkID;

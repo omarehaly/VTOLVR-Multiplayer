@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+using System.Collections;
 /// <summary>
 /// Updates objects with a  rigidbody over the network using velocity and position.
 /// </summary>
@@ -20,7 +21,8 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
     private float rotSmoothingTime = 0.2f;
     private float velSmoothingTime = 1.0f;//actor velocity for using with the gunsight, should stop the jitter
     private float latency = 0.0f;
-
+    private bool firstUpdate = true;
+    public bool pauseDetection = false;
     public PlayerManager.Player playerWeRepresent = null;
 
     private ulong mostCurrentUpdateNumber;
@@ -51,7 +53,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
         Networker.RigidbodyUpdate += RigidbodyUpdate;
 
-
+        StartCoroutine(ReactivateDetection());
         mostCurrentUpdateNumber = 0;
     }
 
@@ -92,7 +94,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (playerWeRepresent != null)
         {
             //delta time needs to be added to latency as this runs after packet has arrived for a while
-            latency = (latency * 0.5f) + (playerWeRepresent.ping * 0.5f);
+          latency = playerWeRepresent.ping;
         }
 
         globalTargetPosition += new Vector3D(targetVelocity * Time.fixedDeltaTime);
