@@ -149,9 +149,12 @@ public static class DiscordRadioManager
         if (!connectedToDiscord)
             return;
         reloadFrequencyTextFiles();
-        connected = false;
+        
         radioFreq = 0;
-    
+    if(connected)
+        {
+
+       
         lobbyManager.DisconnectVoice(lobbyID, (result) =>
         {
             if (result == Discord.Result.Ok)
@@ -166,6 +169,8 @@ public static class DiscordRadioManager
                 Console.WriteLine("Left lobby!");
             }
         });
+        }
+        connected = false;
         lobbyID = 0;
     }
     static void UpdateActivity(Discord.Discord discord, Discord.Lobby lobby)
@@ -177,8 +182,8 @@ public static class DiscordRadioManager
 
         var activity = new Discord.Activity
         {
-            State = "olleh",
-            Details = "foo details",
+            State = "VTOLVRMP",
+            Details = "MP MOD",
             Timestamps =
             {
                 Start = 5,

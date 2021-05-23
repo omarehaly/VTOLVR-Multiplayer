@@ -210,8 +210,24 @@ class Patch2
 }
 
 
+
 // patch to grab all the events being loaded on creation this replaces original method
-[HarmonyPatch(typeof(VTEventInfo), "LoadFromInfoNode")]
+[HarmonyPatch(typeof(Missile), "CheckMiss")]
+class Patch33
+{
+    static bool Prefix(Missile __instance)
+    {
+        if(MissileNetworker_Receiver.radarMissiles!=null)
+        if (MissileNetworker_Receiver.radarMissiles.Contains(__instance.actor))
+            return false;
+        else
+            return true;
+        else
+            return true;
+    }
+}
+        // patch to grab all the events being loaded on creation this replaces original method
+        [HarmonyPatch(typeof(VTEventInfo), "LoadFromInfoNode")]
 class Patch3
 {
     static bool Prefix(VTEventInfo __instance, ConfigNode infoNode)

@@ -771,7 +771,7 @@ public class Networker : MonoBehaviour
                 HeartbeatTimerRunning = true;
                 HeartbeatTimer.Start();
                 PlayerManager.CleanUpPlayerManagerStaticVariables();
-                DisconnectionTasks();
+              
                 Message_JoinRequestAccepted_Result messsageLobby = ((PacketSingle)packet).message as Message_JoinRequestAccepted_Result;
                 Multiplayer._instance.alpha = messsageLobby.hiAlpha;
                 Multiplayer._instance.thrust = messsageLobby.thrust;

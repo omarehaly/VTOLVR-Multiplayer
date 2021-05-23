@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using VTOLVR_Multiplayer;
 public class MissileNetworker_Receiver : MonoBehaviour
 {
     public ulong networkUID;
@@ -16,6 +17,8 @@ public class MissileNetworker_Receiver : MonoBehaviour
     // private Rigidbody rigidbody; see missileSender for why i not using rigidbody
     private bool hasFired = false;
     private List<int> colliderLayers = new List<int>();
+
+    public static List<Actor> radarMissiles = new List<Actor>();
     private void Start()
     {
         if (thisMissile == null)
@@ -35,7 +38,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
             }
         }
 
-        thisMissile.explodeRadius *= 2.49f;
+        thisMissile.explodeRadius *= 2.48f;
         traverseML = Traverse.Create(thisML);
         traverseMSL = Traverse.Create(thisMissile);
         traverseMSL.Field("detonated").SetValue(true);
@@ -83,6 +86,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
                 }
                 if (radarLauncher != null)
                 {
+                    radarMissiles.Add(thisMissile.actor);
                     Debug.Log("Guidance mode radar, firing it as a radar missile.");
                     traverseML.Field("missileIdx").SetValue(idx);
                     if (!radarLauncher.TryFireMissile())
@@ -101,7 +105,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
                             }
                         }
                        
-                        rbReceiver.smoothingTime =0.2f;
+                        rbReceiver.smoothingTime =0.5f;
                     }
                 }
             }
@@ -142,6 +146,9 @@ public class MissileNetworker_Receiver : MonoBehaviour
             {
                 Debug.Log("Missile fired " + thisMissile.name);
                 hasFired = true;
+
+                AIDictionaries.allActors.Add(networkUID, thisMissile.actor);
+                AIDictionaries.reverseAllActors.Add(thisMissile.actor, networkUID);
                 if (colliderLayers.Count > 0)
                     StartCoroutine(colliderTimer());
             }
@@ -186,6 +193,8 @@ public class MissileNetworker_Receiver : MonoBehaviour
 
     public void OnDestroy()
     {
+
+        radarMissiles.Remove(thisMissile.actor);
         Networker.MissileUpdate -= MissileUpdate;
     }
 }

@@ -21,7 +21,7 @@ public class MissileNetworker_Sender : MonoBehaviour
         ownerActor = GetComponentInParent<Actor>();
         thisMissile.OnMissileDetonated += OnDetonated;
 
-        thisMissile.explodeRadius *= 2.49f;
+        thisMissile.explodeRadius *= 2.48f;
 
         tick += UnityEngine.Random.Range(0.0f, 1.0f / tickRate);
     }
@@ -54,7 +54,10 @@ public class MissileNetworker_Sender : MonoBehaviour
 
                 RigidbodyNetworker_Sender rbSender = gameObject.AddComponent<RigidbodyNetworker_Sender>();
                 rbSender.networkUID = networkUID;
-                rbSender.tickRate = 10.0f;
+                rbSender.tickRate = 20.0f;
+
+                AIDictionaries.allActors.Add(networkUID, thisMissile.actor);
+                AIDictionaries.reverseAllActors.Add(thisMissile.actor, networkUID);
 
             }
             if (thisMissile != null && thisMissile.fired)

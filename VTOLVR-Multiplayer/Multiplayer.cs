@@ -830,7 +830,7 @@ public class Multiplayer : VTOLMOD
     {
         for (int i = 5; i > 0; i--)
         {
-            joinButtonText.text = $"Joining [{i}]";
+           // joinButtonText.text = $"Joining [{i}]";
             yield return new WaitForSeconds(1);
         }
         joinButtonText.text = "Join";

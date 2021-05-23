@@ -938,11 +938,10 @@ public static class PlayerManager
         Radar rad = act.gameObject.GetComponentInChildren<Radar>();
         foreach (var actors in TargetManager.instance.allActors)
         {
-            if(actors!= act)
-            if (rad && actors.team == Teams.Allied)
+            if(actors!= act) if (actors != null)
+                    if (rad && actors.team == Teams.Allied)
                 rad.ForceDetect(actors);
-            else
-                     if (actors.team == Teams.Allied) actors.DiscoverActor(); actors.DetectActor(Teams.Allied);
+           
         }
 
       
