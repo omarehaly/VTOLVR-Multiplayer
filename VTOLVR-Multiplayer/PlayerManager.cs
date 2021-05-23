@@ -1502,7 +1502,7 @@ public static class PlayerManager
             GameObject.Destroy(players[playerID].vehicle);
 
         GameObject newVehicle = null;
-        pauseDetectionCount += 1;
+        
         switch (vehicle)
         {
             case VTOLVehicles.None:
@@ -1545,7 +1545,7 @@ public static class PlayerManager
         }
         RigidbodyNetworker_Receiver rbNetworker = newVehicle.AddComponent<RigidbodyNetworker_Receiver>();
         rbNetworker.networkUID = networkID;
-        rbNetworker.pauseDetection = true;
+       
 
         //rbNetworker.smoothingTime = 0.25f;
         PlaneNetworker_Receiver planeReceiver = newVehicle.AddComponent<PlaneNetworker_Receiver>();

@@ -53,7 +53,6 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
         Networker.RigidbodyUpdate += RigidbodyUpdate;
 
-        StartCoroutine(ReactivateDetection());
         mostCurrentUpdateNumber = 0;
     }
 
