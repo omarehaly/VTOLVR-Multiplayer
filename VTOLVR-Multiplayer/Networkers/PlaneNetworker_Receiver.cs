@@ -479,6 +479,18 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         {
             Debug.LogWarning("Couldn't change weapon idx to the right weapon for aircraft " + gameObject.name);
         }
+
+        if (weaponManager.currentEquip is RocketLauncher)
+        {
+            RocketLauncher rl = (RocketLauncher)weaponManager.currentEquip;
+           rl.SetRippleRateIdx(message.ripple);
+        }
+
+        if (weaponManager.currentEquip is HPEquipBombRack)
+        {
+            HPEquipBombRack rl = (HPEquipBombRack)weaponManager.currentEquip;
+            rl.SetRippleRateIdx(message.ripple);
+        }
         if (message.isFiring != weaponManager.isFiring)
         {
             if (message.isFiring)
@@ -525,7 +537,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
                             noAmmo = false;
                         }
                     }
-                    if (!noAmmo)
+                    if (!noAmmo && !(weaponManager.currentEquip is HPEquipMissileLauncher))
                         weaponManager.StartFire();
                 }
             }

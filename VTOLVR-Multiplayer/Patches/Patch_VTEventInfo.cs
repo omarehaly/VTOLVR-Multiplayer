@@ -11,7 +11,7 @@ class PatchFog
     static void Postfix(CameraFogSettings __instance)
     {
         if(Multiplayer._instance.fog  !=0.0f)
-            RenderSettings.fogDensity = PlayerManager.DefaultFog + (Multiplayer._instance.fog * 0.0045f);
+            RenderSettings.fogDensity = PlayerManager.DefaultFog + (Multiplayer._instance.fog * 0.000045f);
 
     }
 }
@@ -136,6 +136,36 @@ class PatchPROTECC
 }
 
 
+[HarmonyPatch(typeof(MFDCommsPage), "RequestRearming")]
+
+class Patchmissions
+{
+    static bool Prefix()
+    {
+
+        if (PlayerManager.selectedVehicle == "FA-26B")
+            PlayerManager.selectedVehicle = "F/A-26B";
+        PilotSaveManager.currentVehicle = VTResources.GetPlayerVehicle(PlayerManager.selectedVehicle);
+        string campID;
+        if (PlayerManager.selectedVehicle == "AV-42C")
+        {
+            campID = "av42cQuickFlight";
+        }
+        else if (PlayerManager.selectedVehicle == "F/A-26B")
+        {
+            campID = "fa26bFreeFlight";
+        }
+        else
+        {
+            campID = "f45-quickFlight";
+        }
+        PilotSaveManager.current.lastVehicleUsed = PilotSaveManager.currentVehicle.name;
+        Campaign campref = VTResources.GetBuiltInCampaign(campID).ToIngameCampaign();
+        PilotSaveManager.currentCampaign = campref;
+         
+        return true;
+    }
+}
 [HarmonyPatch(typeof(EndMission), "CompleteMission")]
 
 class Patchmission

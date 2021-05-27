@@ -385,6 +385,17 @@ public static class PlayerManager
                 localVehicle.transform.position = hostTrans.position;
 
                 SpawnLocalVehicleAndInformOtherClients(localVehicle, hostTrans.transform.position, hostTrans.transform.rotation, localUID, true, 0);
+
+
+              
+                ///uncomment to randomise host spawn//
+                ///
+             
+                //localVehicle.GetComponent<RigidbodyNetworker_Sender>().originOffset = new Vector3(10, 0, 15.126f);
+                AddToPlayerList(new Player(new CSteamID(1234), null, null, VTOLVehicles.FA26B, 1234, false, "FAKE F16", 123, true, "f16"));
+                SpawnRepresentation(1234, new Vector3D(hostTrans.transform.position), hostTrans.transform.rotation, false, "FAKE F16", VTOLVehicles.FA26B);
+
+
                 ScreenFader.FadeIn(0.25f);
                }
             else
@@ -1309,7 +1320,12 @@ public static class PlayerManager
                 onSpawnLocalPlayer.Invoke(plndef);
         }
 
-      
+        foreach (var part in FlightSceneManager.instance.playerActor.gameObject.GetComponentsInChildren<VehiclePart>())
+        {
+
+            if (!part.partName.Contains("ngine"))
+                part.detachOnDeath = true;
+        }
 
     }
     /// <summary>

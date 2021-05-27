@@ -117,7 +117,7 @@ public class MissileNetworker_Sender : MonoBehaviour
         if (lastMessage.clientsUID != networkUID)
             return;
         networkUID = lastMessage.resultUID;
-        Debug.Log($"Missile ({gameObject.name}) has received their UID from the host. \n Missiles UID = {networkUID}");
+       
         Networker.RequestNetworkUID -= RequestUID;
     }
     /// <summary>

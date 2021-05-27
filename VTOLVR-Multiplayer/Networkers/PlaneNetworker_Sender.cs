@@ -49,7 +49,7 @@ public class PlaneNetworker_Sender : MonoBehaviour
     private void Awake()
     {
         actor = gameObject.GetComponent<Actor>();
-        lastFiringMessage = new Message_WeaponFiring(-1, false, false, networkUID);
+        lastFiringMessage = new Message_WeaponFiring(-1, false, false, networkUID,0);
         // lastStoppedFiringMessage = new Message_WeaponStoppedFiring(networkUID);
         lastCountermeasureMessage = new Message_FireCountermeasure(true, true, networkUID);
         lastDeathMessage = new Message_Death(networkUID, false, "");
@@ -169,6 +169,17 @@ public class PlaneNetworker_Sender : MonoBehaviour
         {
             if (weaponManager.isFiring != previousFiringState || lastIdx != (int)traverse.Field("weaponIdx").GetValue())
             {
+                if (weaponManager.currentEquip is RocketLauncher)
+                {
+                    RocketLauncher rl = (RocketLauncher)weaponManager.currentEquip;
+                    lastFiringMessage.ripple = rl.GetRippleRateIdx();
+                }
+
+                if (weaponManager.currentEquip is HPEquipBombRack)
+                {
+                    HPEquipBombRack rl = (HPEquipBombRack)weaponManager.currentEquip;
+                    lastFiringMessage.ripple = rl.GetRippleRateIdx();
+                }
                 previousFiringState = weaponManager.isFiring;
                 lastFiringMessage.weaponIdx = (int)traverse.Field("weaponIdx").GetValue();
                 lastIdx = lastFiringMessage.weaponIdx;

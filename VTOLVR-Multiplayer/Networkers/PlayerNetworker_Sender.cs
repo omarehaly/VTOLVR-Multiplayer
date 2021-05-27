@@ -413,12 +413,7 @@ class PlayerNetworker_Sender : MonoBehaviour
             return;
         FlightSceneManager.instance.playerActor.health.invincible = false;
 
-        foreach (var part in FlightSceneManager.instance.playerActor.gameObject.GetComponentsInChildren<VehiclePart>())
-        {
-
-            if (!part.partName.Contains("ngine"))
-                part.detachOnDeath = true;
-        }
+     
 
         Actor killer = null;
         Actor fkiller = null;
