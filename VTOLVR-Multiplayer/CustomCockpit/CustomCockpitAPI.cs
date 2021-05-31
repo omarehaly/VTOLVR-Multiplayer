@@ -1033,8 +1033,9 @@ public static class CUSTOM_API
     public static void Update()
     {
 
+       
         //getObjectByClick();
-        if(selectedOBJ!=null)
+        if (selectedOBJ!=null)
         { 
            foreach( var objo in selectedOBJ.GetComponentsInChildren<Rigidbody>())
                 {

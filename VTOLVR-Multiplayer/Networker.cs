@@ -199,7 +199,7 @@ public class Networker : MonoBehaviour
     }
     public static bool isClient { get; private set; }
     public enum GameState { Menu, Config, Game };
-    public static GameState gameState { get; private set; }
+    public static GameState gameState { get;  set; }
     public static List<CSteamID> players { get; private set; } = new List<CSteamID>();
     public static Dictionary<CSteamID, bool> readyDic { get; private set; } = new Dictionary<CSteamID, bool>();
 
@@ -223,6 +223,7 @@ public class Networker : MonoBehaviour
 
 
     public static Dictionary<CSteamID, PlayerStatus> playerStatusDic { get; private set; } = new Dictionary<CSteamID, PlayerStatus>();
+    public static Dictionary<CSteamID, String> playerNameDic { get; private set; } = new Dictionary<CSteamID, String>();
     //public static Dictionary<ulong, float> playerResponseDict = new Dictionary<ulong, float>();
     public static bool allPlayersReadyHasBeenSentFirstTime;
     public static bool readySent;
@@ -257,6 +258,7 @@ public class Networker : MonoBehaviour
     public static int compressionFailure = 0;
     public static ulong rigidBodyUpdates = 0;
     public static ulong totalCompressed = 0;
+    public static CSteamID lobbyID;
     #region Message Type Callbacks
     //These callbacks are use for other scripts to know when a network message has been
     //received for them. They should match the name of the message class they relate to.
@@ -338,6 +340,10 @@ public class Networker : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKey("n"))
+        {
+           // Steamworks.SteamMatchmaking.CreateLobby(Steamworks.ELobbyType.k_ELobbyTypePublic, 50);
+        }
         //VTResources.useOverCloud = true;
         ReadP2P();
         DiscordRadioManager.Update();
@@ -345,6 +351,11 @@ public class Networker : MonoBehaviour
             return;
         if (VTOLAPI.currentScene == VTOLScenes.ReadyRoom)
         {
+            foreach (var inter in Multiplayer._instance.ScenarioDisplayStore.GetComponentsInChildren<VRInteractable>(true))
+            {
+                if (inter.interactableName.Contains("Select Mission"))
+                    inter.gameObject.SetActive(false);
+            }
             if (pilotSaveManagerControllerCampaign != PilotSaveManager.currentCampaign)
             {
                 pilotSaveManagerControllerCampaign = PilotSaveManager.currentCampaign;
@@ -452,13 +463,16 @@ public class Networker : MonoBehaviour
         Debug.Log("Hosting game");
         isHost = true;
         DiscordRadioManager.makeLobby();
+        if(!Multiplayer._instance.FriendMode)
+        SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 50);
+        
         TimeoutCounter = 0;
         HeartbeatTimerRunning = true;
         HeartbeatTimer.Start();
         playerStatusDic.Add(hostID, PlayerStatus.NotReady);
         _instance.StartCoroutine(_instance.FlyButton());
     }
-
+   
     public static void SetHostReady(bool everyoneReady)
     {
         if (everyoneReady)
@@ -490,8 +504,8 @@ public class Networker : MonoBehaviour
         Debug.Log("Attempting to join game");
 
         NetworkSenderThread.Instance.SendPacketToSpecificPlayer(steamID,
-            new Message_JoinRequest(PilotSaveManager.currentVehicle.name,
-                                    MapAndScenarioVersionChecker.builtInCampaign,
+            new Message_JoinRequest(SteamFriends.GetPersonaName(),PilotSaveManager.currentVehicle.name,
+                                    true,
                                     MapAndScenarioVersionChecker.scenarioId,
                                     MapAndScenarioVersionChecker.mapHash,
                                     MapAndScenarioVersionChecker.scenarioHash,
@@ -778,7 +792,7 @@ public class Networker : MonoBehaviour
                 Multiplayer._instance.fog = messsageLobby.fog;
                 DiscordRadioManager.freqLabelTableNetworkString = messsageLobby.freqLabelString;
                 DiscordRadioManager.freqTableNetworkString = messsageLobby.freqString;
-                CampaignSelectorUI selectorUI = FindObjectOfType<CampaignSelectorUI>();
+                /*CampaignSelectorUI selectorUI = FindObjectOfType<CampaignSelectorUI>();
                 PlayerVehicle pv = PilotSaveManager.currentVehicle;
                 Campaign cc = PilotSaveManager.currentCampaign;
                 string name = PlayerManager.selectedVehicle;
@@ -811,7 +825,7 @@ public class Networker : MonoBehaviour
 
                 PilotSaveManager.currentVehicle = pv;
                 PilotSaveManager.currentCampaign = cc;
-                PlayerManager.selectedVehicle = name;
+                PlayerManager.selectedVehicle = name;*/
                 DiscordRadioManager.joinLobby(messsageLobby.lobbyDiscordID, messsageLobby.lobbySecret);
 
                 StartCoroutine(FlyButton());
@@ -1264,12 +1278,13 @@ public class Networker : MonoBehaviour
         PilotSaveManager.currentCampaign = pilotSaveManagerControllerCampaign;
         PilotSaveManager.currentScenario = pilotSaveManagerControllerCampaignScenario;
         PlayerManager.selectedVehicle = PilotSaveManager.currentVehicle.name;
+
+        PilotSaveManager.currentScenario.totalBudget = 999999;
         if (PilotSaveManager.currentScenario == null)
         {
             Debug.LogError("A null scenario was used on flight button!");
             yield break;
         }
-
         ControllerEventHandler.PauseEvents();
         ScreenFader.FadeOut(Color.black, 0.85f);
         yield return new WaitForSeconds(1f);
@@ -1395,28 +1410,28 @@ public class Networker : MonoBehaviour
             switch (playerStatusDic[players[i]])
             {
                 case PlayerStatus.Loadout:
-                    content.AppendLine("<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"red\">Loadout</color>");
+                    content.AppendLine("<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"red\">Loadout</color>");
                     break;
                 case PlayerStatus.NotReady:
-                    content.AppendLine("<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"red\">Not Ready</color>");
+                    content.AppendLine("<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"red\">Not Ready</color>");
                     break;
                 case PlayerStatus.ReadyREDFOR:
-                    content.AppendLine("<color=\"red\">[REDFOR] </color>" + "<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"green\">Ready</color>");
+                    content.AppendLine("<color=\"red\">[REDFOR] </color>" + "<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"green\">Ready</color>");
                     break;
                 case PlayerStatus.ReadyBLUFOR:
-                    content.AppendLine("<color=\"blue\">[BLUFOR] </color>" + "<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"green\">Ready</color>");
+                    content.AppendLine("<color=\"blue\">[BLUFOR] </color>" + "<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"green\">Ready</color>");
                     break;
                 case PlayerStatus.Loading:
-                    content.AppendLine("<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"blue\">Loading</color>");
+                    content.AppendLine("<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"blue\">Loading</color>");
                     break;
                 case PlayerStatus.InGame:
-                    content.AppendLine("<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"green\">In Game</color>");
+                    content.AppendLine("<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"green\">In Game</color>");
                     break;
                 case PlayerStatus.Disconected:
-                    content.AppendLine("<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"red\">Disconected</color>");
+                    content.AppendLine("<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"red\">Disconected</color>");
                     break;
                 default:
-                    content.AppendLine("<b>" + SteamFriends.GetFriendPersonaName(players[i]) + "</b>" + ": " + "<color=\"red\">Other</color>");
+                    content.AppendLine("<b>" + playerNameDic[players[i]] + "</b>" + ": " + "<color=\"red\">Other</color>");
                     break;
             }
         }
@@ -1453,6 +1468,7 @@ public class Networker : MonoBehaviour
             readyDic.Remove(csteamID);
             //playerResponseDict.Remove(csteamID.m_SteamID);
             playerStatusDic.Remove(csteamID);//future people, please implement PlayerStatus.Loadout so we can see who is customising still
+            playerNameDic.Remove(csteamID);
             NetworkSenderThread.Instance.RemovePlayer(csteamID);
         }
 
@@ -1576,7 +1592,8 @@ public class Networker : MonoBehaviour
         //playerResponseDict.Add(csteamID.m_SteamID, 0.0f);
         readyDic.Add(csteamID, false);
         Debug.Log($"Adding {csteamID} to status dict, with status of not ready");
-        playerStatusDic.Add(csteamID, PlayerStatus.NotReady);//future people, please implement PlayerStatus.Loadout so we can see who is customising still
+        playerStatusDic.Add(csteamID, PlayerStatus.NotReady);
+        playerNameDic.Add(csteamID, joinRequest.name);//future people, please implement PlayerStatus.Loadout so we can see who is customising still
         Debug.Log("Done adding to status dict");
         NetworkSenderThread.Instance.AddPlayer(csteamID);
         NetworkSenderThread.Instance.SendPacketToSpecificPlayer(csteamID, new Message_JoinRequestAccepted_Result(DiscordRadioManager.userID, DiscordRadioManager.lobbyID, DiscordRadioManager.lobbySecret, Multiplayer._instance.thrust,
@@ -1649,6 +1666,7 @@ public class Networker : MonoBehaviour
         NetworkSenderThread.Instance.DumpAllExistingPlayers();
         readyDic?.Clear();
         playerStatusDic?.Clear();
+        playerNameDic?.Clear();
         hostReady = false;
         allPlayersReadyHasBeenSentFirstTime = false;
         readySent = false;
@@ -1660,5 +1678,12 @@ public class Networker : MonoBehaviour
         AIManager.CleanUpOnDisconnect();
         multiplayerInstance?.CleanUpOnDisconnect();
         hostLoaded = false;
+
+        if(lobbyID.m_SteamID!=0)
+        {
+            SteamMatchmaking.LeaveLobby(lobbyID);
+        }
+           
+
     }
 }

@@ -1,13 +1,11 @@
-﻿using Discord;
-using Harmony;
-using Steamworks;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
+using Discord;
+using Harmony;
+using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,6 +14,14 @@ using UnityEngine.UI;
 
 public class Multiplayer : VTOLMOD
 {
+    public struct VTOLLobby
+    {
+        public CSteamID hostID;
+        public String hostName;
+        public String campID;
+        public String scenID;
+        public String plane;
+    };
     public static bool SoloTesting = true;
     public static Multiplayer _instance = null;
     public bool UpToDate = true;
@@ -45,20 +51,27 @@ public class Multiplayer : VTOLMOD
 
     private List<GameObject> friendListItems = new List<GameObject>();
 
+    private List<GameObject> lobbyListItems = new List<GameObject>();
+
+    protected Callback<LobbyCreated_t> Callback_lobbyCreated;
+    protected Callback<LobbyMatchList_t> Callback_lobbyList;
+    protected Callback<LobbyEnter_t> Callback_lobbyEnter;
+    protected Callback<LobbyDataUpdate_t> Callback_lobbyInfo;
+
 
     private CSteamID selectedFriend;
     private Transform selectionTF;
 
     private Coroutine waitingForJoin;
     private Text joinButtonText;
-    public Text lobbyInfoText;
+      public Text lobbyInfoText;
 
     // Fixing singleplayer functionality with MP mod
     public bool playingMP;
 
     //Create a host setting for these instead of a variable!
     public Settings settings;
-
+    public bool FriendMode = false;
     public bool hidePlayerNameTags = false;
     public UnityAction<bool> hidePlayerNameTags_changed;
     public UnityAction<bool> hidePlayerRoundels_changed;
@@ -99,6 +112,10 @@ public class Multiplayer : VTOLMOD
 
     private UnityAction<bool> ptt_Changed;
     public static Discord.Discord discord;
+
+    List<CSteamID> lobbyIDS = new List<CSteamID>();
+    List<VTOLLobby> VtolLobbies = new List<VTOLLobby>();
+   
     private void Start()
     {
         if (_instance == null)
@@ -143,7 +160,11 @@ public class Multiplayer : VTOLMOD
         base.ModLoaded();
         CreateUI();
         gameObject.AddComponent<Networker>();
-
+        lobbyIDS = new List<CSteamID>();
+        Callback_lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+        Callback_lobbyList = Callback<LobbyMatchList_t>.Create(OnGetLobbiesList);
+       
+        Callback_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
         debugLog_Settings(debugLogs);
     }
 
@@ -366,7 +387,7 @@ public class Multiplayer : VTOLMOD
         {
             case VTOLScenes.ReadyRoom:
                 CreateUI();
-
+                Networker.gameState = Networker.GameState.Menu;
                 break;
             case VTOLScenes.Akutan:
                 Log("Map Loaded from vtol scenes akutan");
@@ -452,7 +473,7 @@ public class Multiplayer : VTOLMOD
 
 
     }
-
+    public Transform ScenarioDisplayStore;
 
     private void CreateUI()
     {
@@ -492,6 +513,8 @@ public class Multiplayer : VTOLMOD
                 if (ScenarioDisplay.name == "ScenarioDisplay")
                 {
                     foundDisplay = true;
+
+                    ScenarioDisplayStore = ScenarioDisplay;
                     break;
                 }
             }
@@ -507,15 +530,26 @@ public class Multiplayer : VTOLMOD
 
         //Creating the MP button
         Transform mpButton = Instantiate(ScenarioDisplay.GetChild(10).gameObject, ScenarioDisplay).transform;
-
+        Transform mpButtonF = Instantiate(ScenarioDisplay.GetChild(10).gameObject, ScenarioDisplay).transform;
+       
+       
         Log("Multiplayer Button" + mpButton.name);
         mpButton.gameObject.SetActive(true);
         mpButton.name = "MPButton";
         mpButton.GetComponent<RectTransform>().localPosition = new Vector3(601, -325);
         mpButton.GetComponent<RectTransform>().sizeDelta = new Vector2(70, 206.7f);
-        mpButton.GetComponentInChildren<Text>().text = "MP";
+        mpButton.GetComponentInChildren<Text>().text = "Lobby";
         mpButton.GetComponent<Image>().color = Color.cyan;
         mpButton.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
+
+        mpButtonF.gameObject.SetActive(true);
+        mpButtonF.name = "MPButtonf";
+        mpButtonF.GetComponent<RectTransform>().localPosition = new Vector3(0, -325);
+        mpButtonF.GetComponent<RectTransform>().sizeDelta = new Vector2(70, 206.7f);
+        mpButtonF.GetComponentInChildren<Text>().text = "Friend";
+        mpButtonF.GetComponent<Image>().color = Color.cyan;
+        mpButtonF.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
+
         VRInteractable mpInteractable = mpButton.GetComponent<VRInteractable>();
         if (UpToDate)
         {
@@ -528,7 +562,9 @@ public class Multiplayer : VTOLMOD
             mpInteractable.interactableName = "Outdated";
         }
         mpInteractable.OnInteract = new UnityEngine.Events.UnityEvent();
-
+        VRInteractable mpInteractablef = mpButtonF.GetComponent<VRInteractable>();
+        
+        mpInteractablef.OnInteract = new UnityEngine.Events.UnityEvent();
 
         Log("Creating Mp Menu");//Creating Mp Menu
         GameObject MPMenu = Instantiate(ScenarioDisplay.gameObject, ScenarioDisplay.parent);
@@ -641,7 +677,8 @@ public class Multiplayer : VTOLMOD
             lobbyInfoText.transform.localRotation.y,
             lobbyInfoText.transform.localRotation.z);
         Log("Last one");
-        mpInteractable.OnInteract.AddListener(delegate { Log("Before Opening MP"); RefershFriends(); MPMenu.SetActive(true); ScenarioDisplay.gameObject.SetActive(false); OpenMP(); });
+        mpInteractable.OnInteract.AddListener(delegate { Log("Before Opening MP"); FriendMode = false; StartCoroutine(Refershlobbies()); MPMenu.SetActive(true); ScenarioDisplay.gameObject.SetActive(false); OpenMP(); });
+        mpInteractablef.OnInteract.AddListener(delegate { Log("Before Opening MP"); FriendMode = true;  RefershFriends(); MPMenu.SetActive(true); ScenarioDisplay.gameObject.SetActive(false); OpenMP(); });
         GameObject.Find("InteractableCanvas").GetComponent<VRPointInteractableCanvas>().RefreshInteractables();
         Log("Finished");
 
@@ -652,15 +689,77 @@ public class Multiplayer : VTOLMOD
         RefreshButton.GetComponentInChildren<Text>().text = "Refresh";
         RefreshButton.GetComponent<Image>().color = Color.red;
         VRInteractable RefreshInteractable = RefreshButton.GetComponent<VRInteractable>();
-        RefreshInteractable.interactableName = "Refresh Friends";
+        RefreshInteractable.interactableName = "Refresh";
         RefreshInteractable.OnInteract = new UnityEngine.Events.UnityEvent();
-        RefreshInteractable.OnInteract.AddListener(delegate { Log("Before Host"); RefershFriends(); });
+        RefreshInteractable.OnInteract.AddListener(delegate { Log("Before Host"); if(!FriendMode)StartCoroutine(Refershlobbies()); else RefershFriends();  });
 
 
     }
-
-    public void RefershFriends()
+    private IEnumerator Refershlobbies()
     {
+        lableVTOL.SetActive(false);
+        foreach (GameObject uiItem in lobbyListItems)
+        {
+             
+            Destroy(uiItem);
+        }
+        lobbyListItems.Clear();
+
+        foreach (GameObject uiItem in friendListItems)
+        {
+            if (uiItem != null)
+            {
+                Debug.Log($"Destroying {uiItem.name}");
+            }
+            else
+            {
+                Debug.Log("UI Item is null");
+            }
+
+            Destroy(uiItem);
+        }
+
+        friendListItems.Clear();
+        SteamMatchmaking.RequestLobbyList();
+        yield return new WaitForSeconds(2);
+
+        friendsTemplate.SetActive(true);
+        GameObject lastlobbyGO;
+        VRUIListItemTemplate uiListItem;
+        int totalLobby = 0;
+     
+        for (int i = 0; i < VtolLobbies.Count; i++)
+        {
+            totalLobby++;
+            lastlobbyGO = Instantiate(friendsTemplate, content.transform);
+            lastlobbyGO.name = VtolLobbies[i].hostName;
+
+            lastlobbyGO.transform.localPosition = new Vector3(0f, -totalLobby * buttonHeight);
+            uiListItem = lastlobbyGO.GetComponent<VRUIListItemTemplate>();
+            uiListItem.Setup(VtolLobbies[i].hostName, totalLobby - 1, SelectLobby);
+            uiListItem.labelText.color = Color.green;
+         
+            lobbyListItems.Add(lastlobbyGO);
+        }
+
+        Log("Updating Scroll Rect");
+        scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (2f + VtolLobbies.Count) * buttonHeight);
+        scrollRect.ClampVertical();
+
+        JoinButton.SetActive(false);
+        friendsTemplate.SetActive(false);
+        
+        GameObject.Find("InteractableCanvas").GetComponent<VRPointInteractableCanvas>().RefreshInteractables();
+     
+    }
+        public void RefershFriends()
+    {
+        foreach (GameObject uiItem in lobbyListItems)
+        {
+
+            Destroy(uiItem);
+        }
+        lobbyListItems.Clear();
         Log("Refreshing Friends");
         steamFriends.Clear();
         int totalFriends = 0;
@@ -712,10 +811,10 @@ public class Multiplayer : VTOLMOD
                 }
             }
         }
-        SteamMatchmaking.RequestLobbyList();
+        //m_CallResultLobbyMatchList.Set(hSteamAPICall, this, &CLobbyListManager::OnLobbyMatchList);
         Log("Adding friends to list");
         //Now we want to create the ingame list
-        friendsTemplate.SetActive(true);
+         friendsTemplate.SetActive(true);
         GameObject lastFriendGO;
         VRUIListItemTemplate uiListItem;
         totalFriends = 0;
@@ -735,7 +834,7 @@ public class Multiplayer : VTOLMOD
 
         Log("Updating Scroll Rect");
         scrollRect.content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, (2f + steamFriends.Count) * buttonHeight);
-        scrollRect.ClampVertical();
+        scrollRect.ClampVertical(); 
 
         JoinButton.SetActive(false);
         friendsTemplate.SetActive(false);
@@ -745,6 +844,69 @@ public class Multiplayer : VTOLMOD
         Networker.ResetNetworkUID();
     }
 
+
+    void OnGetLobbiesList(LobbyMatchList_t result)
+    {
+        lobbyIDS.Clear();
+        VtolLobbies.Clear();
+        for (int i = 0; i < result.m_nLobbiesMatching; i++)
+        {
+            CSteamID lobbyID = SteamMatchmaking.GetLobbyByIndex(i);
+            lobbyIDS.Add(lobbyID);
+            SteamMatchmaking.RequestLobbyData(lobbyID);
+        }
+    }
+    void OnLobbyCreated(LobbyCreated_t result)
+    {
+        if (result.m_eResult == EResult.k_EResultOK)
+            Debug.Log("Lobby created -- SUCCESS!");
+        else
+            Debug.Log("Lobby created -- failure ...");
+
+        string personalName = SteamFriends.GetPersonaName();
+        SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "name", personalName);
+
+        SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "hostID",  SteamUser.GetSteamID().m_SteamID.ToString());
+        if(PilotSaveManager.currentScenario!=null)
+        SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "ScenarioID", PilotSaveManager.currentScenario.scenarioID);
+        else
+            Debug.Log("bad scenrio");
+        if (PilotSaveManager.currentCampaign != null)
+            SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "CampID", PilotSaveManager.currentCampaign.campaignID);
+          else
+            Debug.Log("bad camp");
+        if (PilotSaveManager.currentVehicle != null)
+            SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "plane", PilotSaveManager.currentVehicle.name);
+        else Debug.Log("bad vech");
+
+        Networker.lobbyID = (CSteamID)result.m_ulSteamIDLobby;
+    }
+
+    void OnGetLobbyInfo(LobbyDataUpdate_t result)
+    {
+        for (int i = 0; i < lobbyIDS.Count; i++)
+        {
+            if (lobbyIDS[i].m_SteamID == result.m_ulSteamIDLobby)
+            {
+                if (SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "plane") != PilotSaveManager.currentVehicle.name)
+                    return;
+                VTOLLobby newLob = new VTOLLobby();
+                newLob.hostName=SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "name");
+                newLob.hostID  = new CSteamID(Convert.ToUInt64(SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "hostID")));
+                newLob.scenID = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "ScenarioID");
+                newLob.campID = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "CampID");
+                newLob.plane = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "plane");
+                VtolLobbies.Add(newLob);
+
+                Debug.Log("Lobby added" + newLob.hostName);
+                Debug.Log("Lobbycampid" + newLob.campID);
+                Debug.Log("Lobby plan" + newLob.plane);
+
+                return;
+            }
+        }
+
+    }
     public void SelectFriend(int index)
     {
         JoinButton.SetActive(true);
@@ -756,9 +918,55 @@ public class Multiplayer : VTOLMOD
         selectionTF.GetComponent<Image>().color = new Color(0.3529411764705882f, 0.196078431372549f, 0);
     }
 
+    public void SelectLobby(int index)
+    {
+        JoinButton.SetActive(true);
+        joinButtonText.text = $"Join {VtolLobbies[index].hostName}";
+        selectedFriend = VtolLobbies[index].hostID;
+        //PilotSaveManager.currentVehicle = PilotSaveManager.GetVehicle(VtolLobbies[index].plane);
+
+        CampaignSelectorUI selectorUI = FindObjectOfType<CampaignSelectorUI>();
+
+        List<Campaign> campaignss = (List<Campaign>)Traverse.Create(selectorUI).Field("campaigns").GetValue();
+        int iddx = 0;
+        for (int i= 0; i<campaignss.Count(); i++)
+        {
+            if(campaignss[i].campaignID== VtolLobbies[index].campID)
+            {
+                  Traverse.Create(selectorUI).Field("campaignIdx").SetValue(i);
+                    iddx = i;
+            }
+
+        }
+
+       
+        //selectorUI.SelectCampaign();
+        PilotSaveManager.currentCampaign = campaignss[iddx];
+        for  (int s= 0; s < campaignss[iddx].missions.Count(); s++ )
+        {
+            if (campaignss[iddx].missions[s].scenarioID == VtolLobbies[index].scenID)
+            {
+
+                PilotSaveManager.currentScenario = campaignss[iddx].missions[s];
+            }
+            
+        }
+        Networker._instance.pilotSaveManagerControllerCampaign = PilotSaveManager.currentCampaign;
+
+
+        Networker._instance.pilotSaveManagerControllerCampaignScenario = PilotSaveManager.currentScenario;
+        // scn = VTResources.GetCustomScenario(VtolLobbies[index].scenID, camp.campaignID);
+        ScenarioDisplayStore.gameObject.SetActive(false);
+        contentJoinLog.text = VtolLobbies[index].hostName+ " is playing " + PilotSaveManager.currentScenario.scenarioName;
+        NetworkSenderThread.Instance.SendPacketToSpecificPlayer(VtolLobbies[index].hostID, new Message_LobbyInfoRequest(), EP2PSend.k_EP2PSendReliable); //Getting lobby info.
+
+        //selectionTF.position = steamFriends[index].transform.position;
+        //selectionTF.GetComponent<Image>().color = new Color(0.3529411764705882f, 0.196078431372549f, 0);
+    }
+
     public void OpenMP()
     {
-
+       
         CampaignSelectorUI selectorUI = FindObjectOfType<CampaignSelectorUI>();
         int missionIdx = (int)Traverse.Create(selectorUI).Field("missionIdx").GetValue();
         PilotSaveManager.currentScenario = PilotSaveManager.currentCampaign.missions[missionIdx];

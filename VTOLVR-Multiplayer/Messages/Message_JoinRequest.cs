@@ -4,14 +4,16 @@ using System.Collections.Generic;
 [Serializable]
 public class Message_JoinRequest : Message
 {
-    public string currentVehicle, vtolVrVersion, multiplayerBranch, multiplayerModVersion, scenarioId;
+    public string name,currentVehicle, vtolVrVersion, multiplayerBranch, multiplayerModVersion, scenarioId;
     public byte[] mapHash, scenarioHash, campaignHash;
     public bool builtInCampaign;
     public Dictionary<string, string> modsLoadedHashes;
     public byte[] modloaderHash;
     public long discordID;
-    public Message_JoinRequest(string currentVehicle, bool builtInCampaign, string scenarioId, byte[] mapHash, byte[] scenarioHash, byte[] campaignHash, Dictionary<string, string> mods, byte[] modloaderhash, long dID)
+
+    public Message_JoinRequest(String namepl, string currentVehicle, bool builtInCampaign, string scenarioId, byte[] mapHash, byte[] scenarioHash, byte[] campaignHash, Dictionary<string, string> mods, byte[] modloaderhash, long dID)
     {
+        this.name = namepl;
         this.currentVehicle = currentVehicle;
         this.builtInCampaign = builtInCampaign;
         this.scenarioId = scenarioId;

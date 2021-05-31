@@ -392,8 +392,8 @@ public static class PlayerManager
                 ///
              
                 //localVehicle.GetComponent<RigidbodyNetworker_Sender>().originOffset = new Vector3(10, 0, 15.126f);
-                AddToPlayerList(new Player(new CSteamID(1234), null, null, VTOLVehicles.FA26B, 1234, false, "FAKE F16", 123, true, "f16"));
-                SpawnRepresentation(1234, new Vector3D(hostTrans.transform.position), hostTrans.transform.rotation, false, "FAKE F16", VTOLVehicles.FA26B);
+               // AddToPlayerList(new Player(new CSteamID(1234), null, null, VTOLVehicles.FA26B, 1234, false, "FAKE F16", 123, true, "f16"));
+                //SpawnRepresentation(1234, new Vector3D(hostTrans.transform.position), hostTrans.transform.rotation, false, "FAKE F16", VTOLVehicles.FA26B);
 
 
                 ScreenFader.FadeIn(0.25f);
