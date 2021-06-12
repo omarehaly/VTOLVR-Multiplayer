@@ -3,6 +3,17 @@ using Steamworks;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct manObjectSorter
+{
+    public GameObject man;
+    public double dist;
+    public bool farMan;
+    public static int CompareByDist(manObjectSorter a, manObjectSorter b)
+    {
+        return a.dist.CompareTo(b.dist);
+    }
+
+}
 public class PlaneNetworker_Receiver : MonoBehaviour
 {
     public ulong networkUID;
@@ -34,6 +45,9 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     public Transform puppethip;
     bool manSetup = false;
     public VTOLVehicles vehicleType = VTOLVehicles.None;
+    public static List<manObjectSorter> manObjects = new List<manObjectSorter>();
+    manObjectSorter mos;
+   
     private void Awake()
     {
         firstMessageReceived = false;
@@ -109,11 +123,11 @@ public class PlaneNetworker_Receiver : MonoBehaviour
             ModuleEngine[] engines = ownerActor.gameObject.GetComponentsInChildren<ModuleEngine>();
             foreach (ModuleEngine eng in engines)
             {
-                eng.thrustHeatMult *= 4.0f;
+                eng.thrustHeatMult *= 14.0f;
             }
         }
-       
-            StartCoroutine(colliderTimer());
+          mos = new manObjectSorter();
+
     }
 
     private void Start()
@@ -154,6 +168,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
 
             }
         }
+        StartCoroutine(colliderTimer());
     }
 
     FastIKLook ikheadlook;
@@ -161,8 +176,10 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     private void setupManReciever()
     {
         manPuppet = GameObject.Instantiate(CUSTOM_API.manprefab, gameObject.GetComponent<Rigidbody>().transform);
-
-
+      
+        mos.man = manPuppet;
+        mos.farMan = false;
+        manObjects.Add(mos);
         foreach (Collider col in manPuppet.GetComponentsInChildren<Collider>())
         { col.enabled = false; }
 
@@ -231,14 +248,16 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         if (manSetup)
         {
             Vector3 v = manPuppet.transform.position - FlightSceneManager.instance.playerActor.gameObject.transform.position;
-            if (v.magnitude > 200)
+            mos.dist = v.magnitude;
+            if (mos.dist > 200)
             {
                 manPuppet.SetActive(false);
-            }
-            else
+                mos.farMan = true;
+            }else
             {
-                manPuppet.SetActive(true);
+                mos.farMan = false;
             }
+             
         }
     }
     public void IKUpdate(Packet packet)
@@ -486,11 +505,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
            rl.SetRippleRateIdx(message.ripple);
         }
 
-        if (weaponManager.currentEquip is HPEquipBombRack)
-        {
-            HPEquipBombRack rl = (HPEquipBombRack)weaponManager.currentEquip;
-            rl.SetRippleRateIdx(message.ripple);
-        }
+       
         if (message.isFiring != weaponManager.isFiring)
         {
             if (message.isFiring)
@@ -592,9 +607,13 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         Networker.Disconnecting -= OnDisconnect;
         Networker.WeaponSet_Result -= WeaponSet_Result;
         Networker.WeaponFiring -= WeaponFiring;
-
+        
         if (manSetup == true)
+        {
+            manObjects.Remove(mos);
             Networker.IKUpdate -= IKUpdate;
+        }
+            
         // Networker.WeaponStoppedFiring -= WeaponStoppedFiring;
         Networker.FireCountermeasure -= FireCountermeasure;
         Debug.Log("Destroyed Plane Update");
@@ -604,7 +623,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
 
     private System.Collections.IEnumerator colliderTimer()
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(5.5f);
 
         if (ownerActor != null)
         {

@@ -256,7 +256,7 @@ public class Networker : MonoBehaviour
     public static ulong compressionSucessTotal = 1;
     public static ulong compressionFailTotal = 1;
     public static int compressionFailure = 0;
-    public static ulong rigidBodyUpdates = 0;
+    public static ulong shipUpdates = 0;
     public static ulong totalCompressed = 0;
     public static CSteamID lobbyID;
     #region Message Type Callbacks
@@ -345,8 +345,10 @@ public class Networker : MonoBehaviour
            // Steamworks.SteamMatchmaking.CreateLobby(Steamworks.ELobbyType.k_ELobbyTypePublic, 50);
         }
         //VTResources.useOverCloud = true;
-        ReadP2P();
         DiscordRadioManager.Update();
+        PlayerManager.Update();
+        ReadP2P();
+       
         if (VTOLAPI.currentScene == VTOLScenes.VehicleConfiguration)
             return;
         if (VTOLAPI.currentScene == VTOLScenes.ReadyRoom)
@@ -401,7 +403,7 @@ public class Networker : MonoBehaviour
 
             }
         } */
-        PlayerManager.Update();
+      
     }
     private void FixedUpdate()
     {
@@ -410,6 +412,7 @@ public class Networker : MonoBehaviour
             flushUnreliableBuffer();
             flushReliableBuffer();
         }
+        PlayerManager.ActorCleaner();
     }
     private void LateUpdate()
     {
@@ -490,6 +493,14 @@ public class Networker : MonoBehaviour
 
     public static void JoinGame(CSteamID steamID)
     {
+         
+            if (PilotSaveManager.currentScenario == null)
+            {
+                if (Multiplayer._instance.contentJoinLog != null)
+                Multiplayer._instance.contentJoinLog.text = "Select Scenario";
+                return;
+            }
+         
         if (gameState != GameState.Menu)
         {
             Debug.LogError("Can't join game as already in one");
@@ -651,11 +662,7 @@ public class Networker : MonoBehaviour
         if (packet.packetType == PacketType.Single)
         {
             PacketSingle packetS = packet as PacketSingle;
-            if (packetS == null)
-                Debug.LogError("packetS null.");
-            if (packetS.message == null)
-                Debug.LogError("packetS.message null.");
-
+          
             processPacket(csteamID, packet, packetS);
         }
         if (!Networker.isHost)
@@ -930,7 +937,6 @@ public class Networker : MonoBehaviour
                     SpawnVehicle.Invoke(packet, csteamID);
                 break;
             case MessageType.RigidbodyUpdate:
-                rigidBodyUpdates += 1;
                 // Debug.Log("case rigid body update");
                 if (RigidbodyUpdate != null)
                     RigidbodyUpdate.Invoke(packet);
@@ -1047,7 +1053,7 @@ public class Networker : MonoBehaviour
                     ExtLight.Invoke(packet);
                 break;
             case MessageType.ShipUpdate:
-                rigidBodyUpdates += 1;
+                shipUpdates += 1;
                 //Debug.Log("case ship update");
                 if (ShipUpdate != null)
                     ShipUpdate.Invoke(packet);
@@ -1673,7 +1679,7 @@ public class Networker : MonoBehaviour
         alreadyInGame = false;
         hostID = new CSteamID(0);
         pingToHost = 0;
-        rigidBodyUpdates = 0;
+        shipUpdates = 0;
         DiscordRadioManager.disconnect();
         AIManager.CleanUpOnDisconnect();
         multiplayerInstance?.CleanUpOnDisconnect();

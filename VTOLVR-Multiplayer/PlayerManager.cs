@@ -177,7 +177,6 @@ public static class PlayerManager
             UnitIconManager.instance.UnregisterAll();
             TargetManager.instance.detectedByAllies.Clear();
             TargetManager.instance.detectedByEnemies.Clear();
-
             foreach (var actor in TargetManager.instance.allActors)
             {
                 if (actor != null)
@@ -392,7 +391,7 @@ public static class PlayerManager
                 ///
              
                 //localVehicle.GetComponent<RigidbodyNetworker_Sender>().originOffset = new Vector3(10, 0, 15.126f);
-               // AddToPlayerList(new Player(new CSteamID(1234), null, null, VTOLVehicles.FA26B, 1234, false, "FAKE F16", 123, true, "f16"));
+                //AddToPlayerList(new Player(new CSteamID(1234), null, null, VTOLVehicles.FA26B, 1234, false, "FAKE F16", 123, true, "A10"));
                 //SpawnRepresentation(1234, new Vector3D(hostTrans.transform.position), hostTrans.transform.rotation, false, "FAKE F16", VTOLVehicles.FA26B);
 
 
@@ -410,8 +409,7 @@ public static class PlayerManager
             AIManager.SpawnAIVehicle(AIManager.AIsToSpawnQueue.Dequeue());
         }
         SpawnPlayersInPlayerSpawnQueue();
-
-
+   
         if (!Networker.isHost)
         {
             // If the player is not the host, they only need a receiver?
@@ -432,10 +430,10 @@ public static class PlayerManager
         PilotSaveManager.currentCampaign = Networker._instance.pilotSaveManagerControllerCampaign;
         PilotSaveManager.currentScenario = Networker._instance.pilotSaveManagerControllerCampaignScenario;
 
-
+       
     }
 
-    public static void SpawnPlayersInPlayerSpawnQueue()
+public static void SpawnPlayersInPlayerSpawnQueue()
     {
         if (gameLoaded)
             while (playersToSpawnQueue.Count > 0)
@@ -624,11 +622,8 @@ public static class PlayerManager
                             }
                         }
                     }
-                    if (carrierFound)
-                    {
-                        carrierStartTimer += 1;
-                    }
-                    if (rearmPoint != null && carrierFound && carrierStart && carrierStartTimer > 100)
+                   
+                    if (rearmPoint != null && carrierFound && carrierStart && Networker.shipUpdates>2)
                     {
                         if (storedSpawnMessage != null)
                         {
@@ -642,16 +637,28 @@ public static class PlayerManager
 
                 }
 
-
-
+      
         if (gameLoaded)
         {
-          //  foreach (var camset in FindObjectsOfTypeAll<CameraFogSettings>(FlightSceneManager.instance.playerActor.gameObject))
-          //  {
-          //      camset.density =
-          //      camset.linearStartDist = 1.0f;
-          //  }
+            VRJoystick joy = FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<VRJoystick>();
+            
+            joy.controlMode = VRJoystick.ControlModes.Rotation;
 
+            //  foreach (var camset in FindObjectsOfTypeAll<CameraFogSettings>(FlightSceneManager.instance.playerActor.gameObject))
+            //  {
+            //      camset.density =
+            //      camset.linearStartDist = 1.0f;
+            //  }
+            PlaneNetworker_Receiver.manObjects.Sort(manObjectSorter.CompareByDist);
+            int maxMan = 5;
+            if (PlaneNetworker_Receiver.manObjects.Count < maxMan)
+                maxMan = PlaneNetworker_Receiver.manObjects.Count;
+            for (int i= 0;i< maxMan; i++)
+                {
+                if(PlaneNetworker_Receiver.manObjects[i].man != null)
+                if (!PlaneNetworker_Receiver.manObjects[i].farMan)
+                    PlaneNetworker_Receiver.manObjects[i].man.SetActive(true);
+                }
             PlayerManager.timeinGame += 1;
             if (FrequenceyButton != null)
             {
@@ -758,8 +765,7 @@ public static class PlayerManager
         {
             if (EndMission.instance.completeObject.active == false)
                 EndMission.instance.HideEndMission();
-            if (PlayerSpawn.playerVehicleReady == false)
-            {  FlightLogger.Log("start  NO PLAYERE  SPAWN"); }
+     
             Actor player = FlightSceneManager.instance.playerActor;
             if (player)
             {
@@ -1157,6 +1163,7 @@ public static class PlayerManager
         return VTOLVehicles.F45A;
 
     }
+   
     public static void SetupLocalAircraft(GameObject localVehicle, Vector3 pos, Quaternion rot, ulong UID, bool sendNewSpawnPacket)
     {
         VTOLVehicles currentVehicle = getPlayerVehicleType();
@@ -1672,6 +1679,36 @@ public static class PlayerManager
         return newVehicle;
     }
 
+    public static void ActorCleaner()
+    {
+        var actors = TargetManager.instance.allActors;
+        List<Actor> atodel = new List<Actor>();
+        foreach (var a in actors)
+        {
+            if (a == null)
+            {
+                atodel.Add(a);
+
+
+            }
+
+        }
+
+        foreach (var a in atodel)
+        {
+            if (TargetManager.instance.allActors.Contains(a))
+                TargetManager.instance.allActors.Remove(a);
+            if (TargetManager.instance.alliedUnits.Contains(a))
+                TargetManager.instance.alliedUnits.Remove(a);
+
+            if (TargetManager.instance.enemyUnits.Contains(a))
+                TargetManager.instance.enemyUnits.Remove(a);
+            if (TargetManager.instance.detectedByAllies.Contains(a))
+                TargetManager.instance.detectedByAllies.Remove(a);
+            if (TargetManager.instance.detectedByEnemies.Contains(a))
+                TargetManager.instance.detectedByEnemies.Remove(a);
+        }
+    }
     public static int FindPlayerIDFromNetworkUID(ulong networkUID)
     {
         for (int i = 0; i < players.Count; i++)
@@ -1892,7 +1929,7 @@ public static class PlayerManager
         OPFORbuttonMade = false;
         timeinGame = 0;
         Networker.hostLoaded = false;
-
+        PlaneNetworker_Receiver.manObjects.Clear();
         PlayerManager.allowStart = false;
     }
 

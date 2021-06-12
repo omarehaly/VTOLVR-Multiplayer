@@ -27,7 +27,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
     private ulong mostCurrentUpdateNumber;
 
-    private void Awake()
+    private void Start()
     {
         kplane = GetComponent<KinematicPlane>();
         actor = GetComponent<Actor>();
@@ -62,7 +62,9 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         actor.fixedVelocityUpdate = true;
         if (rb == null)
         {
+            return;
             Debug.LogError("Rigid body is null on object " + gameObject.name);
+         
         }
         if (rb.isKinematic == false)
         {
@@ -162,7 +164,9 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
     public void OnDestroy()
     {
         Networker.RigidbodyUpdate -= RigidbodyUpdate;
+        
 
+        
         Debug.Log("Destroyed Rigidbody Update");
         Debug.Log(gameObject.name);
     }

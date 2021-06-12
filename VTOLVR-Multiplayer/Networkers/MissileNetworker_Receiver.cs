@@ -18,15 +18,15 @@ public class MissileNetworker_Receiver : MonoBehaviour
     private bool hasFired = false;
     private bool exploded = false;
     private List<int> colliderLayers = new List<int>();
-
+    bool started = false;
     public static List<Actor> radarMissiles = new List<Actor>();
-    private void Start()
+    private void Awake()
     {
         if (thisMissile == null)
         {
             thisMissile = GetComponent<Missile>();
         }
-
+        started = true;
         // rigidbody = GetComponent<Rigidbody>();
         Networker.MissileUpdate += MissileUpdate;
         thisMissile.OnDetonate.AddListener(new UnityEngine.Events.UnityAction(() => { Debug.Log("Missile detonated: " + thisMissile.name); }));
@@ -48,7 +48,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
     public void MissileUpdate(Packet packet)
     {
         lastMessage = ((PacketSingle)packet).message as Message_MissileUpdate;
-
+       
         if (lastMessage.networkUID != networkUID)
         {
             return;
@@ -57,6 +57,10 @@ public class MissileNetworker_Receiver : MonoBehaviour
         {
             Debug.LogError(thisMissile.gameObject.name + " isn't active in hiearchy, changing it to active.");
             thisMissile.gameObject.SetActive(true);
+        }
+        if (started == false)
+        {
+            return;
         }
         if (traverseML == null)
         {
@@ -174,10 +178,17 @@ public class MissileNetworker_Receiver : MonoBehaviour
     }
     private void LateUpdate()
     {
-        traverseMSL.Field("detonated").SetValue(true);
-        traverseMSL.Field("radarLostTime").SetValue(0.0f);
-        traverseMSL.Field("finalTorque").SetValue(new Vector3(0.0f, 0.0f, 0.0f));
-        
+        if(hasFired)
+        if (thisMissile != null)
+        {
+            if (!exploded)
+            {
+                traverseMSL.Field("detonated").SetValue(true);
+                traverseMSL.Field("radarLostTime").SetValue(0.0f);
+                traverseMSL.Field("finalTorque").SetValue(new Vector3(0.0f, 0.0f, 0.0f));
+            }
+        }
+
     }
 
 

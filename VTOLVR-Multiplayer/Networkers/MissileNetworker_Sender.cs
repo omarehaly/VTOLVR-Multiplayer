@@ -56,8 +56,6 @@ public class MissileNetworker_Sender : MonoBehaviour
                 rbSender.networkUID = networkUID;
                 rbSender.tickRate = 20.0f;
 
-                AIDictionaries.allActors.Add(networkUID, thisMissile.actor);
-                AIDictionaries.reverseAllActors.Add(thisMissile.actor, networkUID);
 
             }
             if (thisMissile != null && thisMissile.fired)

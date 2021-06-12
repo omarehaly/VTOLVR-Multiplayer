@@ -78,7 +78,7 @@ class ShipNetworker_Receiver : MonoBehaviour
     private IEnumerator CloseDeflector(CarrierCatapult ctp)
     {
       
-        yield return new WaitForSeconds(10.0f);
+        yield return new WaitForSeconds(20.0f);
        ctp.deflectorRotator.SetDefault();
        Traverse.Create(ctp).Field("catapultReady").SetValue(true);
     }

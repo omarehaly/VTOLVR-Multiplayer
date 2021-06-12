@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 public class RigidbodyNetworker_Sender : MonoBehaviour
 {
@@ -33,8 +34,8 @@ public class RigidbodyNetworker_Sender : MonoBehaviour
 
         tick += UnityEngine.Random.Range(0.0f, 1.0f / tickRate);
     }
-
-    private void FixedUpdate()
+  
+        private void FixedUpdate()
     {
         globalLastPosition += new Vector3D(lastVelocity * Time.fixedDeltaTime);
         localLastPosition = VTMapManager.GlobalToWorldPoint(globalLastPosition);

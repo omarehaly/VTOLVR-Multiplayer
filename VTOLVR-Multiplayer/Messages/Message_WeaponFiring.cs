@@ -8,7 +8,8 @@ public class Message_WeaponFiring : Message
     public int missileIdx;
     public bool noAmmo;
     public int ripple;
-    public Message_WeaponFiring(int weaponIdx, bool isFiring, bool noAmmo, ulong uID,int ripples)
+    public string salvo;
+    public Message_WeaponFiring(int weaponIdx, bool isFiring, bool noAmmo, ulong uID,int ripples, string salvos)
     {
         this.weaponIdx = weaponIdx;
         this.isFiring = isFiring;
@@ -16,5 +17,6 @@ public class Message_WeaponFiring : Message
         UID = uID;
         type = MessageType.WeaponFiring;
         ripple = ripples;
+        salvo = salvos;
     }
 }

@@ -564,16 +564,16 @@ public static class AIManager
                             Debug.Log("This unit is made from " + subUIDs.Count + " actors! ");
                             if (canBreak)
                             {
-                                Networker.addToReliableSendBuffer(new Message_SpawnAIVehicle(actor.name, GetUnitNameFromCatalog(actor.unitSpawn.unitName), redfor, hasAirport,
+                                NetworkSenderThread.Instance.SendPacketAsHostToAllClients(new Message_SpawnAIVehicle(actor.name, GetUnitNameFromCatalog(actor.unitSpawn.unitName), redfor, hasAirport,
                                     VTMapManager.WorldToGlobalPoint(actor.gameObject.transform.position),
-                                    actor.gameObject.transform.rotation, uidSender.networkUID, subUIDs.ToArray(), hPInfos2, cmLoadout, 0.65f, Aggresion, actor.unitSpawn.unitSpawner.unitInstanceID, letters, ids.ToArray(), irIDS));
+                                    actor.gameObject.transform.rotation, uidSender.networkUID, subUIDs.ToArray(), hPInfos2, cmLoadout, 0.65f, Aggresion, actor.unitSpawn.unitSpawner.unitInstanceID, letters, ids.ToArray(), irIDS), EP2PSend.k_EP2PSendReliableWithBuffering);
                             }
                             else
                             {
                                 // Debug.Log("It seems that " + actor.name + " is not in a unit group, sending anyways.");
-                                Networker.addToReliableSendBuffer(new Message_SpawnAIVehicle(actor.name, GetUnitNameFromCatalog(actor.unitSpawn.unitName), redfor, hasAirport,
+                                NetworkSenderThread.Instance.SendPacketAsHostToAllClients(new Message_SpawnAIVehicle(actor.name, GetUnitNameFromCatalog(actor.unitSpawn.unitName), redfor, hasAirport,
                                 VTMapManager.WorldToGlobalPoint(actor.gameObject.transform.position),
-                                actor.gameObject.transform.rotation, uidSender.networkUID, subUIDs.ToArray(), hPInfos2, cmLoadout, 0.65f, Aggresion, actor.unitSpawn.unitSpawner.unitInstanceID, ids.ToArray(), irIDS));
+                                actor.gameObject.transform.rotation, uidSender.networkUID, subUIDs.ToArray(), hPInfos2, cmLoadout, 0.65f, Aggresion, actor.unitSpawn.unitSpawner.unitInstanceID, ids.ToArray(), irIDS), EP2PSend.k_EP2PSendReliableWithBuffering);
                             }
                         }
                     }
@@ -780,7 +780,7 @@ public static class AIManager
             Debug.Log(actor.name + " has a parent, not giving an uID sender.");
         }
     }
-
+    
     public static void SetUpCarrier(GameObject carrier, ulong id, Teams team)
     {
         AirportManager airport = carrier.GetComponent<AirportManager>();

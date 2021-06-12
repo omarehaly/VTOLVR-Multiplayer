@@ -21,6 +21,7 @@ public class Multiplayer : VTOLMOD
         public String campID;
         public String scenID;
         public String plane;
+            public String scnName;
     };
     public static bool SoloTesting = true;
     public static Multiplayer _instance = null;
@@ -166,6 +167,8 @@ public class Multiplayer : VTOLMOD
        
         Callback_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
         debugLog_Settings(debugLogs);
+        UnityEngine.Debug.logger.logEnabled = false;
+        UnityEngine.Debug.unityLogger.logEnabled = false;
     }
 
     public void CheckUpToDate()
@@ -301,6 +304,8 @@ public class Multiplayer : VTOLMOD
         {
             if (Debug.ShowDebugMessages != true)
                 Debug.ShowDebugMessages = true;
+            UnityEngine.Debug.logger.logEnabled = true;
+            UnityEngine.Debug.unityLogger.logEnabled = true;
         }
     }
 
@@ -720,10 +725,10 @@ public class Multiplayer : VTOLMOD
         }
 
         friendListItems.Clear();
+        friendsTemplate.SetActive(true);
         SteamMatchmaking.RequestLobbyList();
         yield return new WaitForSeconds(2);
 
-        friendsTemplate.SetActive(true);
         GameObject lastlobbyGO;
         VRUIListItemTemplate uiListItem;
         int totalLobby = 0;
@@ -868,7 +873,10 @@ public class Multiplayer : VTOLMOD
 
         SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "hostID",  SteamUser.GetSteamID().m_SteamID.ToString());
         if(PilotSaveManager.currentScenario!=null)
-        SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "ScenarioID", PilotSaveManager.currentScenario.scenarioID);
+        {
+            SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "ScenarioID", PilotSaveManager.currentScenario.scenarioID);
+            SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "Scenarioname", PilotSaveManager.currentScenario.scenarioName);
+        }
         else
             Debug.Log("bad scenrio");
         if (PilotSaveManager.currentCampaign != null)
@@ -896,6 +904,7 @@ public class Multiplayer : VTOLMOD
                 newLob.scenID = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "ScenarioID");
                 newLob.campID = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "CampID");
                 newLob.plane = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "plane");
+                newLob.scnName = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "Scenarioname");
                 VtolLobbies.Add(newLob);
 
                 Debug.Log("Lobby added" + newLob.hostName);
@@ -931,23 +940,24 @@ public class Multiplayer : VTOLMOD
         int iddx = 0;
         for (int i= 0; i<campaignss.Count(); i++)
         {
-            if(campaignss[i].campaignID== VtolLobbies[index].campID)
+            if(campaignss[i].campaignID == VtolLobbies[index].campID)
             {
                   Traverse.Create(selectorUI).Field("campaignIdx").SetValue(i);
-                    iddx = i;
+               
+                iddx = i;
             }
 
         }
-
-       
+        bool found = false;
+        PilotSaveManager.currentScenario = null;
         //selectorUI.SelectCampaign();
         PilotSaveManager.currentCampaign = campaignss[iddx];
         for  (int s= 0; s < campaignss[iddx].missions.Count(); s++ )
         {
             if (campaignss[iddx].missions[s].scenarioID == VtolLobbies[index].scenID)
             {
-
                 PilotSaveManager.currentScenario = campaignss[iddx].missions[s];
+                found = true;
             }
             
         }
@@ -957,7 +967,12 @@ public class Multiplayer : VTOLMOD
         Networker._instance.pilotSaveManagerControllerCampaignScenario = PilotSaveManager.currentScenario;
         // scn = VTResources.GetCustomScenario(VtolLobbies[index].scenID, camp.campaignID);
         ScenarioDisplayStore.gameObject.SetActive(false);
-        contentJoinLog.text = VtolLobbies[index].hostName+ " is playing " + PilotSaveManager.currentScenario.scenarioName;
+
+        contentJoinLog.text = VtolLobbies[index].hostName + " is playing " + VtolLobbies[index].scnName;
+        if (found ==false)
+        { 
+            contentJoinLog.text += ", You Dont Have It Downloaded";
+        }
         NetworkSenderThread.Instance.SendPacketToSpecificPlayer(VtolLobbies[index].hostID, new Message_LobbyInfoRequest(), EP2PSend.k_EP2PSendReliable); //Getting lobby info.
 
         //selectionTF.position = steamFriends[index].transform.position;
@@ -980,6 +995,12 @@ public class Multiplayer : VTOLMOD
 
     public void Host()
     {
+        if(PilotSaveManager.currentScenario ==null)
+        {
+            if (contentJoinLog != null)
+                contentJoinLog.text = "Select Scenario";
+                return;
+        }
         CampaignSelectorUI selectorUI = FindObjectOfType<CampaignSelectorUI>();
         PlayerVehicle pv = PilotSaveManager.currentVehicle;
         Campaign cc = PilotSaveManager.currentCampaign;
