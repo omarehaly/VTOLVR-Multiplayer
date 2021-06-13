@@ -16,7 +16,8 @@ public struct manObjectSorter
 }
 public class PlaneNetworker_Receiver : MonoBehaviour
 {
-    public ulong networkUID;
+    private ulong _networkUID;
+    
     private Message_PlaneUpdate lastMessage;
     private bool firstMessageReceived;
     public static bool dontPrefixNextJettison = false;
@@ -47,7 +48,35 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     public VTOLVehicles vehicleType = VTOLVehicles.None;
     public static List<manObjectSorter> manObjects = new List<manObjectSorter>();
     manObjectSorter mos;
-   
+    public static Dictionary<ulong, List<PlaneNetworker_Receiver>> recieverDict = new Dictionary<ulong, List<PlaneNetworker_Receiver>>();
+    
+    public ulong networkUID
+    {
+        get
+        {
+            return _networkUID;
+        }
+        set
+        {
+            mostCurrentUpdateNumber = 0;
+            if (recieverDict.ContainsKey(networkUID))
+            {
+                recieverDict[networkUID].Remove(this);
+            }
+            if (!recieverDict.ContainsKey(value))
+            {
+                List<PlaneNetworker_Receiver> newList = new List<PlaneNetworker_Receiver>();
+                recieverDict.Add(value, newList);
+                newList.Add(this);
+            }
+            else
+            {
+                recieverDict[value].Add(this);
+            }
+
+            this._networkUID = value;
+        }
+    }
     private void Awake()
     {
         firstMessageReceived = false;
@@ -58,7 +87,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         
         aiPilot.enabled = false;
         aiPilot.enabled = false;
-        Networker.PlaneUpdate += PlaneUpdate;
+       
         Networker.WeaponSet_Result += WeaponSet_Result;
         Networker.Disconnecting += OnDisconnect;
         Networker.WeaponFiring += WeaponFiring;
@@ -127,7 +156,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
             }
         }
           mos = new manObjectSorter();
-
+      
     }
 
     private void Start()
@@ -135,7 +164,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         if (gameObject.name.Contains("Client"))
         {           
             setupManReciever();
-            Networker.IKUpdate += IKUpdate;
+            //Networker.IKUpdate += IKUpdate;
             //if (gameObject.name.Contains("Client"))
             Transform[] children = gameObject.GetComponentsInChildren<Transform>(true);
             foreach (Transform child in children)
@@ -244,7 +273,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
 
     private void FixedUpdate()
     {
-
+       
         if (manSetup)
         {
             Vector3 v = manPuppet.transform.position - FlightSceneManager.instance.playerActor.gameObject.transform.position;
@@ -260,84 +289,98 @@ public class PlaneNetworker_Receiver : MonoBehaviour
              
         }
     }
-    public void IKUpdate(Packet packet)
+    public static void IKUpdate(Packet packet)
     {
-        if (manSetup != true)
-            return;
+        
         Message_IKPuppet newMessage = (Message_IKPuppet)((PacketSingle)packet).message;
-
-        if (newMessage.networkUID != networkUID)
+        List<PlaneNetworker_Receiver> plnl = null;
+        if (!recieverDict.TryGetValue(newMessage.networkUID, out plnl))
             return;
-        puppetRhand.position = puppethip.transform.position + newMessage.puppetRhand.toVector3;
-        puppetLhand.position = puppethip.transform.position + newMessage.puppetLhand.toVector3;
-        puppetHead.position = puppethip.transform.position + newMessage.puppetHead.toVector3;
-        puppetHeadLook.position = puppethip.transform.position + newMessage.puppetHeadLook.toVector3;
+        foreach (var pln in plnl)
+        {
+            if (pln.manSetup != true)
+                return;
+            if (newMessage.networkUID != pln.networkUID)
+                return;
+            pln.puppetRhand.position = pln.puppethip.transform.position + newMessage.puppetRhand.toVector3;
+            pln.puppetLhand.position = pln.puppethip.transform.position + newMessage.puppetLhand.toVector3;
+            pln.puppetHead.position = pln.puppethip.transform.position + newMessage.puppetHead.toVector3;
+            pln.puppetHeadLook.position = pln.puppethip.transform.position + newMessage.puppetHeadLook.toVector3;
+        }
     }
-    public void PlaneUpdate(Packet packet)
+    public static void PlaneUpdate(Packet packet)
     {
         Message_PlaneUpdate newMessage = (Message_PlaneUpdate)((PacketSingle)packet).message;
 
-        if (newMessage.networkUID != networkUID)
+       
+       
+        List<PlaneNetworker_Receiver> plnl = null;
+        if (!recieverDict.TryGetValue(newMessage.networkUID, out plnl))
             return;
-
-
-        mostCurrentUpdateNumber = newMessage.sequenceNumber;
-
-
-        if (!firstMessageReceived)
+        foreach (var pln in plnl)
         {
-            firstMessageReceived = true;
-            SetLandingGear(newMessage.landingGear);
-            SetTailHook(newMessage.tailHook);
-            SetLaunchBar(newMessage.launchBar);
-            SetFuelPort(newMessage.fuelPort);
-            SetOrientation(newMessage.pitch, newMessage.yaw, newMessage.roll);
-            SetFlaps(newMessage.flaps);
-            SetBrakes(newMessage.brakes);
-            SetThrottle(newMessage.throttle);
-        }
-        else
-        {
-            if (lastMessage.landingGear != newMessage.landingGear)
-            {
-                SetLandingGear(newMessage.landingGear);
-            }
-            if (lastMessage.tailHook != newMessage.tailHook)
-            {
-                SetTailHook(newMessage.tailHook);
-            }
-            if (lastMessage.launchBar != newMessage.launchBar)
-            {
-                SetLaunchBar(newMessage.launchBar);
-            }
-            if (lastMessage.fuelPort != newMessage.fuelPort)
-            {
-                SetFuelPort(newMessage.fuelPort);
-            }
-            if (lastMessage.pitch != newMessage.pitch || lastMessage.yaw != newMessage.yaw || lastMessage.roll != newMessage.roll)
-            {
-                SetOrientation(newMessage.pitch, newMessage.yaw, newMessage.roll);
-            }
-            if (lastMessage.flaps != newMessage.flaps)
-            {
-                SetFlaps(newMessage.flaps);
-            }
-            if (lastMessage.brakes != newMessage.brakes)
-            {
-                SetBrakes(newMessage.brakes);
-            }
-            if (lastMessage.throttle != newMessage.throttle)
-            {
-                SetThrottle(newMessage.throttle);
-            }
+            if (pln == null)
+                return;
+            if (newMessage.networkUID != pln.networkUID)
+                return;
+            pln.mostCurrentUpdateNumber = newMessage.sequenceNumber;
 
-        }
-        lastMessage = newMessage;
 
-        if (ownerActor != null)
-        {
-            ownerActor.flightInfo.PauseGCalculations();
-            ownerActor.flightInfo.OverrideRecordedAcceleration(Vector3.zero);
+            if (!pln.firstMessageReceived)
+            {
+                pln.firstMessageReceived = true;
+                pln.SetLandingGear(newMessage.landingGear);
+                pln.SetTailHook(newMessage.tailHook);
+                pln.SetLaunchBar(newMessage.launchBar);
+                pln.SetFuelPort(newMessage.fuelPort);
+                pln.SetOrientation(newMessage.pitch, newMessage.yaw, newMessage.roll);
+                pln.SetFlaps(newMessage.flaps);
+                pln.SetBrakes(newMessage.brakes);
+                pln.SetThrottle(newMessage.throttle);
+            }
+            else
+            {
+                if (pln.lastMessage.landingGear != newMessage.landingGear)
+                {
+                    pln.SetLandingGear(newMessage.landingGear);
+                }
+                if (pln.lastMessage.tailHook != newMessage.tailHook)
+                {
+                    pln.SetTailHook(newMessage.tailHook);
+                }
+                if (pln.lastMessage.launchBar != newMessage.launchBar)
+                {
+                    pln.SetLaunchBar(newMessage.launchBar);
+                }
+                if (pln.lastMessage.fuelPort != newMessage.fuelPort)
+                {
+                    pln.SetFuelPort(newMessage.fuelPort);
+                }
+                if (pln.lastMessage.pitch != newMessage.pitch || pln.lastMessage.yaw != newMessage.yaw || pln.lastMessage.roll != newMessage.roll)
+                {
+                    pln.SetOrientation(newMessage.pitch, newMessage.yaw, newMessage.roll);
+                }
+                if (pln.lastMessage.flaps != newMessage.flaps)
+                {
+                    pln.SetFlaps(newMessage.flaps);
+                }
+                if (pln.lastMessage.brakes != newMessage.brakes)
+                {
+                    pln.SetBrakes(newMessage.brakes);
+                }
+                if (pln.lastMessage.throttle != newMessage.throttle)
+                {
+                    pln.SetThrottle(newMessage.throttle);
+                }
+
+            }
+            pln.lastMessage = newMessage;
+
+            if (pln.ownerActor != null)
+            {
+                pln.ownerActor.flightInfo.PauseGCalculations();
+                pln.ownerActor.flightInfo.OverrideRecordedAcceleration(Vector3.zero);
+            }
         }
     }
     private void SetLandingGear(bool state)
@@ -603,7 +646,10 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     public void OnDestroy()
     {
         firstMessageReceived = false;
-        Networker.PlaneUpdate -= PlaneUpdate;
+        if (recieverDict.ContainsKey(_networkUID))
+        {
+            recieverDict[networkUID].Remove(this);
+        }
         Networker.Disconnecting -= OnDisconnect;
         Networker.WeaponSet_Result -= WeaponSet_Result;
         Networker.WeaponFiring -= WeaponFiring;
@@ -611,7 +657,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         if (manSetup == true)
         {
             manObjects.Remove(mos);
-            Networker.IKUpdate -= IKUpdate;
+          
         }
             
         // Networker.WeaponStoppedFiring -= WeaponStoppedFiring;

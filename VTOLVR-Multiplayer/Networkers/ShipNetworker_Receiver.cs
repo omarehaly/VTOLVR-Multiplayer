@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 class ShipNetworker_Receiver : MonoBehaviour
 {
-    public ulong networkUID;
+     
     private Message_ShipUpdate lastMessage;
     public ShipMover ship;
     public Traverse shipTraverse;
@@ -16,11 +16,41 @@ class ShipNetworker_Receiver : MonoBehaviour
     public Vector3 targetVelocity;
     public Quaternion targetRotation;
     public List<CarrierCatapult> catapults;
+    private ulong _networkUID;
+    public static Dictionary<ulong, List<ShipNetworker_Receiver>> recieverDict = new Dictionary<ulong, List<ShipNetworker_Receiver>>();
+
+    public ulong networkUID
+    {
+        get
+        {
+            return _networkUID;
+        }
+        set
+        {
+
+            if (recieverDict.ContainsKey(networkUID))
+            {
+                recieverDict[networkUID].Remove(this);
+            }
+            if (!recieverDict.ContainsKey(value))
+            {
+                List<ShipNetworker_Receiver> newList = new List<ShipNetworker_Receiver>();
+                recieverDict.Add(value, newList);
+                newList.Add(this);
+            }
+            else
+            {
+                recieverDict[value].Add(this);
+            }
+
+            this._networkUID = value;
+        }
+    }
     private void Awake()
     {
         lastMessage = new Message_ShipUpdate(new Vector3D(), new Quaternion(), new Vector3D(), networkUID);
-        Networker.ShipUpdate += ShipUpdate;
-
+     
+     
         ship = GetComponent<ShipMover>();
         ship.enabled = false;
         shipTraverse = Traverse.Create(ship);
@@ -43,34 +73,43 @@ class ShipNetworker_Receiver : MonoBehaviour
         ship.rb.MoveRotation(Quaternion.Lerp(ship.transform.rotation, targetRotation, Time.fixedDeltaTime / rotSmoothTime));
     }
 
-    public void ShipUpdate(Packet packet)
+    public static void ShipUpdate(Packet packet)
     {
-        lastMessage = (Message_ShipUpdate)((PacketSingle)packet).message;
-        if (lastMessage.UID != networkUID)
+        Message_ShipUpdate lastMessage = (Message_ShipUpdate)((PacketSingle)packet).message;
+        List<ShipNetworker_Receiver> plnl = null;
+        if (!recieverDict.TryGetValue(lastMessage.UID, out plnl))
             return;
-
-        targetPositionGlobal = lastMessage.position + lastMessage.velocity.toVector3 * Networker.pingToHost;
-        targetVelocity = lastMessage.velocity.toVector3;
-        targetRotation = lastMessage.rotation;
-
-        if ((VTMapManager.GlobalToWorldPoint(lastMessage.position) - ship.transform.position).magnitude > 100)
+        foreach (var pln in plnl)
         {
-            Debug.Log("Ship is too far, teleporting. This message should apear once per ship at spawn, if ur seeing more something is probably fucky");
-            ship.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
-        }
+            if (lastMessage.UID != pln.networkUID)
+                return;
 
-        foreach(CarrierCatapult ctp  in catapults)
-        {
-            if(ctp.deflectorRotator.deployed)
+            pln.targetPositionGlobal = lastMessage.position + lastMessage.velocity.toVector3 * Networker.pingToHost;
+            pln.targetVelocity = lastMessage.velocity.toVector3;
+            pln.targetRotation = lastMessage.rotation;
+
+            if ((VTMapManager.GlobalToWorldPoint(lastMessage.position) - pln.ship.transform.position).magnitude > 100)
             {
-                StartCoroutine("CloseDeflector", ctp);
+                Debug.Log("Ship is too far, teleporting. This message should apear once per ship at spawn, if ur seeing more something is probably fucky");
+                pln.ship.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
+            }
+
+            foreach (CarrierCatapult ctp in pln.catapults)
+            {
+                if (ctp.deflectorRotator.deployed)
+                {
+                    pln.StartCoroutine("CloseDeflector", ctp);
+                }
             }
         }
     }
 
     public void OnDestroy()
     {
-        Networker.ShipUpdate -= ShipUpdate;
+        if (recieverDict.ContainsKey(_networkUID))
+        {
+            recieverDict[networkUID].Remove(this);
+        }
         Debug.Log("Destroyed ShipUpdate");
         Debug.Log(gameObject.name);
     }

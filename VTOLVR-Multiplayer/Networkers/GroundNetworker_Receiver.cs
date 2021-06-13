@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 
+using System.Collections.Generic;
 class GroundNetworker_Receiver : MonoBehaviour
 {
-    public ulong networkUID;
+    
     private Message_ShipUpdate lastMessage;
     public GroundUnitMover groundUnitMover;
     public bool isSoldier;
@@ -19,11 +20,40 @@ class GroundNetworker_Receiver : MonoBehaviour
 
     Vector3D smoothedPosition;
     Quaternion smoothedRotation;
+    private ulong _networkUID;
+    public static Dictionary<ulong, List<GroundNetworker_Receiver>> recieverDict = new Dictionary<ulong, List<GroundNetworker_Receiver>>();
+ 
+    public ulong networkUID
+    {
+        get
+        {
+            return _networkUID;
+        }
+        set
+        {
 
+            if (recieverDict.ContainsKey(networkUID))
+            {
+                recieverDict[networkUID].Remove(this);
+            }
+            if (!recieverDict.ContainsKey(value))
+            {
+                List<GroundNetworker_Receiver> newList = new List<GroundNetworker_Receiver>();
+                recieverDict.Add(value, newList);
+                newList.Add(this);
+            }
+            else
+            {
+                recieverDict[value].Add(this);
+            }
+
+            this._networkUID = value;
+        }
+    }
     private void Awake()
     {
         lastMessage = new Message_ShipUpdate(new Vector3D(), new Quaternion(), new Vector3D(), networkUID);//it uses ship update, cause the information really isnt all that different
-        Networker.ShipUpdate += GroundUpdate;
+       
 
         groundUnitMover = GetComponent<GroundUnitMover>();
         soldier = GetComponentInChildren<SoldierAnimator>();
@@ -79,40 +109,49 @@ class GroundNetworker_Receiver : MonoBehaviour
         }
     }
 
-    public void GroundUpdate(Packet packet)
+    public static void GroundUpdate(Packet packet)
     {
-        lastMessage = (Message_ShipUpdate)((PacketSingle)packet).message;
-        if (lastMessage.UID != networkUID)
+        Message_ShipUpdate lastMessage = (Message_ShipUpdate)((PacketSingle)packet).message;
+        List<GroundNetworker_Receiver> plnl = null;
+        if (!recieverDict.TryGetValue(lastMessage.UID, out plnl))
+            return;
+        foreach (var pln in plnl)
+        { 
+            if (lastMessage.UID != pln.networkUID)
             return;
 
-        targetPositionGlobal = lastMessage.position + lastMessage.velocity.toVector3 * Networker.pingToHost;
-        targetVelocity = lastMessage.velocity.toVector3;
+            pln.targetPositionGlobal = lastMessage.position + lastMessage.velocity.toVector3 * Networker.pingToHost;
+            pln.targetVelocity = lastMessage.velocity.toVector3;
         //targetRotation = lastMessage.rotation;
         //targetRotation = targetRotation.normalized;
         //could not get the rotation to work for whatever reason, so ground moves face their velocity vector
 
         //Debug.Log("Ground reciever rotation is: " + lastMessage.rotation.ToString());
 
-        if ((VTMapManager.GlobalToWorldPoint(lastMessage.position) - groundUnitMover.transform.position).magnitude > 100)
+        if ((VTMapManager.GlobalToWorldPoint(lastMessage.position) - pln.groundUnitMover.transform.position).magnitude > 100)
         {
             Debug.Log("Ground mover is too far, teleporting.");
-            groundUnitMover.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
+                pln.groundUnitMover.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
             Quaternion qs = lastMessage.rotation;
             qs = qs.normalized;
-            groundUnitMover.transform.rotation = qs;
-            smoothedPosition = lastMessage.position;
-            if (targetVelocity.sqrMagnitude > 1)
+                pln.groundUnitMover.transform.rotation = qs;
+                pln.smoothedPosition = lastMessage.position;
+            if (pln.targetVelocity.sqrMagnitude > 1)
             {
-                smoothedRotation = Quaternion.LookRotation(targetVelocity);
+                    pln.smoothedRotation = Quaternion.LookRotation(pln.targetVelocity);
             }
             //smoothedRotation = lastMessage.rotation;
             //smoothedRotation = smoothedRotation.normalized;
+        }
         }
     }
 
     public void OnDestroy()
     {
-        Networker.ShipUpdate -= GroundUpdate;
+        if (recieverDict.ContainsKey(_networkUID))
+        {
+            recieverDict[networkUID].Remove(this);
+        }
         Debug.Log("Destroyed GroundMoverUpdate");
         Debug.Log(gameObject.name);
     }

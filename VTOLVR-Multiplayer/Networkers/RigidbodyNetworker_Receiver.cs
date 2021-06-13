@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 
+using System.Collections.Generic;
 using System.Collections;
 /// <summary>
 /// Updates objects with a  rigidbody over the network using velocity and position.
 /// </summary>
 public class RigidbodyNetworker_Receiver : MonoBehaviour
 {
-    public ulong networkUID;
-
+    
     private Vector3D globalTargetPosition;
     private Vector3 localTargetPosition;
     private Vector3 targetVelocity;
@@ -25,9 +25,36 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
     public bool pauseDetection = false;
     public PlayerManager.Player playerWeRepresent = null;
 
-    private ulong mostCurrentUpdateNumber;
+    public static Dictionary<ulong, List<RigidbodyNetworker_Receiver>> recieverDict = new Dictionary<ulong, List<RigidbodyNetworker_Receiver>>();
+    private ulong _networkUID;
+    public ulong networkUID
+    {
+        get
+        {
+            return _networkUID;
+        }
+        set
+        {
+            mostCurrentUpdateNumber = 0;
+            if (recieverDict.ContainsKey(networkUID))
+            {
+                recieverDict[networkUID].Remove(this);
+            }
+            if (!recieverDict.ContainsKey(value))
+            {
+                List<RigidbodyNetworker_Receiver> newList = new List<RigidbodyNetworker_Receiver>();
+                recieverDict.Add(value,newList);
+                newList.Add(this);
+            }else
+            {
+                recieverDict[value].Add(this);
+            }
 
-    private void Start()
+            this._networkUID = value;
+        }
+    }
+    private ulong mostCurrentUpdateNumber;
+     private void Start()
     {
         kplane = GetComponent<KinematicPlane>();
         actor = GetComponent<Actor>();
@@ -51,7 +78,6 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
         originTransform.SetRigidbody(rb);
 
-        Networker.RigidbodyUpdate += RigidbodyUpdate;
 
         mostCurrentUpdateNumber = 0;
     }
@@ -116,29 +142,36 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         rb.MoveRotation(quat.normalized);
     }
 
-    public void RigidbodyUpdate(Packet packet)
+    static public void RigidbodyUpdate(Packet packet)
     {
         Message_RigidbodyUpdate rigidbodyUpdate = (Message_RigidbodyUpdate)((PacketSingle)packet).message;
         //Debug.Log($"Rigidbody Update\nOur Network ID = {networkUID} Packet Network ID = {rigidbodyUpdate.networkUID}");
-        if (rigidbodyUpdate.networkUID != networkUID)
+        List<RigidbodyNetworker_Receiver> plnl = null;
+        if (!recieverDict.TryGetValue(rigidbodyUpdate.networkUID, out plnl))
+            return;
+        foreach(var pln in plnl) { 
+        if (pln == null)
+            return;
+        if (rigidbodyUpdate.networkUID != pln.networkUID)
             return;
 
-        if (rigidbodyUpdate.sequenceNumber <  mostCurrentUpdateNumber  )
-            return;
-        mostCurrentUpdateNumber = rigidbodyUpdate.sequenceNumber;
+        if (rigidbodyUpdate.sequenceNumber < pln.mostCurrentUpdateNumber)
+          return;
+        pln.mostCurrentUpdateNumber = rigidbodyUpdate.sequenceNumber;
 
-        globalTargetPosition = rigidbodyUpdate.position + rigidbodyUpdate.velocity.toVector3 * latency;
-        localTargetPosition = VTMapManager.GlobalToWorldPoint(globalTargetPosition);
-        targetVelocity = rigidbodyUpdate.velocity.toVector3;
-        targetRotation = rigidbodyUpdate.rotation * Quaternion.Euler(rigidbodyUpdate.angularVelocity.toVector3 * latency);
-        targetRotationVelocity = rigidbodyUpdate.angularVelocity.toVector3;
+        pln.globalTargetPosition = rigidbodyUpdate.position + rigidbodyUpdate.velocity.toVector3 * pln.latency;
+        pln.localTargetPosition = VTMapManager.GlobalToWorldPoint(pln.globalTargetPosition);
+        pln.targetVelocity = rigidbodyUpdate.velocity.toVector3;
+        pln.targetRotation = rigidbodyUpdate.rotation * Quaternion.Euler(rigidbodyUpdate.angularVelocity.toVector3 * pln.latency);
+        pln.targetRotationVelocity = rigidbodyUpdate.angularVelocity.toVector3;
 
-        Vector3D errorVec = (VTMapManager.WorldToGlobalPoint(transform.position) - globalTargetPosition);
-        if (errorVec.magnitude > positionThreshold)
+        Vector3D errorVec = (VTMapManager.WorldToGlobalPoint(pln.transform.position) - pln.globalTargetPosition);
+        if (errorVec.magnitude > pln.positionThreshold)
         {
             //Debug.Log("Outside of thresh hold, moving " + gameObject.name);
-            transform.position = localTargetPosition;
-            transform.rotation = rigidbodyUpdate.rotation;
+            pln.transform.position = pln.localTargetPosition;
+            pln.transform.rotation = rigidbodyUpdate.rotation;
+        }
         }
     }
 
@@ -163,10 +196,11 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
 
     public void OnDestroy()
     {
-        Networker.RigidbodyUpdate -= RigidbodyUpdate;
-        
-
-        
+        if (recieverDict.ContainsKey(_networkUID))
+        {
+            recieverDict[networkUID].Remove(this);
+        }
+            
         Debug.Log("Destroyed Rigidbody Update");
         Debug.Log(gameObject.name);
     }

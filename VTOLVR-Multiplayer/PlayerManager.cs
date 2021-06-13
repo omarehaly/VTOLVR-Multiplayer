@@ -386,10 +386,9 @@ public static class PlayerManager
                 SpawnLocalVehicleAndInformOtherClients(localVehicle, hostTrans.transform.position, hostTrans.transform.rotation, localUID, true, 0);
 
 
-              
+
                 ///uncomment to randomise host spawn//
                 ///
-             
                 //localVehicle.GetComponent<RigidbodyNetworker_Sender>().originOffset = new Vector3(10, 0, 15.126f);
                 //AddToPlayerList(new Player(new CSteamID(1234), null, null, VTOLVehicles.FA26B, 1234, false, "FAKE F16", 123, true, "A10"));
                 //SpawnRepresentation(1234, new Vector3D(hostTrans.transform.position), hostTrans.transform.rotation, false, "FAKE F16", VTOLVehicles.FA26B);
@@ -1511,6 +1510,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     }
     public static GameObject SpawnRepresentation(ulong networkID, Vector3D position, Quaternion rotation, bool isLeft, string nameTagString, VTOLVehicles vehicle)
     {
+      
         if (networkID == localUID)
             return null;
 

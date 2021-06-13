@@ -169,6 +169,8 @@ public class Multiplayer : VTOLMOD
         debugLog_Settings(debugLogs);
         UnityEngine.Debug.logger.logEnabled = false;
         UnityEngine.Debug.unityLogger.logEnabled = false;
+
+        Networker.setupHooks();
     }
 
     public void CheckUpToDate()

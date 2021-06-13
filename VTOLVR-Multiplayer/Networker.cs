@@ -490,7 +490,28 @@ public class Networker : MonoBehaviour
         hostReady = true;
         UpdateLoadingText();
     }
+    public static void setupHooks()
+    {
+        Networker.PlaneUpdate += PlaneNetworker_Receiver.PlaneUpdate;
+        Networker.IKUpdate += PlaneNetworker_Receiver.IKUpdate;
+        Networker.RigidbodyUpdate += RigidbodyNetworker_Receiver.RigidbodyUpdate;
+        Networker.RadarUpdate += LockingRadarNetworker_Receiver.RadarUpdate;
+        Networker.LockingRadarUpdate += LockingRadarNetworker_Receiver.LockingRadarUpdate;
+        Networker.RadarDetectedUpdate += LockingRadarNetworker_Receiver.OnRadarDetectedActor;
+        Networker.TurretUpdate += TurretNetworker_Receiver.TurretUpdate;
+        Networker.ShipUpdate += GroundNetworker_Receiver.GroundUpdate;
+        Networker.ShipUpdate += ShipNetworker_Receiver.ShipUpdate;
+    }
 
+    public static void cleanupRecieverDict()
+    {
+      PlaneNetworker_Receiver.recieverDict.Clear();
+      RigidbodyNetworker_Receiver.recieverDict.Clear();
+      LockingRadarNetworker_Receiver.recieverDict.Clear();
+      TurretNetworker_Receiver.recieverDict.Clear();
+        GroundNetworker_Receiver.recieverDict.Clear();
+                ShipNetworker_Receiver.recieverDict.Clear();
+    }
     public static void JoinGame(CSteamID steamID)
     {
          
@@ -650,7 +671,7 @@ public class Networker : MonoBehaviour
         }
 
     }
-    private void ReadP2PPacket(byte[] array, uint num, uint num2, CSteamID csteamID)
+    public void ReadP2PPacket(byte[] array, uint num, uint num2, CSteamID csteamID)
     {
         if (csteamID == null)
         {
@@ -1664,7 +1685,7 @@ public class Networker : MonoBehaviour
             HeartbeatTimer.Stop();
             HeartbeatTimerRunning = false;
         }
-
+        cleanupRecieverDict();
         isHost = false;
         isClient = false;
         gameState = GameState.Menu;

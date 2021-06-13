@@ -35,7 +35,7 @@ class NetworkSenderThread
         networkThread.IsBackground = true;
         networkThread.Start();
 
-        networkThread.Priority = ThreadPriority.AboveNormal;
+        networkThread.Priority = ThreadPriority.Normal;
     }
 
     private class OutgoingNetworkPacketContainer
@@ -320,7 +320,7 @@ class NetworkSenderThread
         if (Multiplayer.SoloTesting)
         {
             //This skips sending the network message and gets sent right to ReadP2PPacket so that we can test solo with a fake player.
-            //_instance.ReadP2PPacket(memoryStream.ToArray(), 0, 0, new CSteamID(1));
+            //Networker._instance.ReadP2PPacket(serializedPacketData, 0, 0, new CSteamID(1));
             return;
         }
         if (!SteamNetworking.SendP2PPacket(remoteID, serializedPacketData, length, sendType))
