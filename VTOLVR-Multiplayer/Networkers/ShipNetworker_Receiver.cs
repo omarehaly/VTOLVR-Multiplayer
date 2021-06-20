@@ -88,10 +88,11 @@ class ShipNetworker_Receiver : MonoBehaviour
             pln.targetVelocity = lastMessage.velocity.toVector3;
             pln.targetRotation = lastMessage.rotation;
 
-            if ((VTMapManager.GlobalToWorldPoint(lastMessage.position) - pln.ship.transform.position).magnitude > 100)
+            if (( lastMessage.position  - VTMapManager.WorldToGlobalPoint(pln.ship.transform.position)).magnitude > 100)
             {
                 Debug.Log("Ship is too far, teleporting. This message should apear once per ship at spawn, if ur seeing more something is probably fucky");
                 pln.ship.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
+                pln.ship.rb.MovePosition(VTMapManager.GlobalToWorldPoint(lastMessage.position));
             }
 
             foreach (CarrierCatapult ctp in pln.catapults)

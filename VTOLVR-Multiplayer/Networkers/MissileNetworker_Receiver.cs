@@ -55,7 +55,7 @@ public class MissileNetworker_Receiver : MonoBehaviour
         }
         if (!thisMissile.gameObject.activeSelf)
         {
-            Debug.LogError(thisMissile.gameObject.name + " isn't active in hiearchy, changing it to active.");
+            //Debug.LogError(thisMissile.gameObject.name + " isn't active in hiearchy, changing it to active.");
             thisMissile.gameObject.SetActive(true);
         }
         if (started == false)
@@ -69,10 +69,10 @@ public class MissileNetworker_Receiver : MonoBehaviour
         
         if (!thisMissile.fired)
         {
-            Debug.Log(thisMissile.gameObject.name + " missile fired on one end but not another, firing here.");
+            //Debug.Log(thisMissile.gameObject.name + " missile fired on one end but not another, firing here.");
             if (thisML == null)
             {
-                Debug.LogError($"Missile launcher is null on missile {thisMissile.actor.name}, someone forgot to assign it.");
+                //Debug.LogError($"Missile launcher is null on missile {thisMissile.actor.name}, someone forgot to assign it.");
             }
             if (lastMessage.guidanceMode == Missile.GuidanceModes.Radar)
             {
@@ -80,19 +80,19 @@ public class MissileNetworker_Receiver : MonoBehaviour
                 RadarMissileLauncher radarLauncher = thisML as RadarMissileLauncher;
                 if (!VTOLVR_Multiplayer.AIDictionaries.allActors.TryGetValue(lastMessage.radarLock, out Actor actor))
                 {
-                    Debug.LogWarning($"Could not resolve missile launcher radar lock from uID {lastMessage.radarLock}.");
+                    //Debug.LogWarning($"Could not resolve missile launcher radar lock from uID {lastMessage.radarLock}.");
                 }
                 else
                 {
                     if (radarLauncher.lockingRadar != null)
                         radarLauncher.lockingRadar.ForceLock(actor, out lockData);
-                    else
-                        Debug.LogWarning("Locking Radar null on object " + thisMissile.name);
+                    //else
+                        //Debug.LogWarning("Locking Radar null on object " + thisMissile.name);
                 }
                 if (radarLauncher != null)
                 {
                     radarMissiles.Add(thisMissile.actor);
-                    Debug.Log("Guidance mode radar, firing it as a radar missile.");
+                    //Debug.Log("Guidance mode radar, firing it as a radar missile.");
                     traverseML.Field("missileIdx").SetValue(idx);
                     if (!radarLauncher.TryFireMissile())
                     {
@@ -118,14 +118,14 @@ public class MissileNetworker_Receiver : MonoBehaviour
             {
                 if (lastMessage.guidanceMode == Missile.GuidanceModes.Heat)
                 {
-                    Debug.Log("Guidance mode Heat.");
+                    //Debug.Log("Guidance mode Heat.");
                     thisMissile.heatSeeker.transform.rotation = lastMessage.seekerRotation;
                     thisMissile.heatSeeker.SetHardLock();
                 }
 
                 if (lastMessage.guidanceMode == Missile.GuidanceModes.Optical)
                 {
-                    Debug.Log("Guidance mode Optical.");
+                    //Debug.Log("Guidance mode Optical.");
 
                     GameObject emptyGO = new GameObject();
                     Transform newTransform = emptyGO.transform;
@@ -149,11 +149,11 @@ public class MissileNetworker_Receiver : MonoBehaviour
             }
             if (hasFired != thisMissile.fired)
             {
-                Debug.Log("Missile fired " + thisMissile.name);
+                //Debug.Log("Missile fired " + thisMissile.name);
                 hasFired = true;
 
-                AIDictionaries.allActors.Add(networkUID, thisMissile.actor);
-                AIDictionaries.reverseAllActors.Add(thisMissile.actor, networkUID);
+                //AIDictionaries.allActors.Add(networkUID, thisMissile.actor);
+                //AIDictionaries.reverseAllActors.Add(thisMissile.actor, networkUID);
                 if (colliderLayers.Count > 0)
                     StartCoroutine(colliderTimer());
             }

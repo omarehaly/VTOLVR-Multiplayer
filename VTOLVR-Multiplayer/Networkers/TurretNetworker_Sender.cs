@@ -7,7 +7,7 @@ class TurretNetworker_Sender : MonoBehaviour
     private Message_TurretUpdate lastMessage;
     public ModuleTurret turret;
     private float tick;
-    public float tickRate = 1.0f;
+    public float tickRate = 2.0f;
     public  Vector3 dirOld= new Vector3();
     private void Awake()
     {
@@ -28,11 +28,7 @@ class TurretNetworker_Sender : MonoBehaviour
     {
         if (turret == null)
             return;
-        if(dirOld != turret.pitchTransform.forward)
-        {
-            tickRate = 10.0f;
-        }else
-            tickRate =1.0f;
+        
         dirOld = turret.pitchTransform.forward;
         tick += Time.deltaTime;
         if (tick > 1.0f / tickRate)

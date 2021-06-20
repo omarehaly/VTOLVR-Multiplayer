@@ -38,7 +38,7 @@ public static class PlayerManager
     public static UnityAction<CustomPlaneDef> onSpawnClient = null;
     public static Transform LeftPTT = null;
     public static bool safeToForceDetect = false;
-
+    public static List<VRHandController> controllers= new List<VRHandController>();
     public static bool networkedDetection = false;
     /// <summary>
     /// This is the queue for people waiting to get a spawn point,
@@ -679,6 +679,14 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             }
 
          
+            if(controllers.Count==0)
+            {
+                foreach (var controller in GameObject.FindObjectsOfType<VRHandController>())
+                {
+                    controllers.Add(controller);
+                }
+            }
+         
            if (LeftPTT == null)
             {
                 if (FlightSceneManager.instance.playerActor.gameObject != null)
@@ -690,9 +698,12 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             }
             else
             {
-                foreach (var controller in GameObject.FindObjectsOfType<VRHandController>())
+                foreach (var controller in controllers)
                 {
-                    
+                    if(controller==null)
+                    {
+                        controllers.Clear();
+                    }else
                     if (controller.isLeft && controller.triggerAxis >0.5f)
                     {
                        
@@ -1014,7 +1025,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
                 if (rep.team == Teams.Allied)
                 {
-                    if (rep.radius > 18.0f && rep.radius < 19.0f)
+                   // if (rep.radius > 18.0f && rep.radius < 19.0f)
                     {
                         rearmPoint = rep;
                     }
@@ -1052,6 +1063,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             {
                 foreach (ReArmingPoint p in space.rearmPoints)
                 {
+
                     if(!p.gameObject.transform.parent.name.Contains("heli"))
                     if (p.radius > 18.8f)
                         rearmPointList.Add(p);
@@ -1115,8 +1127,8 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         Message_MissileDamage lastMissileDamageMessage = ((PacketSingle)packet).message as Message_MissileDamage;
 
         //ignore damage message from same player
-        //if (lastMissileDamageMessage.networkUID == PlayerManager.localUID)
-        //return;
+       if (lastMissileDamageMessage.networkUID == PlayerManager.localUID)
+        return;
 
         ulong actorTodamage = lastMissileDamageMessage.actorTobeDamaged;
         ulong damageSource = lastMissileDamageMessage.damageSourceActor;

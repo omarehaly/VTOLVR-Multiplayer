@@ -7,7 +7,7 @@ using System.Collections;
 /// </summary>
 public class RigidbodyNetworker_Receiver : MonoBehaviour
 {
-    
+
     private Vector3D globalTargetPosition;
     private Vector3 localTargetPosition;
     private Vector3 targetVelocity;
@@ -43,9 +43,10 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
             if (!recieverDict.ContainsKey(value))
             {
                 List<RigidbodyNetworker_Receiver> newList = new List<RigidbodyNetworker_Receiver>();
-                recieverDict.Add(value,newList);
+                recieverDict.Add(value, newList);
                 newList.Add(this);
-            }else
+            }
+            else
             {
                 recieverDict[value].Add(this);
             }
@@ -54,7 +55,11 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         }
     }
     private ulong mostCurrentUpdateNumber;
-     private void Start()
+    private void Awake()
+    {
+        gameObject.SetActive(true);
+    }
+    private void Start()
     {
         kplane = GetComponent<KinematicPlane>();
         actor = GetComponent<Actor>();
@@ -90,7 +95,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         {
             return;
             Debug.LogError("Rigid body is null on object " + gameObject.name);
-         
+
         }
         if (rb.isKinematic == false)
         {
@@ -121,7 +126,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (playerWeRepresent != null)
         {
             //delta time needs to be added to latency as this runs after packet has arrived for a while
-          latency = playerWeRepresent.ping;
+            latency = playerWeRepresent.ping;
         }
 
         globalTargetPosition += new Vector3D(targetVelocity * Time.fixedDeltaTime);
@@ -132,7 +137,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         currentRotation *= quatVel;
 
 
-         actor.SetCustomVelocity(Vector3.Lerp(actor.velocity, targetVelocity + (localTargetPosition - transform.position) / smoothingTime, Time.fixedDeltaTime / velSmoothingTime));
+        actor.SetCustomVelocity(Vector3.Lerp(actor.velocity, targetVelocity + (localTargetPosition - transform.position) / smoothingTime, Time.fixedDeltaTime / velSmoothingTime));
 
         rb.velocity = actor.velocity;
         Vector3D errorVec = (globalTargetPosition - VTMapManager.WorldToGlobalPoint(transform.position));
@@ -149,29 +154,30 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         List<RigidbodyNetworker_Receiver> plnl = null;
         if (!recieverDict.TryGetValue(rigidbodyUpdate.networkUID, out plnl))
             return;
-        foreach(var pln in plnl) { 
-        if (pln == null)
-            return;
-        if (rigidbodyUpdate.networkUID != pln.networkUID)
-            return;
-
-        if (rigidbodyUpdate.sequenceNumber < pln.mostCurrentUpdateNumber)
-          return;
-        pln.mostCurrentUpdateNumber = rigidbodyUpdate.sequenceNumber;
-
-        pln.globalTargetPosition = rigidbodyUpdate.position + rigidbodyUpdate.velocity.toVector3 * pln.latency;
-        pln.localTargetPosition = VTMapManager.GlobalToWorldPoint(pln.globalTargetPosition);
-        pln.targetVelocity = rigidbodyUpdate.velocity.toVector3;
-        pln.targetRotation = rigidbodyUpdate.rotation * Quaternion.Euler(rigidbodyUpdate.angularVelocity.toVector3 * pln.latency);
-        pln.targetRotationVelocity = rigidbodyUpdate.angularVelocity.toVector3;
-
-        Vector3D errorVec = (VTMapManager.WorldToGlobalPoint(pln.transform.position) - pln.globalTargetPosition);
-        if (errorVec.magnitude > pln.positionThreshold)
+        foreach (var pln in plnl)
         {
-            //Debug.Log("Outside of thresh hold, moving " + gameObject.name);
-            pln.transform.position = pln.localTargetPosition;
-            pln.transform.rotation = rigidbodyUpdate.rotation;
-        }
+            if (pln == null)
+                return;
+            if (rigidbodyUpdate.networkUID != pln.networkUID)
+                return;
+
+            if (rigidbodyUpdate.sequenceNumber < pln.mostCurrentUpdateNumber)
+                return;
+            pln.mostCurrentUpdateNumber = rigidbodyUpdate.sequenceNumber;
+
+            pln.globalTargetPosition = rigidbodyUpdate.position + rigidbodyUpdate.velocity.toVector3 * pln.latency;
+            pln.localTargetPosition = VTMapManager.GlobalToWorldPoint(pln.globalTargetPosition);
+            pln.targetVelocity = rigidbodyUpdate.velocity.toVector3;
+            pln.targetRotation = rigidbodyUpdate.rotation * Quaternion.Euler(rigidbodyUpdate.angularVelocity.toVector3 * pln.latency);
+            pln.targetRotationVelocity = rigidbodyUpdate.angularVelocity.toVector3;
+
+            Vector3D errorVec = (VTMapManager.WorldToGlobalPoint(pln.transform.position) - pln.globalTargetPosition);
+            if (errorVec.magnitude > pln.positionThreshold)
+            {
+                //Debug.Log("Outside of thresh hold, moving " + gameObject.name);
+                pln.transform.position = pln.localTargetPosition;
+                pln.transform.rotation = rigidbodyUpdate.rotation;
+            }
         }
     }
 
@@ -200,7 +206,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         {
             recieverDict[networkUID].Remove(this);
         }
-            
+
         Debug.Log("Destroyed Rigidbody Update");
         Debug.Log(gameObject.name);
     }

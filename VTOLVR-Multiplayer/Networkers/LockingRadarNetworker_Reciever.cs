@@ -57,7 +57,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
         // lockingRadar.debugRadar = true;
         lastRadarMessage = new Message_RadarUpdate(false, 0, networkUID);
        
-     
+        
         
     }
 
@@ -129,6 +129,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
                     //Debug.Log($"Radar {networkUID} found its lock " + lastActor.name + $" with an id of {lastLock} while trying to lock id {lastLockingMessage.actorUID}. Trying to force a lock.");
                     //else
                     //Debug.Log($"Radar " + gameObject.name + " found its lock " + lastActor.name + $" with an id of {lastLock} while trying to lock id {lastLockingMessage.actorUID}. Trying to force a lock.");
+
                     pln.lockingRadar.ForceLock(pln.lastActor, out pln.radarLockData);
                     pln.lastLock = lastLockingMessage.actorUID;
                     pln.lastLocked = true;
@@ -157,6 +158,11 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
                 {
                     Debug.LogError("Actor is null.");
                     return;
+                }
+                if (pln.lockingRadar != null)
+                    if (!pln.lockingRadar.radar.radarEnabled)
+                {
+                    pln.lockingRadar.radar.radarEnabled = true;
                 }
                 if (pln.lockingRadar != null)
                     pln.lockingRadar.radar.ForceDetect(actor);

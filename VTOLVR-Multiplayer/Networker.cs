@@ -347,7 +347,7 @@ public class Networker : MonoBehaviour
         //VTResources.useOverCloud = true;
         DiscordRadioManager.Update();
         PlayerManager.Update();
-        ReadP2P();
+        
        
         if (VTOLAPI.currentScene == VTOLScenes.VehicleConfiguration)
             return;
@@ -407,6 +407,7 @@ public class Networker : MonoBehaviour
     }
     private void FixedUpdate()
     {
+        ReadP2P();
         if (isHost)
         {
             flushUnreliableBuffer();
@@ -933,27 +934,27 @@ public class Networker : MonoBehaviour
                 }
                 break;
             case MessageType.AllPlayersReady:
-                Debug.Log("The host said everyone is ready, waiting for the host to load.");
+                //Debug.Log("The host said everyone is ready, waiting for the host to load.");
                 playerStatusDic[hostID] = PlayerStatus.Loading;
                 UpdateLoadingText();
                 hostReady = true;
                 break;
             case MessageType.RequestSpawn:
-                Debug.Log($"case request spawn from: {csteamID.m_SteamID}, we are {SteamUser.GetSteamID().m_SteamID}, host is {hostID}");
+                //Debug.Log($"case request spawn from: {csteamID.m_SteamID}, we are {SteamUser.GetSteamID().m_SteamID}, host is {hostID}");
                 if (RequestSpawn != null)
                 { RequestSpawn.Invoke(packet, csteamID); }
                 break;
             case MessageType.RequestSpawn_Result:
-                Debug.Log("case request spawn result");
+                //Debug.Log("case request spawn result");
                 if (RequestSpawn_Result != null)
                     RequestSpawn_Result.Invoke(packet);
                 break;
             case MessageType.SpawnAiVehicle:
-                Debug.Log("case spawn ai vehicle");
+                //Debug.Log("case spawn ai vehicle");
                 AIManager.SpawnAIVehicle(packet);
                 break;
             case MessageType.SpawnPlayerVehicle:
-                Debug.Log("case spawn vehicle");
+                //Debug.Log("case spawn vehicle");
                 if (SpawnVehicle != null)
                     SpawnVehicle.Invoke(packet, csteamID);
                 break;
@@ -1020,12 +1021,12 @@ public class Networker : MonoBehaviour
                     Disconnecting.Invoke(packet);
                 break;
             case MessageType.WeaponsSet:
-                Debug.Log("case weapon set");
+                //Debug.Log("case weapon set");
                 if (WeaponSet != null)
                     WeaponSet.Invoke(packet);
                 break;
             case MessageType.WeaponsSet_Result:
-                Debug.Log("case weapon set result");
+                //Debug.Log("case weapon set result");
                 if (WeaponSet_Result != null)
                     WeaponSet_Result.Invoke(packet);
                 /*if (isHost) already done in above invoke.
@@ -1034,12 +1035,12 @@ public class Networker : MonoBehaviour
                 }*/
                 break;
             case MessageType.WeaponFiring:
-                Debug.Log("case weapon firing");
+                //Debug.Log("case weapon firing");
                 if (WeaponFiring != null)
                     WeaponFiring.Invoke(packet);
                 break;
             case MessageType.WeaponStoppedFiring:
-                Debug.Log("case weapon stopped firing");
+                //Debug.Log("case weapon stopped firing");
                 if (WeaponStoppedFiring != null)
                     WeaponStoppedFiring.Invoke(packet);
                 break;
@@ -1049,7 +1050,7 @@ public class Networker : MonoBehaviour
                     FireCountermeasure.Invoke(packet);
                 break;
             case MessageType.Death:
-                Debug.Log("case death");
+                //Debug.Log("case death");
                 if (Death != null)
                     Death.Invoke(packet);
                 break;
@@ -1059,17 +1060,17 @@ public class Networker : MonoBehaviour
                 DiscordRadioManager.setFreq(freMessage.source, freMessage.freq);
                 break;
             case MessageType.Respawn:
-                Debug.Log("case respawn");
+                //Debug.Log("case respawn");
                 Message_Respawn respawnMessage = ((PacketSingle)packet).message as Message_Respawn;
                 PlayerManager.SpawnRepresentation(respawnMessage.UID, respawnMessage.position, respawnMessage.rotation, respawnMessage.isLeftie, respawnMessage.tagName, respawnMessage.vehicle);
                 break;
             case MessageType.WingFold:
-                Debug.Log("case wingfold");
+                //Debug.Log("case wingfold");
                 if (WingFold != null)
                     WingFold.Invoke(packet);
                 break;
             case MessageType.ExtLight:
-                Debug.Log("case external light");
+                //Debug.Log("case external light");
                 if (ExtLight != null)
                     ExtLight.Invoke(packet);
                 break;
@@ -1080,12 +1081,12 @@ public class Networker : MonoBehaviour
                     ShipUpdate.Invoke(packet);
                 break;
             case MessageType.RadarUpdate:
-                Debug.Log("case radar update");
+                //Debug.Log("case radar update");
                 if (RadarUpdate != null)
                     RadarUpdate.Invoke(packet);
                 break;
             case MessageType.LockingRadarUpdate:
-                Debug.Log("case locking radar update");
+                //Debug.Log("case locking radar update");
                 if (LockingRadarUpdate != null)
                     LockingRadarUpdate.Invoke(packet);
                 break;
@@ -1105,24 +1106,24 @@ public class Networker : MonoBehaviour
                     MissileUpdate.Invoke(packet);
                 break;
             case MessageType.RequestNetworkUID:
-                Debug.Log("case request network UID");
+                //Debug.Log("case request network UID");
                 if (RequestNetworkUID != null)
                     RequestNetworkUID.Invoke(packet);
                 break;
             case MessageType.LoadingTextUpdate:
-                Debug.Log("case loading text update");
+                //Debug.Log("case loading text update");
                 if (!isHost)
                     UpdateLoadingText(packet);
                 break;
             case MessageType.HostLoaded:
-                Debug.Log("case host loaded");
+                //Debug.Log("case host loaded");
                 if (!hostLoaded)
                 {
                     Message_HostLoaded hlMessage= ((PacketSingle)packet).message as Message_HostLoaded;
 
                     if (isHost)
                     {
-                        Debug.Log("we shouldn't have gotten a host loaded....");
+                        //Debug.Log("we shouldn't have gotten a host loaded....");
                         playerStatusDic[hostID] = PlayerStatus.InGame;
                     }
                     else
@@ -1194,23 +1195,23 @@ public class Networker : MonoBehaviour
                 }
                 break;
             case MessageType.LoadingTextRequest:
-                Debug.Log("case LoadingTextRequest");
+                //Debug.Log("case LoadingTextRequest");
                 if (isHost)
                 {
                     UpdateLoadingText();
                 }
                 else
                 {
-                    Debug.Log("Received loading text request and we're not the host.");
+                    //Debug.Log("Received loading text request and we're not the host.");
                 }
                 break;
             case MessageType.JettisonUpdate:
-                Debug.Log("case jettison update");
+                //Debug.Log("case jettison update");
                 if (JettisonUpdate != null)
                     JettisonUpdate.Invoke(packet);
                 break;
             case MessageType.SamUpdate:
-                Debug.Log("case sam update");
+               // Debug.Log("case sam update");
                 if (SAMUpdate != null)
                     SAMUpdate.Invoke(packet);
                 break;
@@ -1227,29 +1228,29 @@ public class Networker : MonoBehaviour
 
                 break;
             case MessageType.ScenarioAction:
-                Debug.Log("case scenario action packet");
+                //Debug.Log("case scenario action packet");
                 Message_ScenarioAction lastMessage = (Message_ScenarioAction)((PacketSingle)packet).message;
 
-                Debug.Log("recieved action from other");
+                //Debug.Log("recieved action from other");
                 // do not run scenarios on self
                 if (lastMessage.UID == PlayerManager.localUID)
                 {
-                    Debug.Log("ignored action as local event");
+                    //Debug.Log("ignored action as local event");
 
                 }
                 else
                 {
-                    Debug.Log("running event from another person");
+                    //Debug.Log("running event from another person");
                     ObjectiveNetworker_Reciever.runScenarioAction(lastMessage.scenarioActionHash);
                 }
 
                 break;
             case MessageType.BulletHit:
-                Debug.Log("case bulletDamage");
+                //Debug.Log("case bulletDamage");
                 BulletHit.Invoke(packet);
                 break;
             case MessageType.MissileDamage:
-                Debug.Log("case missiledmage");
+                //Debug.Log("case missiledmage");
                 PlayerManager.MissileDamage(packet);
                 break;
                 /*
@@ -1270,26 +1271,26 @@ public class Networker : MonoBehaviour
                 }
                  break;*/
             case MessageType.ObjectiveSync:
-                Debug.Log("case Objective");
+                //Debug.Log("case Objective");
 
                 Message_ObjectiveSync lastMessageobbj = (Message_ObjectiveSync)((PacketSingle)packet).message;
 
-                Debug.Log("received objective action from other");
+               /// Debug.Log("received objective action from other");
                 // do not run scenarios on self
                 if (lastMessageobbj.UID == PlayerManager.localUID)
                 {
-                    Debug.Log("ignored objective as local obj objective");
+                  //  Debug.Log("ignored objective as local obj objective");
 
                 }
                 else
                 {
-                    Debug.Log("running obj event from another person");
+                  //  Debug.Log("running obj event from another person");
                     ObjectiveNetworker_Reciever.objectiveUpdate(lastMessageobbj.objID, lastMessageobbj.status);
                 }
 
                 break;
             default:
-                Debug.Log("default case");
+                //Debug.Log("default case");
                 break;
         }
         if (isHost)
