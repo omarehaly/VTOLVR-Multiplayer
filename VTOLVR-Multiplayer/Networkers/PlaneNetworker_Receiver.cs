@@ -49,7 +49,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     public static List<manObjectSorter> manObjects = new List<manObjectSorter>();
     manObjectSorter mos;
     public static Dictionary<ulong, List<PlaneNetworker_Receiver>> recieverDict = new Dictionary<ulong, List<PlaneNetworker_Receiver>>();
-    
+    private List<ModuleEngine> engines = new List<ModuleEngine>();
     public ulong networkUID
     {
         get
@@ -147,14 +147,15 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         }
 
 
-        if (vehicleType == VTOLVehicles.F45A)
-        {
+       // if (vehicleType == VTOLVehicles.F45A)
+       // {
             ModuleEngine[] engines = ownerActor.gameObject.GetComponentsInChildren<ModuleEngine>();
             foreach (ModuleEngine eng in engines)
             {
-                eng.thrustHeatMult *= 14.0f;
+                //eng.thrustHeatMult *= 14.0f;
+                engines.Add(eng);
             }
-        }
+       // }
           mos = new manObjectSorter();
       
     }
@@ -446,12 +447,12 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     }
     private void SetThrottle(float throttle)
     {
-        for (int i = 0; i < autoPilot.engines.Count; i++)
+        for (int i = 0; i <  engines.Count; i++)
         {
-            autoPilot.engines[i].autoAB=true;
+             engines[i].autoAB=true;
 
-            autoPilot.engines[i].afterburner = (throttle > autoPilot.engines[i].autoABThreshold);
-            autoPilot.engines[i].SetThrottle(throttle);
+             engines[i].afterburner = (throttle > autoPilot.engines[i].autoABThreshold); engines[i].SetThrottle(throttle);
+            engines[i].SetFinalThrottle(throttle);
         }
     }
     public void WeaponSet_Result(Packet packet)

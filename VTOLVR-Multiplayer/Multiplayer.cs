@@ -556,12 +556,12 @@ public class Multiplayer : VTOLMOD
         mpButtonF.GetComponentInChildren<Text>().text = "Friend";
         mpButtonF.GetComponent<Image>().color = Color.cyan;
         mpButtonF.GetComponent<Button>().onClick = new Button.ButtonClickedEvent();
-
+       
         VRInteractable mpInteractable = mpButton.GetComponent<VRInteractable>();
         if (UpToDate)
         {
             mpButton.GetComponent<Image>().color = Color.cyan;
-            mpInteractable.interactableName = "Multiplayer";
+            mpInteractable.interactableName = "Multiplayer Lobby";
         }
         else
         {
@@ -572,7 +572,7 @@ public class Multiplayer : VTOLMOD
         VRInteractable mpInteractablef = mpButtonF.GetComponent<VRInteractable>();
         
         mpInteractablef.OnInteract = new UnityEngine.Events.UnityEvent();
-
+        mpInteractablef.interactableName = "Multiplayer Friend";
         Log("Creating Mp Menu");//Creating Mp Menu
         GameObject MPMenu = Instantiate(ScenarioDisplay.gameObject, ScenarioDisplay.parent);
         GameObject ScrollView = null;
@@ -973,7 +973,7 @@ public class Multiplayer : VTOLMOD
         contentJoinLog.text = VtolLobbies[index].hostName + " is playing " + VtolLobbies[index].scnName;
         if (found ==false)
         { 
-            contentJoinLog.text += ", You Dont Have It Downloaded";
+            contentJoinLog.text += ",Please Select Steamworkshop Or You May Not Have It Downloaded";
         }
         NetworkSenderThread.Instance.SendPacketToSpecificPlayer(VtolLobbies[index].hostID, new Message_LobbyInfoRequest(), EP2PSend.k_EP2PSendReliable); //Getting lobby info.
 
@@ -1062,8 +1062,8 @@ public class Multiplayer : VTOLMOD
     {
         for (int i = 5; i > 0; i--)
         {
-           // joinButtonText.text = $"Joining [{i}]";
-            yield return new WaitForSeconds(1);
+         joinButtonText.text = $"Joining [{i}]";
+        yield return new WaitForSeconds(1);
         }
         joinButtonText.text = "Join";
         waitingForJoin = null;

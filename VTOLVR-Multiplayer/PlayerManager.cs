@@ -614,7 +614,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                         {
                             if (rep.team == Teams.Allied)
                             {
-                                if (rep.radius < 19.0f && rep.radius > 18.0f)
+                               // if (rep.radius < 19.0f && rep.radius > 18.0f)
                                 {
                                     rearmPoint = rep;
                                 }
@@ -639,9 +639,9 @@ public static void SpawnPlayersInPlayerSpawnQueue()
       
         if (gameLoaded)
         {
-            VRJoystick joy = FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<VRJoystick>();
-            
-            joy.controlMode = VRJoystick.ControlModes.Rotation;
+          //  VRJoystick joy = FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<VRJoystick>();
+           // joy.GetComponent
+          //  joy.controlMode = VRJoystick.ControlModes.Rotation;
 
             //  foreach (var camset in FindObjectsOfTypeAll<CameraFogSettings>(FlightSceneManager.instance.playerActor.gameObject))
             //  {
@@ -1087,6 +1087,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         {
             if (teamLeftie)
             {
+                rearmPoint.team = Teams.Allied;
                 StartRearm(rearmPoint);
             }
             else
@@ -1344,6 +1345,8 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             if (!part.partName.Contains("ngine"))
                 part.detachOnDeath = true;
         }
+
+        //FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<HUDGunDirectorSight>().lockAllActors = true;
 
     }
     /// <summary>

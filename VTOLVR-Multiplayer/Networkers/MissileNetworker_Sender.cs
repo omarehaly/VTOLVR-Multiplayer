@@ -11,7 +11,7 @@ public class MissileNetworker_Sender : MonoBehaviour
     private bool hasFired = false;
     public Actor ownerActor;
     private float tick;
-    private float tickRate = 10.0f;
+    private float tickRate = 0.5f;
 
     private void Awake()
     {
