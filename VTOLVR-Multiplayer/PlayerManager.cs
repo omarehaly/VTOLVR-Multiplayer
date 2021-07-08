@@ -135,7 +135,7 @@ public static class PlayerManager
         flyStart = ps.initialSpeed > 10.0f;
         Random.InitState((int)(Time.deltaTime*1000.0f));
         Debug.Log("The map has loaded");
-        gameLoaded = true;
+      
         // As a client, when the map has loaded we are going to request a spawn point from the host
         SetPrefabs();
         CUSTOM_API.loadDisplayPrefab();
@@ -362,6 +362,7 @@ public static class PlayerManager
             Debug.Log("Starting map loaded host routines");
             Networker.hostLoaded = true;
             Networker.hostReady = true;
+            gameLoaded = true;
             foreach (var actor in TargetManager.instance.allActors)
             {
                 AIManager.setupAIAircraft(actor);
@@ -402,7 +403,7 @@ public static class PlayerManager
                 SpawnRequestQueue();
             Networker.alreadyInGame = true;
         }
-
+        gameLoaded = true;
         while (AIManager.AIsToSpawnQueue.Count > 0)
         {
             AIManager.SpawnAIVehicle(AIManager.AIsToSpawnQueue.Dequeue());
@@ -1142,18 +1143,18 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             Actor act = VTOLVR_Multiplayer.AIDictionaries.allActors[actorTodamage];
             if (act != null)
             {
-                bool storage = act.health.invincible;
+                //bool storage = act.health.invincible;
 
-                if (act.gameObject.name.Contains("lient"))
+                //if (act.gameObject.name.Contains("lient"))
                 {
-                    if (actorTodamage == localUID)
+                   // if (actorTodamage == localUID)
                     {
-                        act.health.invincible = false;
+                    //    act.health.invincible = false;
                     }
                 }
 
                 act.health.Damage(lastMissileDamageMessage.damage, act.position, Health.DamageTypes.Impact, source, "Missile Impact");
-                act.health.invincible = storage;
+               // act.health.invincible = storage;
             }
 
 
@@ -1218,6 +1219,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                 {
                     Debug.Log("unit spawner was null, adding one");
                     actor.unitSpawn.unitSpawner = actor.gameObject.AddComponent<UnitSpawner>();
+                   // actor.unitSpawn.unitSpawner.unitName = 
                 }
             }
         }

@@ -369,7 +369,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
                 {
                     pln.SetBrakes(newMessage.brakes);
                 }
-                if (pln.lastMessage.throttle != newMessage.throttle)
+                //if (pln.lastMessage.throttle != newMessage.throttle)
                 {
                     pln.SetThrottle(newMessage.throttle);
                 }
@@ -447,13 +447,15 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     }
     private void SetThrottle(float throttle)
     {
-        for (int i = 0; i <  engines.Count; i++)
+        for (int i = 0; i < autoPilot.engines.Count; i++)
         {
-             engines[i].autoAB=true;
-
-             engines[i].afterburner = (throttle > autoPilot.engines[i].autoABThreshold); engines[i].SetThrottle(throttle);
-            engines[i].SetFinalThrottle(throttle);
+            autoPilot.engines[i].SetFinalThrottle(throttle);
         }
+    }
+    private void Update()
+    {
+
+        autoPilot.controlThrottle = false;
     }
     public void WeaponSet_Result(Packet packet)
     {

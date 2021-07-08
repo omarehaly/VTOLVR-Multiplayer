@@ -23,7 +23,7 @@ public class WorldDataNetworker_Receiver : MonoBehaviour
         if (Time.timeScale != serverTimescale)
         {
             //Debug.Log($"Client timescale { Time.timeScale } mismatch with server { serverTimescale } - Forcing client update");
-           // Time.timeScale = serverTimescale;
+          Time.timeScale = serverTimescale;
         }
 
     }
@@ -33,7 +33,7 @@ public class WorldDataNetworker_Receiver : MonoBehaviour
 
         Message_WorldData worldDataUpdate = (Message_WorldData)((PacketSingle)packet).message;
       Time.timeScale = worldDataUpdate.timeScale;
-       // serverTimescale = worldDataUpdate.timeScale;
+      serverTimescale = worldDataUpdate.timeScale;
 
         // Debug.Log($"Set the timescale {worldDataUpdate.timeScale}");
 
@@ -41,8 +41,8 @@ public class WorldDataNetworker_Receiver : MonoBehaviour
 
     public void ClientNeedsNormalTimeFlowBecauseHostDisconnected()
     {
-       // serverTimescale = 1f;
-      //  Time.timeScale = serverTimescale;
+      serverTimescale = 1f;
+       Time.timeScale = serverTimescale;
     }
 
     public void OnDisconnect(Packet packet)

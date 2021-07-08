@@ -144,6 +144,8 @@ public class MissileNetworker_Sender : MonoBehaviour
 
     public void OnDetonated(Missile missile)
     {
+        if (missile != thisMissile)
+            return;
         List<Actor> alist = new List<Actor>();
         Actor.GetActorsInRadius(missile.transform.position, missile.explodeRadius, Teams.Allied, TeamOptions.BothTeams, alist);
         foreach (Actor act in alist)
