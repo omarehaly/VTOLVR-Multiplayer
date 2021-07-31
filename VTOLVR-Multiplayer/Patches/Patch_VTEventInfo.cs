@@ -44,7 +44,7 @@ class PatchBullet
             if (hitbox && hitbox.actor)
             {
                 PlayerManager.lastBulletHit = hitbox;
-                Debug.Log("hit box bullet hit");
+                DebugCustom.Log("hit box bullet hit");
                 ulong lastID; ulong sourceID=0;
                 if (VTOLVR_Multiplayer.AIDictionaries.reverseAllActors.TryGetValue(hitbox.actor, out lastID))
                 {
@@ -55,7 +55,7 @@ class PatchBullet
 
                     }
 
-                    Debug.Log("hit player sending bullet packet");
+                    DebugCustom.Log("hit player sending bullet packet");
                     Message_BulletHit hitmsg = new Message_BulletHit(PlayerManager.localUID, lastID, sourceID, VTMapManager.WorldToGlobalPoint(pos), new Vector3D(vel), damage);
                     if (Networker.isHost)
                         NetworkSenderThread.Instance.SendPacketAsHostToAllClients(hitmsg, Steamworks.EP2PSend.k_EP2PSendReliable);
@@ -79,7 +79,7 @@ class PatchGPS
 
         Vector3 pos = worldPosition;
         string msgp = prefix;
-        Debug.Log("sending GPS");
+        DebugCustom.Log("sending GPS");
 
 
         Message_GPSData gpsm = new Message_GPSData(PlayerManager.localUID, VTMapManager.WorldToGlobalPoint(pos), "MP", PlayerManager.teamLeftie, __instance.currentGroup.groupName);
@@ -196,7 +196,7 @@ class Patch22
            
             {
                 bool shouldComplete = ObjectiveNetworker_Reciever.completeNextEvent;
-                Debug.Log($"Should complete is {shouldComplete}.");
+                DebugCustom.Log($"Should complete is {shouldComplete}.");
                 ObjectiveNetworker_Reciever.completeNextEvent = false;
                 return shouldComplete;// clients should not send kill obj packets or have them complete
 
@@ -214,7 +214,7 @@ class Patch2
         
         if (!__instance.TargetExists())
         {
-            Debug.Log("Target doesn't exist in invoke");
+            DebugCustom.Log("Target doesn't exist in invoke");
         }
 
    
@@ -233,7 +233,7 @@ class Patch2
         }
         else
         {
-            Debug.Log("Client sent Event action" + __instance.eventName + " of type " + __instance.methodName + " for target " + __instance.targetID);
+            DebugCustom.Log("Client sent Event action" + __instance.eventName + " of type " + __instance.methodName + " for target " + __instance.targetID);
             // NetworkSenderThread.Instance.SendPacketToSpecificPlayer(Networker.hostID, ScanarioActionOutMessage, Steamworks.EP2PSend.k_EP2PSendUnreliable);
         }
     }
@@ -263,7 +263,7 @@ class Patch3
     static bool Prefix(VTEventInfo __instance, ConfigNode infoNode)
     {
 
-        Debug.Log("bahacode scenario dictionary");
+        DebugCustom.Log("bahacode scenario dictionary");
         __instance.eventName = infoNode.GetValue("eventName");
         __instance.actions = new List<VTEventTarget>();
         foreach (ConfigNode node in infoNode.GetNodes("EventTarget"))
@@ -271,13 +271,13 @@ class Patch3
             VTEventTarget vTEventTarget = new VTEventTarget();
             vTEventTarget.LoadFromNode(node);
             __instance.actions.Add(vTEventTarget);
-            Debug.Log("Compiling scenario dictonary my codd2");
+            DebugCustom.Log("Compiling scenario dictonary my codd2");
             String actionIdentifier = __instance.eventName + vTEventTarget.eventName + vTEventTarget.methodName + vTEventTarget.targetID + vTEventTarget.targetType.ToString()+ ObjectiveNetworker_Reciever.actionCounter.ToString();
 
             ObjectiveNetworker_Reciever.actionCounter += 1;
-            Debug.Log(actionIdentifier);
+            DebugCustom.Log(actionIdentifier);
             int hash = actionIdentifier.GetHashCode();
-            Debug.Log("Compiling scenario dictonary adding to my dictionary");
+            DebugCustom.Log("Compiling scenario dictonary adding to my dictionary");
 
             if (!ObjectiveNetworker_Reciever.scenarioActionsList.ContainsKey(hash))
                 ObjectiveNetworker_Reciever.scenarioActionsList.Add(hash, vTEventTarget);
@@ -299,14 +299,14 @@ class Patch4
     static bool Prefix(MissionObjective __instance)
     {
 
-        Debug.Log("A mission got completed we need to send it");
+        DebugCustom.Log("A mission got completed we need to send it");
 
         int hashCode = ObjectiveNetworker_Reciever.getMissionHash(__instance);
 
         Message_ObjectiveSync objOutMessage = new Message_ObjectiveSync(PlayerManager.localUID, hashCode, ObjSyncType.EMissionCompleted);
         if (Networker.isHost)
         {
-            Debug.Log("Host sent objective complete " + __instance.objectiveID);
+            DebugCustom.Log("Host sent objective complete " + __instance.objectiveID);
             ObjectiveNetworker_Reciever.completeNext = false;
             ObjectiveNetworker_Reciever.ObjectiveHistory.Add(objOutMessage);
             NetworkSenderThread.Instance.SendPacketAsHostToAllClients(objOutMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
@@ -331,7 +331,7 @@ class Patch4
                 //    VTScenario.current.objectives.GetObjective(__instance.objectiveID).objectiveType == VTObjective.ObjectiveTypes.Conditional)
 
 
-                Debug.Log($"Should complete is {shouldComplete}.");
+                DebugCustom.Log($"Should complete is {shouldComplete}.");
                 ObjectiveNetworker_Reciever.completeNext = false;
                 return shouldComplete;// clients should not send kill obj packets or have them complete
             }
@@ -366,14 +366,14 @@ class Patch5
 {
     static bool Prefix(MissionObjective __instance)
     {
-        Debug.Log("A mission got failed we need to send it");
+        DebugCustom.Log("A mission got failed we need to send it");
 
         int hashCode = ObjectiveNetworker_Reciever.getMissionHash(__instance);
 
         Message_ObjectiveSync objOutMessage = new Message_ObjectiveSync(PlayerManager.localUID, hashCode, ObjSyncType.EMissionFailed);
         if (Networker.isHost)
         {
-            Debug.Log("Host sent objective fail " + __instance.objectiveID);
+            DebugCustom.Log("Host sent objective fail " + __instance.objectiveID);
             ObjectiveNetworker_Reciever.ObjectiveHistory.Add(objOutMessage);
             NetworkSenderThread.Instance.SendPacketAsHostToAllClients(objOutMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
         }
@@ -381,7 +381,7 @@ class Patch5
         {
 
             bool shouldComplete = ObjectiveNetworker_Reciever.completeNextFailed;
-            Debug.Log($"Should complete is {shouldComplete}.");
+            DebugCustom.Log($"Should complete is {shouldComplete}.");
             ObjectiveNetworker_Reciever.completeNextFailed = false;
             return shouldComplete;// clients should not send kill obj packets or have them complete
             //NetworkSenderThread.Instance.SendPacketToSpecificPlayer(Networker.hostID, objOutMessage, Steamworks.EP2PSend.k_EP2PSendUnreliable);
@@ -396,12 +396,12 @@ class Patch6
 {
     static void Postfix(VTObjective __instance)
     {
-        Debug.Log("A VTObjective got begin we need to send it");
+        DebugCustom.Log("A VTObjective got begin we need to send it");
 
         Message_ObjectiveSync objOutMessage = new Message_ObjectiveSync(PlayerManager.localUID, __instance.objectiveID, ObjSyncType.EVTBegin);
         if (Networker.isHost)
         {
-            Debug.Log("Host sent VTObjective begin " + __instance.objectiveID);
+            DebugCustom.Log("Host sent VTObjective begin " + __instance.objectiveID);
             ObjectiveNetworker_Reciever.ObjectiveHistory.Add(objOutMessage);
             NetworkSenderThread.Instance.SendPacketAsHostToAllClients(objOutMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
         }
@@ -409,7 +409,7 @@ class Patch6
         {
 
             bool shouldComplete = ObjectiveNetworker_Reciever.completeNextBegin;
-            Debug.Log($"Should complete is {shouldComplete}.");
+            DebugCustom.Log($"Should complete is {shouldComplete}.");
             ObjectiveNetworker_Reciever.completeNextBegin = false;
             //return shouldComplete;// clients should not send kill obj packets or have them complete
             //NetworkSenderThread.Instance.SendPacketToSpecificPlayer(Networker.hostID, objOutMessage, Steamworks.EP2PSend.k_EP2PSendUnreliable);
@@ -426,7 +426,7 @@ class Patch7
     static bool Prefix(MissionObjective __instance)
     {
 
-        Debug.Log("A mission got CancelObjective we need to send it");
+        DebugCustom.Log("A mission got CancelObjective we need to send it");
 
         int hashCode = ObjectiveNetworker_Reciever.getMissionHash(__instance);
 
@@ -434,14 +434,14 @@ class Patch7
         if (Networker.isHost && objOutMessage.objID != -1)
         {
 
-            Debug.Log("Host sent objective CancelObjective " + __instance.objectiveID);
+            DebugCustom.Log("Host sent objective CancelObjective " + __instance.objectiveID);
             ObjectiveNetworker_Reciever.ObjectiveHistory.Add(objOutMessage);
             NetworkSenderThread.Instance.SendPacketAsHostToAllClients(objOutMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
         }
         else
         {
             bool shouldComplete = ObjectiveNetworker_Reciever.completeNextCancel;
-            Debug.Log($"Should complete is {shouldComplete}.");
+            DebugCustom.Log($"Should complete is {shouldComplete}.");
             ObjectiveNetworker_Reciever.completeNextCancel = false;
             return shouldComplete;// clients should not send kill obj packets or have them complete
             //Debug.Log("Client sent objective CancelObjective " + __instance.objectiveID);

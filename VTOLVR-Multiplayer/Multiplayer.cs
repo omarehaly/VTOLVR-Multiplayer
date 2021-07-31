@@ -301,11 +301,11 @@ public class Multiplayer : VTOLMOD
     {
         debugLogs = newval;
         if (ModVersionString.ReleaseBranch == "Release")
-            Debug.ShowDebugMessages = newval;
+            DebugCustom.ShowDebugMessages = newval;
         else
         {
-            if (Debug.ShowDebugMessages != true)
-                Debug.ShowDebugMessages = true;
+            if (DebugCustom.ShowDebugMessages != true)
+                DebugCustom.ShowDebugMessages = true;
             UnityEngine.Debug.logger.logEnabled = true;
             UnityEngine.Debug.unityLogger.logEnabled = true;
         }
@@ -388,7 +388,7 @@ public class Multiplayer : VTOLMOD
     private void SceneLoaded(VTOLScenes scene)
     {
         UnityEngine.CrashReportHandler.CrashReportHandler.enableCaptureExceptions = false;
-        Debug.Log($"Scene Switch! { scene.ToString() }");
+        DebugCustom.Log($"Scene Switch! { scene.ToString() }");
         Multiplayer._instance.buttonMade = false;
         switch (scene)
         {
@@ -446,8 +446,8 @@ public class Multiplayer : VTOLMOD
         }
         catch (Exception err)
         {
-            Debug.Log("Got an error trying to the contentJoinLog");
-            Debug.Log(err.ToString());
+            DebugCustom.Log("Got an error trying to the contentJoinLog");
+            DebugCustom.Log(err.ToString());
         }
     }
 
@@ -460,8 +460,8 @@ public class Multiplayer : VTOLMOD
         }
         catch (Exception err)
         {
-            Debug.Log("Got an error trying to update the contentJoinLog");
-            Debug.Log(err.ToString());
+            DebugCustom.Log("Got an error trying to update the contentJoinLog");
+            DebugCustom.Log(err.ToString());
         }
     }
 
@@ -474,8 +474,8 @@ public class Multiplayer : VTOLMOD
         }
         catch (Exception err)
         {
-            Debug.Log("Got an error trying to clear the contentJoinLog");
-            Debug.Log(err.ToString());
+            DebugCustom.Log("Got an error trying to clear the contentJoinLog");
+            DebugCustom.Log(err.ToString());
         }
 
 
@@ -487,7 +487,7 @@ public class Multiplayer : VTOLMOD
 
         while (!SceneManager.GetActiveScene().isLoaded)
         {
-            Debug.Log("Waiting for scene to be loaded");
+            DebugCustom.Log("Waiting for scene to be loaded");
         }
         var refrence = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(g => g.name.Contains("RecenterCanvas"));
         canvasButtonPrefab = Instantiate(refrence);
@@ -501,7 +501,7 @@ public class Multiplayer : VTOLMOD
         bool foundCampaginDisplay = false;
         int? campaignDisplayCount = null;
 
-        Debug.Log("Looping through canvases to find the Scenario Display");
+        DebugCustom.Log("Looping through canvases to find the Scenario Display");
 
 
         // Get the interactable canvas
@@ -526,14 +526,14 @@ public class Multiplayer : VTOLMOD
                 }
             }
         }
-        Debug.Log($"Found Campaign Display? { foundCampaginDisplay.ToString() }");
+        DebugCustom.Log($"Found Campaign Display? { foundCampaginDisplay.ToString() }");
 
         if (campaignDisplayCount != null)
         {
-            Debug.Log($"Found Campaign Display { campaignDisplayCount.ToString() } canvases down.");
+            DebugCustom.Log($"Found Campaign Display { campaignDisplayCount.ToString() } canvases down.");
         }
 
-        Debug.Log($"Found Scenario Display? { foundDisplay.ToString() }");
+        DebugCustom.Log($"Found Scenario Display? { foundDisplay.ToString() }");
 
         //Creating the MP button
         Transform mpButton = Instantiate(ScenarioDisplay.GetChild(10).gameObject, ScenarioDisplay).transform;
@@ -716,11 +716,11 @@ public class Multiplayer : VTOLMOD
         {
             if (uiItem != null)
             {
-                Debug.Log($"Destroying {uiItem.name}");
+                DebugCustom.Log($"Destroying {uiItem.name}");
             }
             else
             {
-                Debug.Log("UI Item is null");
+                DebugCustom.Log("UI Item is null");
             }
 
             Destroy(uiItem);
@@ -770,17 +770,17 @@ public class Multiplayer : VTOLMOD
         Log("Refreshing Friends");
         steamFriends.Clear();
         int totalFriends = 0;
-        Debug.Log($"UI List Item Count: {friendListItems.Count}");
+        DebugCustom.Log($"UI List Item Count: {friendListItems.Count}");
 
         foreach (GameObject uiItem in friendListItems)
         {
             if (uiItem != null)
             {
-                Debug.Log($"Destroying {uiItem.name}");
+                DebugCustom.Log($"Destroying {uiItem.name}");
             }
             else
             {
-                Debug.Log("UI Item is null");
+                DebugCustom.Log("UI Item is null");
             }
 
             Destroy(uiItem);
@@ -866,9 +866,9 @@ public class Multiplayer : VTOLMOD
     void OnLobbyCreated(LobbyCreated_t result)
     {
         if (result.m_eResult == EResult.k_EResultOK)
-            Debug.Log("Lobby created -- SUCCESS!");
+            DebugCustom.Log("Lobby created -- SUCCESS!");
         else
-            Debug.Log("Lobby created -- failure ...");
+            DebugCustom.Log("Lobby created -- failure ...");
 
         string personalName = SteamFriends.GetPersonaName();
         SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "name", personalName);
@@ -880,14 +880,14 @@ public class Multiplayer : VTOLMOD
             SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "Scenarioname", PilotSaveManager.currentScenario.scenarioName);
         }
         else
-            Debug.Log("bad scenrio");
+            DebugCustom.Log("bad scenrio");
         if (PilotSaveManager.currentCampaign != null)
             SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "CampID", PilotSaveManager.currentCampaign.campaignID);
           else
-            Debug.Log("bad camp");
+            DebugCustom.Log("bad camp");
         if (PilotSaveManager.currentVehicle != null)
             SteamMatchmaking.SetLobbyData((CSteamID)result.m_ulSteamIDLobby, "plane", PilotSaveManager.currentVehicle.name);
-        else Debug.Log("bad vech");
+        else DebugCustom.Log("bad vech");
 
         Networker.lobbyID = (CSteamID)result.m_ulSteamIDLobby;
     }
@@ -909,9 +909,9 @@ public class Multiplayer : VTOLMOD
                 newLob.scnName = SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "Scenarioname");
                 VtolLobbies.Add(newLob);
 
-                Debug.Log("Lobby added" + newLob.hostName);
-                Debug.Log("Lobbycampid" + newLob.campID);
-                Debug.Log("Lobby plan" + newLob.plane);
+                DebugCustom.Log("Lobby added" + newLob.hostName);
+                DebugCustom.Log("Lobbycampid" + newLob.campID);
+                DebugCustom.Log("Lobby plan" + newLob.plane);
 
                 return;
             }
@@ -1039,7 +1039,7 @@ public class Multiplayer : VTOLMOD
         PlayerManager.selectedVehicle = name;
 
         Networker._instance.DisconnectionTasks();
-        Debug.Log("Dictionaries cleared just in case.");
+        DebugCustom.Log("Dictionaries cleared just in case.");
         playingMP = true;
         MapAndScenarioVersionChecker.CreateHashes();
         Networker._instance.HostGame();
@@ -1052,7 +1052,7 @@ public class Multiplayer : VTOLMOD
         if (Networker.hostID == new Steamworks.CSteamID(0) && waitingForJoin == null)
         {
             Networker.JoinGame(selectedFriend);
-            Debug.Log($"Joining friend {selectedFriend.m_SteamID}");
+            DebugCustom.Log($"Joining friend {selectedFriend.m_SteamID}");
             waitingForJoin = StartCoroutine(WaitingForJoiningRequestResult());
         }
         else
@@ -1071,7 +1071,7 @@ public class Multiplayer : VTOLMOD
 
     private void CreateLoadingSceneObjects()
     {
-        Debug.Log("Creating Loading Screen Object.");
+        DebugCustom.Log("Creating Loading Screen Object.");
 
         //Transform cube = GameObject.CreatePrimitive(PrimitiveType.Cube).transform;
         //cube.position = new Vector3(-0.485f, 1.153f, 0.394f);
@@ -1079,7 +1079,7 @@ public class Multiplayer : VTOLMOD
         //cube.localScale = new Vector3(0.5f,0.5f,0.01f);
         //cube.name = "Multiplayer Player List";
 
-        Debug.Log("Looking for Canvas and Info Transforms");
+        DebugCustom.Log("Looking for Canvas and Info Transforms");
         GameObject canvas_go = GameObject.Find("Canvas").gameObject;
 
         Transform infoCanvas = canvas_go.transform.Find("Info").transform;
@@ -1088,7 +1088,7 @@ public class Multiplayer : VTOLMOD
 
         //Text missionText = canvas.Find("MissionText").GetComponent<Text>();
 
-        Debug.Log("Removing old text");
+        DebugCustom.Log("Removing old text");
         infoCanvas.Find("Ready").GetComponent<Text>().text = "";
         infoCanvas.Find("MissionText").GetComponent<Text>().text = "";
         infoCanvas.Find("MissionText").gameObject.SetActive(false);
@@ -1120,7 +1120,7 @@ public class Multiplayer : VTOLMOD
         //Can't add component 'RectTransform' to Text because such a component is already added to the game object!
         //Loaded scene: LoadingScene
 
-        Debug.Log("Adding loading text");
+        DebugCustom.Log("Adding loading text");
 
         Networker.loadingText = canvas_go.AddComponent<TextMeshPro>();
 
@@ -1154,12 +1154,12 @@ public class Multiplayer : VTOLMOD
         GameObject cube = GameObject.Find("Multiplayer Player List");
         if (cube != null)
         {
-            Debug.Log("Destroying MP list cube");
+            DebugCustom.Log("Destroying MP list cube");
             Destroy(cube);
         }
         else
         {
-            Debug.Log("Could not find MP list cube");
+            DebugCustom.Log("Could not find MP list cube");
         }
     }
 
@@ -1187,7 +1187,7 @@ public class Multiplayer : VTOLMOD
             }
             if (!controller.isLeft)
             {
-                Debug.Log("Current vehicle name is " + PilotSaveManager.currentVehicle.name);
+                DebugCustom.Log("Current vehicle name is " + PilotSaveManager.currentVehicle.name);
                 button.transform.SetParent(controller.transform);
                 button.transform.localPosition = new Vector3(0.101411f, 0.02100047f, -0.128024f);
                 button.transform.localRotation = Quaternion.Euler(-5.834f, 283.583f, 328.957f);
@@ -1202,8 +1202,8 @@ public class Multiplayer : VTOLMOD
 
                 foreach (var vehicle in VTResources.GetPlayerVehicles())
                 {
-                    Debug.Log(vehicle.name);
-                    Debug.Log(vehicle.vehicleName);
+                    DebugCustom.Log(vehicle.name);
+                    DebugCustom.Log(vehicle.vehicleName);
                 }
                 bInteractable.OnInteract.AddListener(delegate
                 {
@@ -1277,7 +1277,7 @@ public class Multiplayer : VTOLMOD
             }
             if (!controller.isLeft)
             {
-                Debug.Log("Freq");
+                DebugCustom.Log("Freq");
                 button.transform.SetParent(controller.transform);
                 button.transform.localPosition = new Vector3(0.101411f, 0.02100047f, -0.128024f);
                 button.transform.localRotation = Quaternion.Euler(-5.834f, 283.583f, 328.957f);
@@ -1297,7 +1297,7 @@ public class Multiplayer : VTOLMOD
                     DiscordRadioManager.radioFreq = textS.GetHashCode();
                     CUSTOM_API.forceSetFreq(textS);
                     text.text = textS;
-                    Debug.Log("discord freq " + DiscordRadioManager.radioFreq);
+                    DebugCustom.Log("discord freq " + DiscordRadioManager.radioFreq);
                 });
             }
 
@@ -1306,6 +1306,89 @@ public class Multiplayer : VTOLMOD
         return null;
     }
 
+    public static GameObject CreateCustomPlaneButton()
+    {
+        if (PlayerManager.CustomPlaneNames.Count == 0)
+            return null;
+        foreach (var controller in GameObject.FindObjectsOfType<VRHandController>())
+        {
+            GameObject button;
+            if (canvasButtonPrefab == null)
+            {
+                return null;
+            }
+            else
+            {
+                button = GameObject.Instantiate(canvasButtonPrefab);
+                button.SetActive(true);
+            }
+            if (!controller.isLeft)
+            {
+                 
+                button.transform.SetParent(controller.transform);
+                button.transform.localPosition = new Vector3(0.101411f, 0.02100047f, -0.328024f);
+                button.transform.localRotation = Quaternion.Euler(-5.834f, 283.583f, 328.957f);
+                button.transform.localScale = new Vector3(button.transform.localScale.x * -1, button.transform.localScale.y * -1, button.transform.localScale.z);
+                VRInteractable bInteractable = button.GetComponentInChildren<VRInteractable>();
+                Text text = button.GetComponentInChildren<Text>();
+                text.transform.localScale = text.transform.localScale * 0.75f;
+                text.text = "Custom Plane: " + PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex];
+                
+                bInteractable.interactableName = "plane";
+                bInteractable.OnInteract = new UnityEvent();
+
+                string textS = "";
+                bInteractable.OnInteract.AddListener(delegate
+                {
+                    if(PlayerManager.CustomPlaneIndex+1< PlayerManager.CustomPlaneNames.Count)
+                    PlayerManager.CustomPlaneIndex += 1;
+                    else
+                        PlayerManager.CustomPlaneIndex = 0;
+                    textS = "Custom Plane: " + PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex];
+                  
+                    PlayerManager.LoadedCustomPlaneString = PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex];
+                   
+                    if(PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex]!="none")
+                    {
+
+                        PlayerManager.PlayerIsCustomPlane = true;
+                        if (PlayerManager.CustomPlaneNamesBasePlane[PlayerManager.CustomPlaneIndex] == "AV-42C")
+                        {
+                         
+                            PilotSaveManager.currentVehicle = VTResources.GetPlayerVehicle("AV-42C");
+                            PilotSaveManager.current.lastVehicleUsed = PilotSaveManager.currentVehicle.name;
+
+                        }
+                        else if (PlayerManager.CustomPlaneNamesBasePlane[PlayerManager.CustomPlaneIndex] ==   "FA-26B" || PlayerManager.CustomPlaneNamesBasePlane[PlayerManager.CustomPlaneIndex] == "F/A-26B")
+                        {
+                            PilotSaveManager.currentVehicle = VTResources.GetPlayerVehicle("F/A-26B");
+                            PilotSaveManager.current.lastVehicleUsed = PilotSaveManager.currentVehicle.name;
+                           
+                        }
+                        else
+                        {
+                            PilotSaveManager.currentVehicle = VTResources.GetPlayerVehicle("F-45A");
+                            PilotSaveManager.current.lastVehicleUsed = PilotSaveManager.currentVehicle.name;
+                        }
+                       
+                        PlayerManager.selectedVehicle = PilotSaveManager.currentVehicle.name;
+                        
+                    }
+                    else
+                    {
+                        PlayerManager.PlayerIsCustomPlane = false;
+                    }
+                    //DiscordRadioManager.radioFreq = textS.GetHashCode();
+                    //CUSTOM_API.forceSetFreq(textS);
+                    text.text = textS;
+                   // Debug.Log("discord freq " + DiscordRadioManager.radioFreq);
+                });
+            }
+
+            return button;
+        }
+        return null;
+    }
     public void OnDestroy()
     {
         VTOLAPI.SceneLoaded -= SceneLoaded;

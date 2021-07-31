@@ -45,28 +45,28 @@ static class FileLoader
     //PUBLIC LOADING METHODS
     public static GameObject GetAssetBundleAsGameObject(string path, string name)
     {
-        Debug.Log("AssetBundleLoader: Attempting to load AssetBundle...");
+        DebugCustom.Log("AssetBundleLoader: Attempting to load AssetBundle...");
         UnityEngine.AssetBundle bundle = null;
         try
         {
             bundle = AssetBundle.LoadFromFile(path);
-            Debug.Log("AssetBundleLoader: Success.");
+            DebugCustom.Log("AssetBundleLoader: Success.");
         }
         catch (Exception e)
         {
-            Debug.Log("AssetBundleLoader: Couldn't load AssetBundle from path: '" + path + "'. Exception details: e: " + e.Message);
+            DebugCustom.Log("AssetBundleLoader: Couldn't load AssetBundle from path: '" + path + "'. Exception details: e: " + e.Message);
         }
 
-        Debug.Log("AssetBundleLoader: Attempting to retrieve: '" + name + "' as type: 'GameObject'.");
+        DebugCustom.Log("AssetBundleLoader: Attempting to retrieve: '" + name + "' as type: 'GameObject'.");
         try
         {
             var temp = bundle.LoadAsset(name, typeof(GameObject));
-            Debug.Log("AssetBundleLoader: Success.");
+            DebugCustom.Log("AssetBundleLoader: Success.");
             return (GameObject)temp;
         }
         catch (Exception e)
         {
-            Debug.Log("AssetBundleLoader: Couldn't retrieve GameObject from AssetBundle.");
+            DebugCustom.Log("AssetBundleLoader: Couldn't retrieve GameObject from AssetBundle.");
             return null;
         }
     }
@@ -120,7 +120,7 @@ public static class CUSTOM_API
             manprefab = FileLoader.GetAssetBundleAsGameObject(PathToBundle, "IKMANMOUSE.prefab");
 
             AssetLoaded = true;
-            Debug.Log("Prefab is " + newDisplayPrefab);
+            DebugCustom.Log("Prefab is " + newDisplayPrefab);
 
         }
 
@@ -204,7 +204,7 @@ public static class CUSTOM_API
 
 
         DiscordRadioManager.radioFreq = radioText.text.GetHashCode();
-        Debug.Log("discord freq " + DiscordRadioManager.radioFreq);
+        DebugCustom.Log("discord freq " + DiscordRadioManager.radioFreq);
         if (PlayerManager.FrequenceyButton != null)
         {
             UnityEngine.UI.Text text = PlayerManager.FrequenceyButton.GetComponentInChildren<UnityEngine.UI.Text>();
@@ -248,7 +248,7 @@ public static class CUSTOM_API
 
 
         DiscordRadioManager.radioFreq = radioText.text.GetHashCode();
-        Debug.Log("discord freq " + DiscordRadioManager.radioFreq);
+        DebugCustom.Log("discord freq " + DiscordRadioManager.radioFreq);
         if (PlayerManager.FrequenceyButton != null)
         {
             UnityEngine.UI.Text text = PlayerManager.FrequenceyButton.GetComponentInChildren<UnityEngine.UI.Text>();
@@ -309,10 +309,10 @@ public static class CUSTOM_API
     {
         switchObject = GetChildWithName(go, "APUSwitch");
 
-        Debug.Log(" hudDash = GetChildWithName(go, ");
+        DebugCustom.Log(" hudDash = GetChildWithName(go, ");
         hudDash = GetChildWithName(go, "HUDDash");
 
-        Debug.Log("switchObject != null");
+        DebugCustom.Log("switchObject != null");
         if (switchObject != null)
         {
             //gets engine objects
@@ -327,7 +327,7 @@ public static class CUSTOM_API
             sb = new StringBuilder(currentFreq);
             lastFreq = false;
 
-            Debug.Log("SetupNewDisplay");
+            DebugCustom.Log("SetupNewDisplay");
 
             SetupNewDisplay();
             //newDisplay.GetComponent<MeshRenderer>().material.EnableKeyword("_EMISSION");
@@ -338,7 +338,7 @@ public static class CUSTOM_API
             newDisplay.transform.localScale = Vector3.Scale(newDisplay.transform.localScale, new Vector3(0.065f, 0.065f, 0.065f));
 
 
-            Debug.Log(" Color darkGreen = new Color32(26, 102, 11, 255);");
+            DebugCustom.Log(" Color darkGreen = new Color32(26, 102, 11, 255);");
             Color darkGreen = new Color32(26, 102, 11, 255);
             VTTextProperties radioProp = new VTTextProperties("radioInput", 30, 1, VTText.AlignmentModes.Center, VTText.VerticalAlignmentModes.Middle, darkGreen, Color.green, true, 3.0f);
             radioInput = createText(currentFreq, newDisplay.transform, new Vector3(0, 0.007f, 0.007f), new Vector3(0, 0, 0), new Vector3(0.0005f, 0.0005f, 0.0005f), radioProp, true);
@@ -346,11 +346,11 @@ public static class CUSTOM_API
             radioInput.name = "Radio Input";
 
 
-            Debug.Log("Radio input pos: " + radioInput.transform.localPosition);
-            Debug.Log("Radio input scale " + radioInput.transform.localScale);
+            DebugCustom.Log("Radio input pos: " + radioInput.transform.localPosition);
+            DebugCustom.Log("Radio input scale " + radioInput.transform.localScale);
             radioText = radioInput.GetComponent<VTText>();
 
-            Debug.Log("createAPButton");
+            DebugCustom.Log("createAPButton");
             selectedOBJ = GetChildWithName(go, "MFD1");
             //TODO assign audio listener
             //Debug.Log("Found event: " + cloneLever.OnSetState.GetPersistentTarget(0));
@@ -363,7 +363,7 @@ public static class CUSTOM_API
             button1Int.OnInteract = new UnityEvent();
             button1Int.OnInteract.AddListener(updateFreq1);
 
-            Debug.Log("createAPButton2");
+            DebugCustom.Log("createAPButton2");
             VTTextProperties button2Properties = new VTTextProperties("2", 36, 1, VTText.AlignmentModes.Center, VTText.VerticalAlignmentModes.Middle, Color.black, Color.green, true, 1.0f);
             button2 = createAPButton("2", null, "2Bound", go.transform, new Vector3(-0.0280f, 1.2435f, 5.8246f), new Vector3(0, 0, 0), button2Properties);
             VRInteractable button2Int = button2.GetComponentInChildren<VRInteractable>();
@@ -432,6 +432,9 @@ public static class CUSTOM_API
 
             setupLeg(go);
             Vector3 scaler = new Vector3(0.83f, 0.83f, 0.83f);
+            if(!PlayerManager.PlayerIsCustomPlane)
+            { 
+ 
             //23.5153
             GameObject alt = GetChildWithName(go, "Altitude");
             alt.transform.localScale = Vector3.Scale(alt.transform.localScale, scaler);
@@ -472,7 +475,7 @@ public static class CUSTOM_API
             newBounds.transform.position = swapInt.transform.position;
             newBounds.transform.eulerAngles = GetChildWithName(go, "MasterArmPoseBounds").transform.eulerAngles;
             swapInt.poseBounds = newBounds.GetComponent<PoseBounds>(); //Assigns bounds for switch
-
+            }
 
             forceSetFreq("122.8");
             freqIndex = 4;
@@ -555,8 +558,8 @@ public static class CUSTOM_API
         newSwitch.name = switchName;
         //newSwitch.transform.position = APU_ORIGINAL.transform.position;
         newSwitch.transform.localPosition = localPosition;
-        Debug.Log("New apu switch is at: " + newSwitch.transform.position);
-        Debug.Log("OG switch is at " + APU_ORIGINAL.transform.position);
+        DebugCustom.Log("New apu switch is at: " + newSwitch.transform.position);
+        DebugCustom.Log("OG switch is at " + APU_ORIGINAL.transform.position);
 
         VRInteractable switchInteractable = newSwitch.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).gameObject.GetComponent<VRInteractable>();
         VRInteractable coverInteractable = newSwitch.transform.GetChild(1).GetChild(0).GetChild(0).GetChild(0).gameObject.GetComponent<VRInteractable>();
@@ -564,7 +567,7 @@ public static class CUSTOM_API
         switchInteractable.interactableName = switchName;
         coverInteractable.interactableName = switchName + " cover";
 
-        Debug.Log("Set the interactables to: " + switchInteractable + " and " + coverInteractable);
+        DebugCustom.Log("Set the interactables to: " + switchInteractable + " and " + coverInteractable);
         if (bound == null)
         {
             GameObject newBounds = GameObject.Instantiate(SEAT_ADJUST_POSE_BOUNDS, playerGameObject.transform);
@@ -590,7 +593,7 @@ public static class CUSTOM_API
 
 
 
-        Debug.Log("THE FUCKING NEW SWITCH INSIDE CREATEAPU IS " + newSwitch);
+        DebugCustom.Log("THE FUCKING NEW SWITCH INSIDE CREATEAPU IS " + newSwitch);
         return newSwitch;
     }
 
@@ -611,8 +614,8 @@ public static class CUSTOM_API
         customSwitchLabel.transform.SetParent(newSwitch.transform);
 
         GameObject.Destroy(newSwitchLabel);
-        Debug.Log("New apu switch is at: " + newSwitch.transform.position);
-        Debug.Log("OG switch is at " + APU_ORIGINAL.transform.position);
+        DebugCustom.Log("New apu switch is at: " + newSwitch.transform.position);
+        DebugCustom.Log("OG switch is at " + APU_ORIGINAL.transform.position);
 
         VRInteractable switchInteractable = newSwitch.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).gameObject.GetComponent<VRInteractable>();
         VRInteractable coverInteractable = newSwitch.transform.GetChild(1).GetChild(0).GetChild(0).GetChild(0).gameObject.GetComponent<VRInteractable>();
@@ -620,7 +623,7 @@ public static class CUSTOM_API
         switchInteractable.interactableName = switchName;
         coverInteractable.interactableName = switchName + " cover";
 
-        Debug.Log("Set the interactables to: " + switchInteractable + " and " + coverInteractable);
+        DebugCustom.Log("Set the interactables to: " + switchInteractable + " and " + coverInteractable);
         if (bound == null)
         {
             GameObject newBounds = GameObject.Instantiate(SEAT_ADJUST_POSE_BOUNDS, playerGameObject.transform);
@@ -646,7 +649,7 @@ public static class CUSTOM_API
 
 
 
-        Debug.Log("THE FUCKING NEW SWITCH INSIDE CREATEAPU IS " + newSwitch);
+        DebugCustom.Log("THE FUCKING NEW SWITCH INSIDE CREATEAPU IS " + newSwitch);
         return newSwitch;
     }
 
@@ -667,8 +670,8 @@ public static class CUSTOM_API
 
 
         GameObject.Destroy(newSwitchLabel);
-        Debug.Log("New apu switch is at: " + newSwitch.transform.position);
-        Debug.Log("OG switch is at " + APU_ORIGINAL.transform.position);
+        DebugCustom.Log("New apu switch is at: " + newSwitch.transform.position);
+        DebugCustom.Log("OG switch is at " + APU_ORIGINAL.transform.position);
 
         VRInteractable switchInteractable = newSwitch.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).gameObject.GetComponent<VRInteractable>();
         VRInteractable coverInteractable = newSwitch.transform.GetChild(1).GetChild(0).GetChild(0).GetChild(0).gameObject.GetComponent<VRInteractable>();
@@ -676,7 +679,7 @@ public static class CUSTOM_API
         switchInteractable.interactableName = switchName;
         coverInteractable.interactableName = switchName + " cover";
 
-        Debug.Log("Set the interactables to: " + switchInteractable + " and " + coverInteractable);
+        DebugCustom.Log("Set the interactables to: " + switchInteractable + " and " + coverInteractable);
         if (bound == null)
         {
             GameObject newBounds = GameObject.Instantiate(SEAT_ADJUST_POSE_BOUNDS, playerGameObject.transform);
@@ -702,7 +705,7 @@ public static class CUSTOM_API
 
 
 
-        Debug.Log("THE FUCKING NEW SWITCH INSIDE CREATEAPU IS " + newSwitch);
+        DebugCustom.Log("THE FUCKING NEW SWITCH INSIDE CREATEAPU IS " + newSwitch);
         return newSwitch;
     }
 
@@ -754,7 +757,7 @@ public static class CUSTOM_API
 
         }
 
-        Debug.Log("THE FUCKING NEW BUTTON INSIDE CREATEAPU IS " + newButton);
+        DebugCustom.Log("THE FUCKING NEW BUTTON INSIDE CREATEAPU IS " + newButton);
         return newButton;
     }
 
@@ -774,7 +777,7 @@ public static class CUSTOM_API
         VTText textRef = textObject.GetComponent<VTText>();
 
         GameObject objectClone = APU_ORIGINAL.transform.GetChild(4).gameObject;
-        Debug.Log("Cloned label is: " + objectClone);
+        DebugCustom.Log("Cloned label is: " + objectClone);
 
         VTText textClone = objectClone.GetComponentInChildren<VTText>();
 
@@ -813,7 +816,7 @@ public static class CUSTOM_API
         VTText textRef = textObject.GetComponent<VTText>();
 
         GameObject objectClone = APU_ORIGINAL.transform.GetChild(4).gameObject;
-        Debug.Log("Cloned label is: " + objectClone);
+        DebugCustom.Log("Cloned label is: " + objectClone);
 
         VTText textClone = objectClone.GetComponentInChildren<VTText>();
 
@@ -889,7 +892,7 @@ public static class CUSTOM_API
             objectTemp.y += increment;
             moveCounterY++;
             objectMoved.transform.localPosition = objectTemp;
-            Debug.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
+            DebugCustom.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
 
         }
 
@@ -899,7 +902,7 @@ public static class CUSTOM_API
 
             moveCounterY--;
             objectMoved.transform.localPosition = objectTemp;
-            Debug.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
+            DebugCustom.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
         }
 
         if (Input.GetKey("a"))
@@ -908,7 +911,7 @@ public static class CUSTOM_API
 
             moveCounterX--;
             objectMoved.transform.localPosition = objectTemp;
-            Debug.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
+            DebugCustom.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
         }
 
         if (Input.GetKey("d"))
@@ -917,7 +920,7 @@ public static class CUSTOM_API
 
             moveCounterX++;
             objectMoved.transform.localPosition = objectTemp;
-            Debug.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
+            DebugCustom.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
         }
 
         if (Input.GetKey("r"))
@@ -926,7 +929,7 @@ public static class CUSTOM_API
 
             moveCounterZ++;
             objectMoved.transform.localPosition = objectTemp;
-            Debug.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
+            DebugCustom.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
         }
 
         if (Input.GetKey("f"))
@@ -935,7 +938,7 @@ public static class CUSTOM_API
 
             moveCounterZ--;
             objectMoved.transform.localPosition = objectTemp;
-            Debug.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
+            DebugCustom.Log(objectMoved.name + ": " + objectMoved.transform.localPosition.ToString("F4"));
         }
     }
 
@@ -956,7 +959,7 @@ public static class CUSTOM_API
             objectTemp *= incrementy;
 
             rotatedObject.transform.localRotation = objectTemp.normalized;
-            Debug.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
+            DebugCustom.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
         }
 
         if (Input.GetKey("j"))
@@ -965,7 +968,7 @@ public static class CUSTOM_API
 
 
             rotatedObject.transform.localRotation = objectTemp.normalized;
-            Debug.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
+            DebugCustom.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
         }
 
         if (Input.GetKey("h"))
@@ -973,7 +976,7 @@ public static class CUSTOM_API
             objectTemp *= incrementx;
 
             rotatedObject.transform.localRotation = objectTemp.normalized;
-            Debug.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
+            DebugCustom.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
         }
 
 
@@ -983,7 +986,7 @@ public static class CUSTOM_API
 
 
             rotatedObject.transform.localRotation = objectTemp.normalized;
-            Debug.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
+            DebugCustom.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
         }
 
 
@@ -993,7 +996,7 @@ public static class CUSTOM_API
 
 
             rotatedObject.transform.localRotation = objectTemp.normalized;
-            Debug.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
+            DebugCustom.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
         }
 
         if (Input.GetKey("l"))
@@ -1002,7 +1005,7 @@ public static class CUSTOM_API
 
 
             rotatedObject.transform.localRotation = objectTemp.normalized;
-            Debug.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
+            DebugCustom.Log("Switch clone new angle: " + rotatedObject.transform.localEulerAngles.ToString("F2"));
         }
     }
 
@@ -1021,7 +1024,7 @@ public static class CUSTOM_API
                     if (obj != null)
                         if (obj.GetComponent<VRInteractable>() != null)
                         {
-                            Debug.Log("You selected the " + obj.name);
+                            DebugCustom.Log("You selected the " + obj.name);
                         }
                 }
                 // ensure you picked right object
@@ -1054,11 +1057,11 @@ public static class CUSTOM_API
     public static void FindSwitchObjects(GameObject go)
     {
         APU_ORIGINAL = GetChildWithName(go, "APUSwitch");
-        Debug.Log("APU Original found: " + APU_ORIGINAL);
+        DebugCustom.Log("APU Original found: " + APU_ORIGINAL);
 
         //TODO start using the seat adjust posebounds
         SEAT_ADJUST_POSE_BOUNDS = GetChildWithName(go, "MasterArmPoseBounds");
-        Debug.Log("pose bound found: " + SEAT_ADJUST_POSE_BOUNDS);
+        DebugCustom.Log("pose bound found: " + SEAT_ADJUST_POSE_BOUNDS);
         playerGameObject = VTOLAPI.GetPlayersVehicleGameObject();
         //APOFF_ORIGINAL = GetChildWithName(go,"VisorButton");
         APOFF_ORIGINAL = GetChildWithName(go, "APOff");

@@ -19,17 +19,17 @@ class LockingRadarNetworker_Sender : MonoBehaviour
     TacticalSituationController controller;
     private void Awake()
     {
-        Debug.Log("Radar sender awoken for object " + gameObject.name);
+        DebugCustom.Log("Radar sender awoken for object " + gameObject.name);
         lr = gameObject.GetComponentInChildren<LockingRadar>();
         if (lr == null)
         {
-            Debug.LogError($"LockingRadar on networkUID {networkUID} is null");
+            DebugCustom.LogError($"LockingRadar on networkUID {networkUID} is null");
             return;
         }
         lr.radar = gameObject.GetComponentInChildren<Radar>();
         if (lr.radar == null)
         {
-            Debug.LogError($"Radar null on netUID {networkUID}");
+            DebugCustom.LogError($"Radar null on netUID {networkUID}");
         }
         else
         {
@@ -39,7 +39,7 @@ class LockingRadarNetworker_Sender : MonoBehaviour
         controller = gameObject.GetComponentInChildren<TacticalSituationController>();
         if (controller != null)
         {
-            Debug.Log($"{networkUID} is a player F45.");
+            DebugCustom.Log($"{networkUID} is a player F45.");
             controller.OnAutoRadarLocked += F45LockedUpdate;
             controller.OnAutoRadarUnlocked += F45UnlockedUpdate;
         }
@@ -59,7 +59,7 @@ class LockingRadarNetworker_Sender : MonoBehaviour
         tick = 0.0f;
         if (lr == null)
         {
-            Debug.LogError($"LockingRadar is null for object {gameObject.name} with an uid of {networkUID}.");
+            DebugCustom.LogError($"LockingRadar is null for object {gameObject.name} with an uid of {networkUID}.");
             lr = gameObject.GetComponentInChildren<LockingRadar>();
         }
         if (lr == null)

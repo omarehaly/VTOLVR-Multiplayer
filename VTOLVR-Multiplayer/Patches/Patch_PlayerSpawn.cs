@@ -10,7 +10,7 @@ class Patch_OnPreSpawnUnit
        
         if (PlayerManager.selectedVehicle == "")
         {
-            Debug.LogError("selected vehicle is empty");
+            DebugCustom.LogError("selected vehicle is empty");
         }
         if (PlayerManager.selectedVehicle == "FA-26B")
             PlayerManager.selectedVehicle = "F/A-26B";
@@ -45,6 +45,7 @@ public static class Patch_DrawButton
             if (!Multiplayer._instance.buttonMade)
             {
                 Multiplayer.CreateVehicleButton();
+               //Multiplayer.CreateCustomPlaneButton();
             }
         return true;
     }

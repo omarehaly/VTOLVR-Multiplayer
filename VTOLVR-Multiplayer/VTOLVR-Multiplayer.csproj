@@ -140,7 +140,7 @@
     <Compile Include="AIManager.cs" />
     <Compile Include="AvatarManager.cs" />
     <Compile Include="CustomCockpit\CustomCockpitAPI.cs" />
-    <Compile Include="Debug.cs" />
+    <Compile Include="DebugCustom.cs" />
     <Compile Include="DiscordRadioManager.cs" />
     <Compile Include="Discord\ActivityManager.cs" />
     <Compile Include="Discord\Constants.cs" />

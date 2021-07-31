@@ -17,7 +17,7 @@ class TurretNetworker_Sender : MonoBehaviour
             turret = base.GetComponentInChildren<ModuleTurret>();
             if (turret == null)
             {
-                Debug.LogError($"Turret was null on ID {networkUID}");
+                DebugCustom.LogError($"Turret was null on ID {networkUID}");
             }
         }
 

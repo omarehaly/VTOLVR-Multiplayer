@@ -63,12 +63,12 @@ public class PlaneNetworker_Sender : MonoBehaviour
         engine = gameObject.GetComponentInChildren<ModuleEngine>();
         if (engine == null)
         {
-            Debug.Log("engine was null on vehicle " + gameObject.name);
+            DebugCustom.Log("engine was null on vehicle " + gameObject.name);
         }
 
         weaponManager = GetComponent<WeaponManager>();
         if (weaponManager == null)
-            Debug.LogError("Weapon Manager was null on vehicle " + gameObject.name);
+            DebugCustom.LogError("Weapon Manager was null on vehicle " + gameObject.name);
         else
         {
             traverse = Traverse.Create(weaponManager);
@@ -87,16 +87,16 @@ public class PlaneNetworker_Sender : MonoBehaviour
 
         cmManager = GetComponentInChildren<CountermeasureManager>();
         if (cmManager == null)
-            Debug.LogError("CountermeasureManager was null on vehicle " + gameObject.name);
+            DebugCustom.LogError("CountermeasureManager was null on vehicle " + gameObject.name);
         else
             cmManager.OnFiredCM += FireCountermeasure;
 
         fuelTank = GetComponent<FuelTank>();
         if (fuelTank == null)
-            Debug.LogError("FuelTank was null on vehicle " + gameObject.name);
+            DebugCustom.LogError("FuelTank was null on vehicle " + gameObject.name);
 
 
-        Debug.Log("Done Plane Sender");
+        DebugCustom.Log("Done Plane Sender");
         tailhook = GetComponentInChildren<Tailhook>();
         launchBar = GetComponentInChildren<CatapultHook>();
         refuelPort = GetComponentInChildren<RefuelPort>();
@@ -124,16 +124,16 @@ public class PlaneNetworker_Sender : MonoBehaviour
     private void setupManSender()
     {
         Rhand = CUSTOM_API.GetChildTransformWithName(gameObject, "Controller (right)");
-        Debug.Log("Controller (left)");
+        DebugCustom.Log("Controller (left)");
         Lhand = CUSTOM_API.GetChildTransformWithName(gameObject, "Controller (left)");
 
-        Debug.Log("neckBone_end");
+        DebugCustom.Log("neckBone_end");
         head = CUSTOM_API.GetChildWithName(gameObject, "neckBone_end");
 
-        Debug.Log("hip.left");
+        DebugCustom.Log("hip.left");
         hip = CUSTOM_API.GetChildWithName(gameObject, "hip.left");
         headL = CUSTOM_API.GetChildWithName(gameObject, "Helmet");
-        Debug.Log("hip.left");
+        DebugCustom.Log("hip.left");
         hip = CUSTOM_API.GetChildWithName(gameObject, "hip.left");
     }
     private void sendManData()
@@ -317,7 +317,7 @@ public class PlaneNetworker_Sender : MonoBehaviour
 
     public void Rearm()
     {
-        Debug.Log("Rearm!");
+        DebugCustom.Log("Rearm!");
 
         GameObject vehicle = VTOLAPI.GetPlayersVehicleGameObject();
         WeaponManager wm = vehicle.GetComponentInChildren<WeaponManager>();
@@ -375,7 +375,7 @@ public static class Patch1
             }
             if (toJettison.Count == 0)
             {
-                Debug.Log("Tried to jettison nothing, not doing it");
+                DebugCustom.Log("Tried to jettison nothing, not doing it");
                 return true;
             }
             lastMesage = new Message_JettisonUpdate(toJettison.ToArray(), networkUID);
@@ -386,7 +386,7 @@ public static class Patch1
         }
         else
         {
-            Debug.LogError($"{networkUID} not found in AIDictionaries for jettison messsage to send.");
+            DebugCustom.LogError($"{networkUID} not found in AIDictionaries for jettison messsage to send.");
         }
         return true;
     }

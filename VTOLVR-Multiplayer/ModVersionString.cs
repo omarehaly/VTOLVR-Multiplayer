@@ -1,5 +1,5 @@
 ﻿static class ModVersionString
 {
     public static string ReleaseBranch = "Release";
-    public static string ModVersionNumber = "5.6";
+    public static string ModVersionNumber = "5.7";
 }

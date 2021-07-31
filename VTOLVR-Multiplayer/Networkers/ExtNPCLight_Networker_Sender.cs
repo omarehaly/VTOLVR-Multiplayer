@@ -27,7 +27,7 @@ class ExtNPCLight_Sender : MonoBehaviour
         lastMessage.UID = networkUID;
         if ((bool)traverse.Field("connected").GetValue() != lastNav || lightsController.strobeLights.onByDefault != lastStrobe || (bool)traverse2.Field("connected").GetValue() != lastLand)
         {
-            Debug.Log("The lights on " + networkUID + " have changed, sending");
+            DebugCustom.Log("The lights on " + networkUID + " have changed, sending");
 
             lastMessage.nav = (bool)traverse.Field("connected").GetValue();
             lastMessage.strobe = lightsController.strobeLights.onByDefault;

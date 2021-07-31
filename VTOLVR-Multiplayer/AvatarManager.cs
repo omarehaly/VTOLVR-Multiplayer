@@ -96,7 +96,7 @@ public static class AvatarManager
         uint ImageHeight;
         bool success = SteamUtils.GetImageSize(FriendAvatar, out ImageWidth, out ImageHeight);
 
-        Debug.LogError("Loading avatar for " + user.m_SteamID);
+        DebugCustom.LogError("Loading avatar for " + user.m_SteamID);
 
         if (success && ImageWidth > 0 && ImageHeight > 0)
         {
@@ -107,17 +107,17 @@ public static class AvatarManager
             {
                 returnTexture.LoadRawTextureData(Image);
                 returnTexture.Apply();
-                Debug.LogError("Loaded avatar!");
+                DebugCustom.LogError("Loaded avatar!");
             }
             else
             {
-                Debug.LogError("Avatar loading failed!");
+                DebugCustom.LogError("Avatar loading failed!");
             }
             return returnTexture;
         }
         else
         {
-            Debug.LogError("Couldn't get avatar.");
+            DebugCustom.LogError("Couldn't get avatar.");
             return new Texture2D(0, 0);
         }
     }

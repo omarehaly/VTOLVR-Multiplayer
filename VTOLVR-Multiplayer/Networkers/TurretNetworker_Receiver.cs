@@ -45,7 +45,7 @@ class TurretNetworker_Receiver : MonoBehaviour
             turret = base.GetComponentInChildren<ModuleTurret>();
             if (turret == null)
             {
-                Debug.LogError($"Turret was null on ID {networkUID}");
+                DebugCustom.LogError($"Turret was null on ID {networkUID}");
             }
         }
     }
@@ -76,7 +76,7 @@ class TurretNetworker_Receiver : MonoBehaviour
             recieverDict[networkUID].Remove(this);
         }
         Networker.TurretUpdate -= TurretUpdate;
-        Debug.Log("Destroyed TurretUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed TurretUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 }

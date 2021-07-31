@@ -31,13 +31,13 @@ public static class PlaneEquippableManager
                 //Debug.Log("This last equip is a missile launcher");
                 if (HPml.ml == null)
                 {
-                    Debug.LogError("The Missile Launcher was null on this Missile Launcher");
-                    Debug.LogError("Type was = " + lastEquippable.weaponType);
+                    DebugCustom.LogError("The Missile Launcher was null on this Missile Launcher");
+                    DebugCustom.LogError("Type was = " + lastEquippable.weaponType);
                     continue;
                 }
                 if (HPml.ml.missiles == null)
                 {
-                    Debug.LogError("The missile list is null");
+                    DebugCustom.LogError("The missile list is null");
                     continue;
                 }
                 //Debug.Log($"This has {HPml.ml.missiles.Length} missiles");
@@ -70,7 +70,7 @@ public static class PlaneEquippableManager
                             }
                             else
                             {
-                                Debug.LogError($"Failed to get NetworkUID for missile ({HPml.ml.missiles[j].gameObject.name})");
+                                DebugCustom.LogError($"Failed to get NetworkUID for missile ({HPml.ml.missiles[j].gameObject.name})");
                             }
                             break;
                         case HPInfoListGenerateNetworkType.receiver:
@@ -81,7 +81,7 @@ public static class PlaneEquippableManager
                             }
                             else
                             {
-                                Debug.LogError($"Receiver null, Failed to get NetworkUID for missile ({HPml.ml.missiles[j].gameObject.name})");
+                                DebugCustom.LogError($"Receiver null, Failed to get NetworkUID for missile ({HPml.ml.missiles[j].gameObject.name})");
                             }
                             break;
                     }
@@ -92,7 +92,7 @@ public static class PlaneEquippableManager
                 switch (networkType)
                 {
                     case HPInfoListGenerateNetworkType.generate:
-                        Debug.Log("Added m230 turret sender");
+                        DebugCustom.Log("Added m230 turret sender");
                         TurretNetworker_Sender sender = HPm230.gameObject.AddComponent<TurretNetworker_Sender>();
                         sender.networkUID = networkID;
                         sender.turret = HPm230.GetComponent<ModuleTurret>();
@@ -163,13 +163,13 @@ public static class PlaneEquippableManager
 
         WeaponManager weaponManager = vehicle.GetComponent<WeaponManager>();
         if (weaponManager == null)
-            Debug.LogError("Failed to get weapon manager on " + vehicle.name);
+            DebugCustom.LogError("Failed to get weapon manager on " + vehicle.name);
         string[] hpLoadoutNames = new string[30];
         //Debug.Log("foreach var equip in message.hpLoadout");
         int debugInteger = 0;
         foreach (var equip in hpLoadout)
         {
-            Debug.Log(debugInteger);
+            DebugCustom.Log(debugInteger);
             hpLoadoutNames[equip.hpIdx] = equip.hpName;
             debugInteger++;
         }
@@ -207,7 +207,7 @@ public static class PlaneEquippableManager
                                 if (uIDidx < thingy.missileUIDS.Length)
                                 {
                                     lastReciever.networkUID = thingy.missileUIDS[uIDidx];
-                                    Debug.Log($"Missile ({lastReciever.gameObject.name}) has received their UID from the host. \n Missiles UID = {lastReciever.networkUID}");
+                                    DebugCustom.Log($"Missile ({lastReciever.gameObject.name}) has received their UID from the host. \n Missiles UID = {lastReciever.networkUID}");
                                     lastReciever.thisML = hpML.ml;
                                     if (playerFlag)
                                         lastReciever.gameObject.name = playerName + lastReciever.gameObject.name;
@@ -224,13 +224,13 @@ public static class PlaneEquippableManager
                     reciever.networkUID = networkID;
                     reciever.turret = equip.GetComponent<ModuleTurret>();
                     equip.enabled = false;
-                    Debug.Log("Added m230 turret reciever");
+                    DebugCustom.Log("Added m230 turret reciever");
                 }
             }
         }
         FuelTank fuelTank = vehicle.GetComponent<FuelTank>();
         if (fuelTank == null)
-            Debug.LogError("Failed to get fuel tank on " + vehicle.name);
+            DebugCustom.LogError("Failed to get fuel tank on " + vehicle.name);
         fuelTank.startingFuel = loadout.normalizedFuel * fuelTank.maxFuel;
         fuelTank.SetNormFuel(loadout.normalizedFuel);
     }

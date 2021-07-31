@@ -75,7 +75,7 @@ public class RigidbodyNetworker_Sender : MonoBehaviour
 
     public void SetSpawn(Vector3 spawnPos, Quaternion spawnRot)
     {
-        Debug.Log($"starting spawn repositioner");
+        DebugCustom.Log($"starting spawn repositioner");
         spawnPosf = spawnPos;
         spawnRotf = spawnRot;
         StartCoroutine(SetSpawnEnumerator(spawnPos, spawnRot));
@@ -93,7 +93,7 @@ public class RigidbodyNetworker_Sender : MonoBehaviour
 
         player = true;
         Physics.SyncTransforms();
-        Debug.Log($"Our position is now {rb.position}");
+        DebugCustom.Log($"Our position is now {rb.position}");
 
         yield return new WaitForSeconds(0.5f);
         rb.detectCollisions = true;

@@ -82,7 +82,7 @@ class Patch_LoadingSceneHelmet_Update
         }
         if (!PlayerManager.OPFORbuttonMade)
         {
-            Debug.Log("OPFORbuttonMade eneter");
+            DebugCustom.Log("OPFORbuttonMade eneter");
             var refrence = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(g => g.name.Contains("RecenterCanvas"));
             GameObject button = GameObject.Instantiate(refrence);
             PlayerManager.OPFORbuttonMade = false;
@@ -91,7 +91,7 @@ class Patch_LoadingSceneHelmet_Update
                 if (!controller.isLeft)
                 {
 
-                    Debug.Log("OPFORbuttonMade setting transform");
+                    DebugCustom.Log("OPFORbuttonMade setting transform");
                     button.transform.SetParent(controller.transform);
                     button.transform.localPosition = new Vector3(0.101411f, 0.02100047f, -0.128024f);
                     button.transform.localRotation = Quaternion.Euler(-5.834f, 283.583f, 328.957f);
@@ -146,7 +146,7 @@ class Patch_LoadingSceneHelmet_Update
                         PlayerManager.teamLeftie = false; //host cant be team leftie so ai doesnt break;
                         //if (Networker.EveryoneElseReady())
                         {
-                            Debug.Log("Everyone is ready, starting game");
+                            DebugCustom.Log("Everyone is ready, starting game");
                             NetworkSenderThread.Instance.SendPacketAsHostToAllClients(new Message(MessageType.AllPlayersReady), Steamworks.EP2PSend.k_EP2PSendReliable);
                             Networker.SetHostReady(true);
                             PlayerManager.allowStart = true;
@@ -165,7 +165,7 @@ class Patch_LoadingSceneHelmet_Update
                         {
                             Networker.readySent = true;
                             NetworkSenderThread.Instance.SendPacketToSpecificPlayer(Networker.hostID, new Message_Ready(PlayerManager.localUID, Networker.isHost, PlayerManager.teamLeftie), Steamworks.EP2PSend.k_EP2PSendReliable);
-                            Debug.Log("Waiting for the host to say everyone is ready");
+                            DebugCustom.Log("Waiting for the host to say everyone is ready");
                         }
                     }
                     if (Networker.hostLoaded && !Networker.isHost)
@@ -180,7 +180,7 @@ class Patch_LoadingSceneHelmet_Update
                 }
                 else
                 {
-                    Debug.Log("Player is not a MP host or client.");
+                    DebugCustom.Log("Player is not a MP host or client.");
                    // LoadingSceneController.instance.PlayerReady();
                     PlayerManager.OPFORbuttonMade = false;
                 }

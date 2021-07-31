@@ -46,13 +46,13 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
         lockingRadar = gameObject.GetComponentInChildren<LockingRadar>();
         if (lockingRadar == null)
         {
-            Debug.Log($"Locking radar on networkUID {networkUID} is null.");
+            DebugCustom.Log($"Locking radar on networkUID {networkUID} is null.");
             return;
         }
         lockingRadar.radar = gameObject.GetComponentInChildren<Radar>();
         if (lockingRadar.radar == null)
         {
-            Debug.Log($"Radar was null on network uID {networkUID}");
+            DebugCustom.Log($"Radar was null on network uID {networkUID}");
         }
         // lockingRadar.debugRadar = true;
         lastRadarMessage = new Message_RadarUpdate(false, 0, networkUID);
@@ -156,7 +156,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
             {
                 if (actor == null)
                 {
-                    Debug.LogError("Actor is null.");
+                    DebugCustom.LogError("Actor is null.");
                     return;
                 }
                 if (pln.lockingRadar != null)
@@ -194,7 +194,7 @@ class LockingRadarNetworker_Receiver : MonoBehaviour
             recieverDict[networkUID].Remove(this);
         }
         
-        Debug.Log("Radar update and Locking Radar update destroyed");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Radar update and Locking Radar update destroyed");
+        DebugCustom.Log(gameObject.name);
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 using VTOLVR_Multiplayer;
 public class MissileNetworker_Receiver : MonoBehaviour
 {
-    public ulong networkUID;
+  
     public ulong ownerNetworkUID;
     public Missile thisMissile;
     public MissileLauncher thisML;
@@ -20,6 +20,36 @@ public class MissileNetworker_Receiver : MonoBehaviour
     private List<int> colliderLayers = new List<int>();
     bool started = false;
     public static List<Actor> radarMissiles = new List<Actor>();
+
+    public static Dictionary<ulong, List<MissileNetworker_Receiver>> recieverDict = new Dictionary<ulong, List<MissileNetworker_Receiver>>();
+    private ulong _networkUID;
+    public ulong networkUID
+    {
+        get
+        {
+            return _networkUID;
+        }
+        set
+        {
+           
+            if (recieverDict.ContainsKey(networkUID))
+            {
+                recieverDict[networkUID].Remove(this);
+            }
+            if (!recieverDict.ContainsKey(value))
+            {
+                List<MissileNetworker_Receiver> newList = new List<MissileNetworker_Receiver>();
+                recieverDict.Add(value, newList);
+                newList.Add(this);
+            }
+            else
+            {
+                recieverDict[value].Add(this);
+            }
+
+            this._networkUID = value;
+        }
+    }
     private void Awake()
     {
         if (thisMissile == null)
@@ -28,8 +58,8 @@ public class MissileNetworker_Receiver : MonoBehaviour
         }
         started = true;
         // rigidbody = GetComponent<Rigidbody>();
-        Networker.MissileUpdate += MissileUpdate;
-        thisMissile.OnDetonate.AddListener(new UnityEngine.Events.UnityAction(() => { Debug.Log("Missile detonated: " + thisMissile.name); }));
+       // Networker.MissileUpdate += MissileUpdate;
+        thisMissile.OnDetonate.AddListener(new UnityEngine.Events.UnityAction(() => { DebugCustom.Log("Missile detonated: " + thisMissile.name); }));
         //if (thisMissile.guidanceMode == Missile.GuidanceModes. || thisMissile.guidanceMode == Missile.GuidanceModes.Optical || thisMissile.guidanceMode == Missile.GuidanceModes.GPS)
         {
             foreach (var collider in thisMissile.GetComponentsInChildren<Collider>())
@@ -45,39 +75,43 @@ public class MissileNetworker_Receiver : MonoBehaviour
         traverseMSL.Field("detonated").SetValue(true);
     }
 
-    public void MissileUpdate(Packet packet)
+    static public void MissileUpdate(Packet packet)
     {
-        lastMessage = ((PacketSingle)packet).message as Message_MissileUpdate;
-       
-        if (lastMessage.networkUID != networkUID)
+        Message_MissileUpdate lastMessage = ((PacketSingle)packet).message as Message_MissileUpdate;
+        List<MissileNetworker_Receiver> plnl = null;
+
+        if (!recieverDict.TryGetValue(lastMessage.networkUID, out plnl))
+            return; foreach (var pln in plnl)
+        {
+            if (pln == null)
+                return;
+            if (lastMessage.networkUID != pln.networkUID)
+                return;
+            if (!pln.thisMissile.gameObject.activeSelf)
+        {
+                //Debug.LogError(thisMissile.gameObject.name + " isn't active in hiearchy, changing it to active.");
+                pln.thisMissile.gameObject.SetActive(true);
+        }
+        if (pln.started == false)
         {
             return;
         }
-        if (!thisMissile.gameObject.activeSelf)
+        if (pln.traverseML == null)
         {
-            //Debug.LogError(thisMissile.gameObject.name + " isn't active in hiearchy, changing it to active.");
-            thisMissile.gameObject.SetActive(true);
-        }
-        if (started == false)
-        {
-            return;
-        }
-        if (traverseML == null)
-        {
-            traverseML = Traverse.Create(thisML);
+                pln.traverseML = Traverse.Create(pln.thisML);
         } 
         
-        if (!thisMissile.fired)
+        if (!pln.thisMissile.fired)
         {
             //Debug.Log(thisMissile.gameObject.name + " missile fired on one end but not another, firing here.");
-            if (thisML == null)
+            if (pln.thisML == null)
             {
                 //Debug.LogError($"Missile launcher is null on missile {thisMissile.actor.name}, someone forgot to assign it.");
             }
             if (lastMessage.guidanceMode == Missile.GuidanceModes.Radar)
             {
                 // thisMissile.debugMissile = true;
-                RadarMissileLauncher radarLauncher = thisML as RadarMissileLauncher;
+                RadarMissileLauncher radarLauncher = pln.thisML as RadarMissileLauncher;
                 if (!VTOLVR_Multiplayer.AIDictionaries.allActors.TryGetValue(lastMessage.radarLock, out Actor actor))
                 {
                     //Debug.LogWarning($"Could not resolve missile launcher radar lock from uID {lastMessage.radarLock}.");
@@ -85,26 +119,26 @@ public class MissileNetworker_Receiver : MonoBehaviour
                 else
                 {
                     if (radarLauncher.lockingRadar != null)
-                        radarLauncher.lockingRadar.ForceLock(actor, out lockData);
+                        radarLauncher.lockingRadar.ForceLock(actor, out pln.lockData);
                     //else
                         //Debug.LogWarning("Locking Radar null on object " + thisMissile.name);
                 }
                 if (radarLauncher != null)
                 {
-                    radarMissiles.Add(thisMissile.actor);
-                    //Debug.Log("Guidance mode radar, firing it as a radar missile.");
-                    traverseML.Field("missileIdx").SetValue(idx);
+                    radarMissiles.Add(pln.thisMissile.actor);
+                        //Debug.Log("Guidance mode radar, firing it as a radar missile.");
+                        pln.traverseML.Field("missileIdx").SetValue(pln.idx);
                     if (!radarLauncher.TryFireMissile())
                     {
-                        Debug.LogError($"Could not fire radar missile, lock data is as follows: Locked: {lockData.locked}, Actor: {lockData.actor}");
+                        DebugCustom.LogError($"Could not fire radar missile, lock data is as follows: Locked: {pln.lockData.locked}, Actor: {pln.lockData.actor}");
                     }
                     else
                     {
-                        RigidbodyNetworker_Receiver rbReceiver = gameObject.AddComponent<RigidbodyNetworker_Receiver>();
-                        rbReceiver.networkUID = networkUID;
+                        RigidbodyNetworker_Receiver rbReceiver = pln.gameObject.AddComponent<RigidbodyNetworker_Receiver>();
+                        rbReceiver.networkUID = pln.networkUID;
                         foreach(PlayerManager.Player p in PlayerManager.players)
                         {
-                            if(p.cSteamID.m_SteamID == ownerNetworkUID)
+                            if(p.cSteamID.m_SteamID == pln.ownerNetworkUID)
                             {
                                 rbReceiver.playerWeRepresent = p;
                             }
@@ -118,9 +152,9 @@ public class MissileNetworker_Receiver : MonoBehaviour
             {
                 if (lastMessage.guidanceMode == Missile.GuidanceModes.Heat)
                 {
-                    //Debug.Log("Guidance mode Heat.");
-                    thisMissile.heatSeeker.transform.rotation = lastMessage.seekerRotation;
-                    thisMissile.heatSeeker.SetHardLock();
+                        //Debug.Log("Guidance mode Heat.");
+                        pln.thisMissile.heatSeeker.transform.rotation = lastMessage.seekerRotation;
+                        pln.thisMissile.heatSeeker.SetHardLock();
                 }
 
                 if (lastMessage.guidanceMode == Missile.GuidanceModes.Optical)
@@ -131,49 +165,49 @@ public class MissileNetworker_Receiver : MonoBehaviour
                     Transform newTransform = emptyGO.transform;
 
                     newTransform.position = VTMapManager.GlobalToWorldPoint(lastMessage.targetPosition);
-                    thisMissile.SetOpticalTarget(newTransform);
+                        pln.thisMissile.SetOpticalTarget(newTransform);
                     //thisMissile.heatSeeker.SetHardLock();
 
-                    if (thisMissile.opticalLOAL)
+                    if (pln.thisMissile.opticalLOAL)
                     {
-                        thisMissile.SetLOALInitialTarget(VTMapManager.GlobalToWorldPoint(lastMessage.targetPosition));
+                            pln.thisMissile.SetLOALInitialTarget(VTMapManager.GlobalToWorldPoint(lastMessage.targetPosition));
 
                     }
                 }
-                // Debug.Log("Try fire missile clientside");
-                traverseML.Field("missileIdx").SetValue(idx);
-                thisML.FireMissile();
-                RigidbodyNetworker_Receiver rbReceiver = gameObject.AddComponent<RigidbodyNetworker_Receiver>();
-                rbReceiver.networkUID = networkUID;
+                    // Debug.Log("Try fire missile clientside");
+                    pln.traverseML.Field("missileIdx").SetValue(pln.idx);
+                    pln.thisML.FireMissile();
+                RigidbodyNetworker_Receiver rbReceiver = pln.gameObject.AddComponent<RigidbodyNetworker_Receiver>();
+                rbReceiver.networkUID = pln.networkUID;
                 rbReceiver.smoothingTime = 0.5f;
             }
-            if (hasFired != thisMissile.fired)
+            if (pln.hasFired != pln.thisMissile.fired)
             {
-                //Debug.Log("Missile fired " + thisMissile.name);
-                hasFired = true;
+                    //Debug.Log("Missile fired " + thisMissile.name);
+                    pln.hasFired = true;
 
                 //AIDictionaries.allActors.Add(networkUID, thisMissile.actor);
                 //AIDictionaries.reverseAllActors.Add(thisMissile.actor, networkUID);
-                if (colliderLayers.Count > 0)
-                    StartCoroutine(colliderTimer());
+                if (pln.colliderLayers.Count > 0)
+                        pln.StartCoroutine(pln.colliderTimer());
             }
         }
 
-        //explode missle after it has done its RB physics fixed timestep
-        if (!exploded)
-            if (lastMessage.hasExploded)
-        {
+            //explode missle after it has done its RB physics fixed timestep
+            if (!pln.exploded)
+                if (lastMessage.hasExploded)
+                {
 
-            Debug.Log("Missile exploded.");
-            if (thisMissile != null)
-            {
-                traverseMSL.Field("detonated").SetValue(false);
+                    DebugCustom.Log("Missile exploded.");
+                    if (pln.thisMissile != null)
+                    {
+                        pln.traverseMSL.Field("detonated").SetValue(false);
 
-                ///thisMissile.rb.velocity = thisMissile.transform.forward * 10.0f;
-                thisMissile.Detonate();
-            }
+                        ///thisMissile.rb.velocity = thisMissile.transform.forward * 10.0f;
+                        pln.thisMissile.Detonate();
+                    }
 
-
+                }
         }
     }
     private void LateUpdate()
@@ -206,9 +240,11 @@ public class MissileNetworker_Receiver : MonoBehaviour
 
     public void OnDestroy()
     {
-
-        radarMissiles.Remove(thisMissile.actor);
-        Networker.MissileUpdate -= MissileUpdate;
+        if (recieverDict.ContainsKey(_networkUID))
+        {
+            recieverDict[networkUID].Remove(this);
+        }
+        radarMissiles.Remove(thisMissile.actor); 
     }
 }
 

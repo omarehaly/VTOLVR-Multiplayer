@@ -18,7 +18,7 @@ class ExtLight_Receiver : MonoBehaviour
         if (lastMessage.UID != networkUID)
             return;
 
-        Debug.Log("The lights on " + networkUID + " have changed.");
+        DebugCustom.Log("The lights on " + networkUID + " have changed.");
         if (lastMessage.nav)
         {
             lightsController.SetNavLights(1);
@@ -48,7 +48,7 @@ class ExtLight_Receiver : MonoBehaviour
     public void OnDestroy()
     {
         Networker.ExtLight -= ChangeLights;
-        Debug.Log("Destroyed ExtLight");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed ExtLight");
+        DebugCustom.Log(gameObject.name);
     }
 }

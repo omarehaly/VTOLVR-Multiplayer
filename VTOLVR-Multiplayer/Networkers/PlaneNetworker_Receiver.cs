@@ -99,7 +99,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
             weaponManager = GetComponent<WeaponManager>();
         mostCurrentUpdateNumber = 0;
         if (weaponManager == null)
-            Debug.LogError("Weapon Manager was null on " + gameObject.name);
+            DebugCustom.LogError("Weapon Manager was null on " + gameObject.name);
         else
             traverse = Traverse.Create(weaponManager);
 
@@ -110,10 +110,10 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         }
         cmManager = GetComponentInChildren<CountermeasureManager>();
         if (cmManager == null)
-            Debug.LogError("CountermeasureManager was null on " + gameObject.name);
+            DebugCustom.LogError("CountermeasureManager was null on " + gameObject.name);
         fuelTank = GetComponent<FuelTank>();
         if (fuelTank == null)
-            Debug.LogError("FuelTank was null on " + gameObject.name);
+            DebugCustom.LogError("FuelTank was null on " + gameObject.name);
 
         collidersStore = new List<int>();
         //?fix gun sight jitter
@@ -232,40 +232,40 @@ public class PlaneNetworker_Receiver : MonoBehaviour
             manPuppet.transform.localPosition = new Vector3(-0.07f, 0.69f, -0.1f) - PlayerManager.av42Offset;
 
 
-        Debug.Log("righthandControl");
+        DebugCustom.Log("righthandControl");
         puppetRhand = CUSTOM_API.GetChildWithName(manPuppet, "righthandControl").transform;
         puppetRhand.GetComponent<Renderer>().enabled = false;
-        Debug.Log("lefthandControl");
+        DebugCustom.Log("lefthandControl");
         puppetLhand = CUSTOM_API.GetChildWithName(manPuppet, "lefthandControl").transform;
         puppetLhand.GetComponent<Renderer>().enabled = false;
-        Debug.Log("headControl");
+        DebugCustom.Log("headControl");
         puppetHead = CUSTOM_API.GetChildWithName(manPuppet, "headControl").transform;
         puppetHead.GetComponent<Renderer>().enabled = false;
-        Debug.Log("headLook");
+        DebugCustom.Log("headLook");
         puppetHeadLook = CUSTOM_API.GetChildWithName(manPuppet, "lookControl").transform;
         puppetHeadLook.transform.position = puppetHeadLook.transform.position - new Vector3(0.0f, 0.15f, 0.0f);
         puppetHeadLook.GetComponent<Renderer>().enabled = false;
-        Debug.Log("Bone.008");
+        DebugCustom.Log("Bone.008");
         puppethip = CUSTOM_API.GetChildWithName(manPuppet, "Bone.008").transform;
 
-        Debug.Log("headik_end");
+        DebugCustom.Log("headik_end");
         ikh = CUSTOM_API.GetChildWithName(manPuppet, "Bone.007").AddComponent<FastIKFabric>();
         ikh.Target = puppetHead;
         ikh.ChainLength = 4;
 
-        Debug.Log("righthandik_end");
+        DebugCustom.Log("righthandik_end");
         ikrh = CUSTOM_API.GetChildWithName(manPuppet, "righthandik_end").AddComponent<FastIKFabric>();
         ikrh.Target = puppetRhand;
         ikrh.ChainLength = 3;
 
-        Debug.Log("lefthandik_end");
+        DebugCustom.Log("lefthandik_end");
         iklh = CUSTOM_API.GetChildWithName(manPuppet, "lefthandik_end").AddComponent<FastIKFabric>();
         iklh.Target = puppetLhand;
         iklh.ChainLength = 3;
-        Debug.Log("SetupNewDisplay");
+        DebugCustom.Log("SetupNewDisplay");
 
 
-        Debug.Log("headik");
+        DebugCustom.Log("headik");
         ikheadlook = CUSTOM_API.GetChildWithName(manPuppet, "headik").AddComponent<FastIKLook>();
         ikheadlook.Target = puppetHeadLook;
         manSetup = true;
@@ -502,7 +502,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
             return;
         if (message.toJettison == null)
         {
-            Debug.LogError("Why did we get a jettison message that want's to jettison nothing?");
+            DebugCustom.LogError("Why did we get a jettison message that want's to jettison nothing?");
             return;
         }
         foreach (var idx in message.toJettison)
@@ -542,7 +542,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
         idx = (int)traverse.Field("weaponIdx").GetValue();
         if (idx != message.weaponIdx)
         {
-            Debug.LogWarning("Couldn't change weapon idx to the right weapon for aircraft " + gameObject.name);
+            DebugCustom.LogWarning("Couldn't change weapon idx to the right weapon for aircraft " + gameObject.name);
         }
 
         if (weaponManager.currentEquip is RocketLauncher)
@@ -621,7 +621,7 @@ public class PlaneNetworker_Receiver : MonoBehaviour
     {
         if (!Networker.isHost)
         {
-            Debug.LogError("Generate HPInfo was ran from a player which isn't the host.");
+            DebugCustom.LogError("Generate HPInfo was ran from a player which isn't the host.");
             return null;
         }
 
@@ -665,8 +665,8 @@ public class PlaneNetworker_Receiver : MonoBehaviour
             
         // Networker.WeaponStoppedFiring -= WeaponStoppedFiring;
         Networker.FireCountermeasure -= FireCountermeasure;
-        Debug.Log("Destroyed Plane Update");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed Plane Update");
+        DebugCustom.Log(gameObject.name);
     }
 
 

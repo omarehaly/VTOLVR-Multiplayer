@@ -24,20 +24,20 @@ class ExtLight_Sender : MonoBehaviour
         if (navObject != null)
         {
             navLever = navObject.gameObject.GetComponent<VRLever>();
-            Debug.Log("Got navlight lever");
+            DebugCustom.Log("Got navlight lever");
         }
         else
         {
-            Debug.Log("Could not get navlight lever");
+            DebugCustom.Log("Could not get navlight lever");
         }
         if (landingObject != null)
         {
             landingLever = landingObject.gameObject.GetComponent<VRLever>();
-            Debug.Log("Got landing lever");
+            DebugCustom.Log("Got landing lever");
         }
         else
         {
-            Debug.Log("Could not get landing lever");
+            DebugCustom.Log("Could not get landing lever");
         }
     }
 

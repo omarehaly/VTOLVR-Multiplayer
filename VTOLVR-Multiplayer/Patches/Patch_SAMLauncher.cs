@@ -16,21 +16,21 @@ class Patch9
         {
             return true;
         }
-        Debug.Log("Beginning sam launch prefix.");
+        DebugCustom.Log("Beginning sam launch prefix.");
         int j = 0;
         Missile[] missiles = (Missile[])Traverse.Create(__instance).Field("missiles").GetValue();
         for (int i = 0; i < missiles.Length; i++)
         {
             if (missiles[i] != null)
             {
-                Debug.Log("Found a suitable missile to attach a sender to.");
+                DebugCustom.Log("Found a suitable missile to attach a sender to.");
                 MissileNetworker_Sender missileSender = missiles[i].gameObject.AddComponent<MissileNetworker_Sender>();
                 missileSender.networkUID = Networker.GenerateNetworkUID();
                 SAMHelper.SAMmissile = missileSender.networkUID;
                 return true;
             }
         }
-        Debug.Log("Could not find a suitable missile to attach a sender to.");
+        DebugCustom.Log("Could not find a suitable missile to attach a sender to.");
         SAMHelper.SAMmissile = 0;
         return true;
         // __state = 0;
@@ -40,20 +40,20 @@ class Patch9
     {
         if (Networker.isHost)
         {
-            Debug.Log("A sam has fired, attempting to send it to the client in postfix method.");
+            DebugCustom.Log("A sam has fired, attempting to send it to the client in postfix method.");
             if (VTOLVR_Multiplayer.AIDictionaries.reverseAllActors.TryGetValue(__instance.actor, out ulong senderUID))
             {
                 if (VTOLVR_Multiplayer.AIDictionaries.reverseAllActors.TryGetValue(lockData.actor, out ulong actorUID))
                 {
-                    Debug.Log($"Sending sam launch with a missile uID of {SAMHelper.SAMmissile}, sender uID will be {senderUID}, and the actorUID will be {actorUID}.");
+                    DebugCustom.Log($"Sending sam launch with a missile uID of {SAMHelper.SAMmissile}, sender uID will be {senderUID}, and the actorUID will be {actorUID}.");
                     NetworkSenderThread.Instance.SendPacketAsHostToAllClients(new Message_SamUpdate(actorUID, SAMHelper.SAMmissile, senderUID), Steamworks.EP2PSend.k_EP2PSendReliable);
                     SAMHelper.SAMmissile = 0;
                 }
                 else
-                    Debug.LogWarning($"Could not resolve SAMLauncher {senderUID}'s target.");
+                    DebugCustom.LogWarning($"Could not resolve SAMLauncher {senderUID}'s target.");
             }
             else
-                Debug.LogWarning($"Could not resolve a SAMLauncher's uid.");
+                DebugCustom.LogWarning($"Could not resolve a SAMLauncher's uid.");
         }
     }
 }

@@ -26,7 +26,7 @@ public static class DiscordRadioManager
     public static string freqLabelTableNetworkString = "122.8";
     public static void start()
     {
-        Debug.Log("Loading DiscordRadioManager");
+        DebugCustom.Log("Loading DiscordRadioManager");
         string modFolder = Multiplayer._instance.ThisMod.ModFolder;
         string vtolFolder = System.IO.Directory.GetCurrentDirectory() + "\\";
         string dllDirectory = modFolder.Replace(vtolFolder, string.Empty) + $"\\{discordFolder}";
@@ -89,14 +89,14 @@ public static class DiscordRadioManager
             readText = System.IO.File.ReadAllText(dllDirectory + @"\freq.txt");
             string[] values = readText.Split(',');
             frequencyTable.Add(values);
-            Debug.Log("loading freqs");
+            DebugCustom.Log("loading freqs");
             freqTableNetworkString += "," + readText;
         }
 
         if (System.IO.File.Exists(dllDirectory + @"\freqlabels.txt"))
         {
             readText = System.IO.File.ReadAllText(dllDirectory + @"\freqlabels.txt");
-            Debug.Log("loading freqlabels");
+            DebugCustom.Log("loading freqlabels");
             string[] values = readText.Split(',');
             frequencyTableLabels.Add(values);
             freqLabelTableNetworkString += "," + readText;

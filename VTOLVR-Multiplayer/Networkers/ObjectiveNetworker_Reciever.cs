@@ -51,7 +51,7 @@ class ObjectiveNetworker_Reciever
                 reverseObjectiveHashTable[obj] = hashCode;
             }
         }
-        Debug.Log($"compiled objective hashes");
+        DebugCustom.Log($"compiled objective hashes");
     }
     public static void sendObjectiveHistory(CSteamID id)
     {
@@ -63,7 +63,7 @@ class ObjectiveNetworker_Reciever
     }
     public static void objectiveUpdate(int hashCode, ObjSyncType status)
     {
-        Debug.Log($"Doing objective update for id {hashCode}.");
+        DebugCustom.Log($"Doing objective update for id {hashCode}.");
 
         if (status == ObjSyncType.EVTBegin)
         {
@@ -78,7 +78,7 @@ class ObjectiveNetworker_Reciever
 
         if (!objectiveHashTable.ContainsKey(hashCode))
         {
-            Debug.Log("cant find objective in hashTable");
+            DebugCustom.Log("cant find objective in hashTable");
             return;
         }
 
@@ -86,14 +86,14 @@ class ObjectiveNetworker_Reciever
         MissionObjective obj = objectiveHashTable[hashCode];
         if (obj == null)
         {
-            Debug.Log("obj was Null");
+            DebugCustom.Log("obj was Null");
             return;
         }
 
 
         if (status == ObjSyncType.EMissionCompleted && !obj.completed)
         {
-            Debug.Log("Completeing mission complete locally");
+            DebugCustom.Log("Completeing mission complete locally");
             completeNext = true;
             if (!obj.started)
             {
@@ -105,7 +105,7 @@ class ObjectiveNetworker_Reciever
 
         if (status == ObjSyncType.EMissionFailed && !obj.failed)
         {
-            Debug.Log("failing mission complete locally");
+            DebugCustom.Log("failing mission complete locally");
             completeNextFailed = true;
             if (!obj.started)
                 obj.BeginMission();
@@ -116,7 +116,7 @@ class ObjectiveNetworker_Reciever
 
         if (status == ObjSyncType.EMissionBegin && !obj.started)
         {
-            Debug.Log("starting mission begin locally");
+            DebugCustom.Log("starting mission begin locally");
             completeNextBegin = true;
             obj.BeginMission();
             loadObjectives();
@@ -124,7 +124,7 @@ class ObjectiveNetworker_Reciever
 
         if (status == ObjSyncType.EMissionCanceled && !obj.cancelled)
         {
-            Debug.Log("starting mission cancel locally");
+            DebugCustom.Log("starting mission cancel locally");
             completeNextCancel = true;
             if (!obj.started)
                 obj.BeginMission();
@@ -140,7 +140,7 @@ class ObjectiveNetworker_Reciever
             scenarioActionsList[hash].Invoke();
         }
         else
-            Debug.Log("scenario error doesnt exsist");
+            DebugCustom.Log("scenario error doesnt exsist");
         /* if (scenarioActionsListCoolDown.ContainsKey(hash))
          {
              float currentTime = Time.unscaledTime;

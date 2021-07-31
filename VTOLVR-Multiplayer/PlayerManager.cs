@@ -14,6 +14,9 @@ public static class PlayerManager
         public GameObject planeObj;
         public string CustomPlaneString;
     }
+    public static List<string> CustomPlaneNames = new List<string>();
+    public static List<string> CustomPlaneNamesBasePlane = new List<string>();
+    public static int CustomPlaneIndex=0;
     public static List<Transform> spawnPoints { private set; get; }
     public static List<ReArmingPoint> reaArms;
     public static string selectedVehicle = "";
@@ -106,17 +109,40 @@ public static class PlayerManager
     }
     public static List<Player> players = new List<Player>(); //This is the list of players
 
+    public static void RegisterCustomPlane(string name,string basePlane)
+    {
+        if (CustomPlaneNames.Contains(name))
+            return;
+        CustomPlaneNames.Add(name);
+        CustomPlaneNamesBasePlane.Add(basePlane);
+    }
+
+    public static void SetCustomPlane(string name )
+    { 
+
+        for (int i = 0; i < CustomPlaneNames.Count;i++)
+             {
+            if (CustomPlaneNames[i] == name)
+                CustomPlaneIndex = i;
+            }
+
+    }
     /// <summary>
     /// This runs when the map has finished loading and hopefully 
     /// when the player first can interact with the vehicle.
     /// </summary>
     /// 
-     
+
     public static IEnumerator MapLoaded()
     {
 
-        
-        Debug.Log("map loading started");
+        CustomPlaneIndex = 0;
+       
+        RegisterCustomPlane("none", "none");
+
+        RegisterCustomPlane("f16", "F/A-26B");
+        RegisterCustomPlane("A10", "AV-42C");
+        DebugCustom.Log("map loading started");
         if (!Networker.isHost)
         {
             ScreenFader.FadeOut(Color.black, 0.0f, fadeoutVolume: true);
@@ -134,7 +160,7 @@ public static class PlayerManager
         PlayerSpawn ps = GameObject.FindObjectOfType<PlayerSpawn>();
         flyStart = ps.initialSpeed > 10.0f;
         Random.InitState((int)(Time.deltaTime*1000.0f));
-        Debug.Log("The map has loaded");
+        DebugCustom.Log("The map has loaded");
       
         // As a client, when the map has loaded we are going to request a spawn point from the host
         SetPrefabs();
@@ -146,34 +172,34 @@ public static class PlayerManager
         {
 
             if (PlayerSpawn.playerVehicleReady == false)
-            { Debug.LogError("start  NO PLAYERE  SPAWN"); FlightLogger.Log("start  NO PLAYERE  SPAWN"); }
-            Debug.LogError("mapload1");
+            { DebugCustom.LogError("start  NO PLAYERE  SPAWN"); FlightLogger.Log("start  NO PLAYERE  SPAWN"); }
+            DebugCustom.LogError("mapload1");
             ScreenFader.FadeOut(Color.black, 0.0f, fadeoutVolume: true);
             TempPilotDetacher detacher = FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<TempPilotDetacher>();
             //gears = GetComponentsInChildren<GearAnimator>();
             //shifter = GetComponentInChildren<FloatingOriginShifter>();
-            Debug.LogError("mapload2");
+            DebugCustom.LogError("mapload2");
             EjectionSeat ejection = FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<EjectionSeat>();
-            Debug.LogError("mapload3");
+            DebugCustom.LogError("mapload3");
             UnityEngine.Object.Destroy(detacher.cameraRig);
             UnityEngine.Object.Destroy(detacher.gameObject);
             UnityEngine.Object.Destroy(ejection.gameObject);
             UnityEngine.Object.Destroy(BlackoutEffect.instance);
             UnityEngine.Object.Destroy(FlightSceneManager.instance.playerActor.gameObject.GetComponent<PlayerSpawn>());
             UnityEngine.Object.Destroy(FlightSceneManager.instance.playerActor.gameObject);
-            Debug.LogError("mapload4");
+            DebugCustom.LogError("mapload4");
 
             if (PlayerSpawn.playerVehicleReady == false)
-            { Debug.LogError("NO PLAYERE  SPAWN"); FlightLogger.Log("NO PLAYERE  SPAWN"); }
+            { DebugCustom.LogError("NO PLAYERE  SPAWN"); FlightLogger.Log("NO PLAYERE  SPAWN"); }
 
             /* foreach (EngineEffects effect in effects)
              {
                  Destroy(effect);
              }*/
             //as much stuff as im destroying, some stuff is most likely getting through, future people, look into this
-            Debug.LogError("mapload5");
+            DebugCustom.LogError("mapload5");
             AudioController.instance.ClearAllOpenings();
-            Debug.LogError("mapload6");
+            DebugCustom.LogError("mapload6");
             UnitIconManager.instance.UnregisterAll();
             TargetManager.instance.detectedByAllies.Clear();
             TargetManager.instance.detectedByEnemies.Clear();
@@ -225,12 +251,12 @@ public static class PlayerManager
             PilotSaveManager.currentCampaign = campref;
             if (PilotSaveManager.currentVehicle == null)
             {
-                Debug.LogError("current vehicle is null");
+                DebugCustom.LogError("current vehicle is null");
             }
             GameObject newPlayer = GameObject.Instantiate(PilotSaveManager.currentVehicle.vehiclePrefab);
             if (newPlayer == null)
             {
-                Debug.LogError("new vehicle is null");
+                DebugCustom.LogError("new vehicle is null");
             }
             newPlayer.GetComponent<Actor>().designation = FlightSceneManager.instance.playerActor.designation;//reassigning designation
 
@@ -269,7 +295,7 @@ public static class PlayerManager
                 }
             }
             if (PlayerSpawn.playerVehicleReady == false)
-            { Debug.LogError("NO PLAYERE  SPAWN end"); FlightLogger.Log("NO PLAYERE  SPAWN end"); }
+            { DebugCustom.LogError("NO PLAYERE  SPAWN end"); FlightLogger.Log("NO PLAYERE  SPAWN end"); }
 
             ScreenFader.FadeOut(Color.black, 0.0f, fadeoutVolume: true);
         }
@@ -280,8 +306,8 @@ public static class PlayerManager
 
 
             FlightSceneManager.instance.playerActor.gameObject.transform.parent = null;
-            Debug.Log($"Sending spawn request to host, host id: {Networker.hostID}, client id: {SteamUser.GetSteamID().m_SteamID}");
-            Debug.Log("Killing all units currently on the map.");
+            DebugCustom.Log($"Sending spawn request to host, host id: {Networker.hostID}, client id: {SteamUser.GetSteamID().m_SteamID}");
+            DebugCustom.Log("Killing all units currently on the map.");
             List<Actor> allActors = new List<Actor>();
 
                 
@@ -359,7 +385,7 @@ public static class PlayerManager
         }
         else
         {
-            Debug.Log("Starting map loaded host routines");
+            DebugCustom.Log("Starting map loaded host routines");
             Networker.hostLoaded = true;
             Networker.hostReady = true;
             gameLoaded = true;
@@ -375,7 +401,7 @@ public static class PlayerManager
                 localUID = Networker.GenerateNetworkUID();
                 UIDNetworker_Sender hostSender = localVehicle.AddComponent<UIDNetworker_Sender>();
                 hostSender.networkUID = localUID;
-                Debug.Log($"The host's uID is {localUID}");
+                DebugCustom.Log($"The host's uID is {localUID}");
 
 
                 Transform hostTrans = localVehicle.transform;
@@ -398,7 +424,7 @@ public static class PlayerManager
                 ScreenFader.FadeIn(0.25f);
                }
             else
-                Debug.Log("Local vehicle for host was null");
+                DebugCustom.Log("Local vehicle for host was null");
             if (spawnRequestQueue.Count != 0)
                 SpawnRequestQueue();
             Networker.alreadyInGame = true;
@@ -413,14 +439,15 @@ public static class PlayerManager
         if (!Networker.isHost)
         {
             // If the player is not the host, they only need a receiver?
-            Debug.Log($"Player not the host, adding world data receiver");
+            DebugCustom.Log($"Player not the host, adding world data receiver");
+          
             worldData = new GameObject();
             worldData.AddComponent<WorldDataNetworker_Receiver>();
         }
         else
         {
             // If the player is the host, setup the sender so they can send world data
-            Debug.Log($"Player is the host, setting up the world data sender");
+            DebugCustom.Log($"Player is the host, setting up the world data sender");
             worldData = new GameObject();
             worldData.AddComponent<WorldDataNetworker_Sender>();
 
@@ -457,18 +484,18 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     /// </summary>
     private static void SpawnRequestQueue() //Run by Host Only
     {
-        Debug.Log($"Giving {spawnRequestQueue.Count} people their spawns");
+        DebugCustom.Log($"Giving {spawnRequestQueue.Count} people their spawns");
         Transform lastSpawn;
         while (spawnRequestQueue.Count > 0)
         {
             Message_RequestSpawn lastMessage = spawnRequestQueue.Dequeue();
             lastSpawn = FindFreeSpawn(lastMessage.teaml);
-            Debug.Log("The players spawn will be " + lastSpawn);
+            DebugCustom.Log("The players spawn will be " + lastSpawn);
 
 
             if (Networker.isHost)
             {
-                Debug.Log("Telling connected client about AI units");
+                DebugCustom.Log("Telling connected client about AI units");
                 AIManager.TellClientAboutAI(new CSteamID(lastMessage.senderSteamID));
                 ObjectiveNetworker_Reciever.sendObjectiveHistory(new CSteamID(lastMessage.senderSteamID));
             }
@@ -502,10 +529,10 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     public static void RequestSpawn(Packet packet, CSteamID sender) //Run by Host Only
     {
         Message_RequestSpawn lastMessage = (Message_RequestSpawn)((PacketSingle)packet).message;
-        Debug.Log("A player has requested for a spawn point");
+        DebugCustom.Log("A player has requested for a spawn point");
         if (!Networker.hostLoaded)
         {
-            Debug.Log("The host isn't ready yet, adding to queue");
+            DebugCustom.Log("The host isn't ready yet, adding to queue");
             spawnRequestQueue.Enqueue(lastMessage);
             return;
         }
@@ -516,7 +543,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
         if (Networker.isHost)
         {
-            Debug.Log("Telling connected client about AI units");
+            DebugCustom.Log("Telling connected client about AI units");
             AIManager.TellClientAboutAI(new CSteamID(lastMessage.senderSteamID));
             ObjectiveNetworker_Reciever.sendObjectiveHistory(new CSteamID(lastMessage.senderSteamID));
         }
@@ -533,14 +560,14 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     /// <param name="packet">The message sent over the network</param>
     public static void RequestSpawn_Result(Packet packet) //Run by Clients Only
     {
-        Debug.Log("The host has sent back our spawn point");
+        DebugCustom.Log("The host has sent back our spawn point");
         Message_RequestSpawn_Result result = (Message_RequestSpawn_Result)((PacketSingle)packet).message;
-        Debug.Log($"We need to move to {result.position} : {result.rotation}");
+        DebugCustom.Log($"We need to move to {result.position} : {result.rotation}");
 
         GameObject localVehicle = FlightSceneManager.instance.playerActor.gameObject;
         if (localVehicle == null)
         {
-            Debug.LogError("The local vehicle was null");
+            DebugCustom.LogError("The local vehicle was null");
             return;
         }
         localVehicle.transform.position = result.position.toVector3;
@@ -821,7 +848,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         CampaignSave campaignSave = PilotSaveManager.current.GetVehicleSave(PilotSaveManager.currentVehicle.vehicleName).GetCampaignSave(PilotSaveManager.currentCampaign.campaignID);
         if (campaignSave == null)
         {
-            Debug.LogError("Campaign save is null");
+            DebugCustom.LogError("Campaign save is null");
             return;
         }
         char[] delimiterChars = { ';' };
@@ -929,7 +956,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                     Vector3 forward = plat.transform.TransformDirection(localFwd);
                     Vector3 upwards = plat.transform.TransformDirection(localUp);
                     FlightSceneManager.instance.playerActor.gameObject.transform.rotation = Quaternion.LookRotation(forward, upwards);
-                    Debug.Log("attaching to carrier");
+                    DebugCustom.Log("attaching to carrier");
                     rb.velocity = plat.rb.GetRelativePointVelocity(rb.position);
                     rb.isKinematic = false;
                     FlightLogger.Log("Plane Parented");
@@ -937,7 +964,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                 }
             }
 
-            Debug.Log("origin stuff to carrier");
+            DebugCustom.Log("origin stuff to carrier");
 
 
 
@@ -1002,7 +1029,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     {
 
         audioSource=localVehicle.AddComponent<AudioSource>();
-        Debug.Log("Sending our location to spawn our vehicle");
+        DebugCustom.Log("Sending our location to spawn our vehicle");
         VTOLVehicles currentVehicle = getPlayerVehicleType();
         Actor actor = localVehicle.GetComponent<Actor>();
         Player localPlayer = new Player(SteamUser.GetSteamID(), localVehicle, actor, currentVehicle, UID, PlayerManager.teamLeftie, SteamFriends.GetPersonaName(), DiscordRadioManager.userID,PlayerIsCustomPlane,LoadedCustomPlaneString);
@@ -1134,7 +1161,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
         ulong actorTodamage = lastMissileDamageMessage.actorTobeDamaged;
         ulong damageSource = lastMissileDamageMessage.damageSourceActor;
-        Debug.Log("applying missile damage");
+        DebugCustom.Log("applying missile damage");
         if (VTOLVR_Multiplayer.AIDictionaries.allActors.ContainsKey(actorTodamage))
         {
             Actor source = null;
@@ -1193,20 +1220,20 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
         RigidbodyNetworker_Sender rbSender = localVehicle.AddComponent<RigidbodyNetworker_Sender>();
         rbSender.networkUID = UID;
-        rbSender.tickRate = 20.0f;
+        rbSender.tickRate = 5.0f;
         //rbSender.SetSpawn(pos, rot);
         if (currentVehicle == VTOLVehicles.AV42C)
         {
             rbSender.originOffset = av42Offset;
         }
 
-        Debug.Log("Adding Plane Sender");
+        DebugCustom.Log("Adding Plane Sender");
         PlaneNetworker_Sender planeSender = localVehicle.AddComponent<PlaneNetworker_Sender>();
         planeSender.networkUID = UID;
 
         if (currentVehicle == VTOLVehicles.AV42C || currentVehicle == VTOLVehicles.F45A)
         {
-            Debug.Log("Added Tilt Updater to our vehicle");
+            DebugCustom.Log("Added Tilt Updater to our vehicle");
             EngineTiltNetworker_Sender tiltSender = localVehicle.AddComponent<EngineTiltNetworker_Sender>();
             tiltSender.networkUID = UID;
         }
@@ -1217,7 +1244,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             {
                 if (actor.unitSpawn.unitSpawner == null)
                 {
-                    Debug.Log("unit spawner was null, adding one");
+                    DebugCustom.Log("unit spawner was null, adding one");
                     actor.unitSpawn.unitSpawner = actor.gameObject.AddComponent<UnitSpawner>();
                    // actor.unitSpawn.unitSpawner.unitName = 
                 }
@@ -1233,11 +1260,11 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
             healthNetworker.networkUID = UID;
             playerNetworker.networkUID = UID;
-            Debug.Log("added health sender to local player");
+            DebugCustom.Log("added health sender to local player");
         }
         else
         {
-            Debug.Log("local player has no health?");
+            DebugCustom.Log("local player has no health?");
         }
 
         if (localVehicle.GetComponentInChildren<WingFoldController>() != null)
@@ -1255,7 +1282,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
         if (localVehicle.GetComponentInChildren<LockingRadar>() != null)
         {
-            Debug.Log($"Adding LockingRadarSender to player {localVehicle.name}");
+            DebugCustom.Log($"Adding LockingRadarSender to player {localVehicle.name}");
             LockingRadarNetworker_Sender radarSender = localVehicle.AddComponent<LockingRadarNetworker_Sender>();
             radarSender.networkUID = UID;
         }
@@ -1271,11 +1298,11 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             List<int> cm = PlaneEquippableManager.generateCounterMeasuresFromCmManager(cmManager);
             float fuel = PlaneEquippableManager.generateLocalFuelValue();
 
-            Debug.Log("Assembled our local vehicle");
+            DebugCustom.Log("Assembled our local vehicle");
             if (!Networker.isHost)
             {
                 // Not host, so send host the spawn vehicle message
-                Debug.Log($"Sending spawn vehicle message to: {Networker.hostID}");
+                DebugCustom.Log($"Sending spawn vehicle message to: {Networker.hostID}");
                 NetworkSenderThread.Instance.SendPacketToSpecificPlayer(Networker.hostID,
                     new Message_SpawnPlayerVehicle(currentVehicle,
                         VTMapManager.WorldToGlobalPoint(pos),
@@ -1289,7 +1316,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             }
             else
             {
-                Debug.Log("I am host,sending respawn");
+                DebugCustom.Log("I am host,sending respawn");
                 NetworkSenderThread.Instance.SendPacketAsHostToAllClients(new Message_SpawnPlayerVehicle(currentVehicle,
                         VTMapManager.WorldToGlobalPoint(pos),
                         rot,
@@ -1307,11 +1334,10 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         localWManager.gpsSystem.UpdateRemotelyModifiedGroups();
         if (currentVehicle == VTOLVehicles.FA26B)
         {
-
-
-            //CUSTOM_API.SetupNewDisplay();
             CUSTOM_API.setupFA26(localVehicle);
 
+            if(PlayerIsCustomPlane)
+                FrequenceyButton = Multiplayer.CreateFreqButton();
         }
         else
         {
@@ -1368,12 +1394,12 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             return;
         }
 
-        Debug.Log($"Recived a Spawn Vehicle Message from: {message.csteamID}");
+        DebugCustom.Log($"Recived a Spawn Vehicle Message from: {message.csteamID}");
         CSteamID spawnerSteamId = new CSteamID(message.csteamID);
 
         if (!gameLoaded)
         {
-            Debug.LogWarning("Our game isn't loaded, adding spawn vehicle to queue");
+            DebugCustom.LogWarning("Our game isn't loaded, adding spawn vehicle to queue");
             playersToSpawnQueue.Enqueue(packet);
             playersToSpawnIdQueue.Enqueue(sender);
             return;
@@ -1387,7 +1413,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         //    }
         //}
         //spawnedVehicles.Add(message.csteamID);
-        Debug.Log("Got a new spawnVehicle uID.");
+        DebugCustom.Log("Got a new spawnVehicle uID.");
         if (Networker.isHost)
         {
             //Debug.Log("Generating UIDS for any missiles the new vehicle has");
@@ -1409,7 +1435,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                 }
             }
 
-            Debug.Log("Telling other clients about new player and new player about other clients. Player count = " + players.Count);
+            DebugCustom.Log("Telling other clients about new player and new player about other clients. Player count = " + players.Count);
             for (int i = 0; i < players.Count; i++)
             {
 
@@ -1472,14 +1498,14 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                 }
                 else
                 {
-                    Debug.Log("players[" + i + "].vehicle is null");
+                    DebugCustom.Log("players[" + i + "].vehicle is null");
                 }
             }
         }
 
         if (Networker.isHost)
         {
-            Debug.Log("Telling connected client about AI units");
+            DebugCustom.Log("Telling connected client about AI units");
             AIManager.TellClientAboutAI(spawnerSteamId);
         }
         AddToPlayerList(new Player(spawnerSteamId, null, null, message.vehicle, message.networkID, message.leftie, message.nameTag, message.discordID, message.customPlane,message.customPlaneString));
@@ -1534,7 +1560,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         int playerID = FindPlayerIDFromNetworkUID(networkID);
         if (playerID == -1)
         {
-            Debug.LogError("Spawn Representation couldn't find a player id.");
+            DebugCustom.LogError("Spawn Representation couldn't find a player id.");
         }
         //Player player = ref players[playerID];
         
@@ -1546,7 +1572,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         switch (vehicle)
         {
             case VTOLVehicles.None:
-                Debug.LogError("Vehcile Enum seems to be none, couldn't spawn player vehicle");
+                DebugCustom.LogError("Vehcile Enum seems to be none, couldn't spawn player vehicle");
                 return null;
             case VTOLVehicles.AV42C:
                 if (null == av42cPrefab)
@@ -1572,7 +1598,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         }
         //Debug.Log("Setting vehicle name");
         newVehicle.name = $"Client [{players[playerID].cSteamID}]";
-        Debug.Log($"Spawned new vehicle at {newVehicle.transform.position}");
+        DebugCustom.Log($"Spawned new vehicle at {newVehicle.transform.position}");
         //if (Networker.isHost)
         {
             HealthNetworker_Receiver healthNetworker = newVehicle.AddComponent<HealthNetworker_Receiver>();
@@ -1612,7 +1638,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         LockingRadar lockingRadar = newVehicle.GetComponentInChildren<LockingRadar>();
         if (lockingRadar != null)
         {
-            Debug.Log($"Adding LockingRadarReciever to vehicle {newVehicle.name}");
+            DebugCustom.Log($"Adding LockingRadarReciever to vehicle {newVehicle.name}");
             LockingRadarNetworker_Receiver lockingRadarReceiver = newVehicle.AddComponent<LockingRadarNetworker_Receiver>();
             lockingRadarReceiver.networkUID = networkID;
         }
@@ -1626,7 +1652,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         }
 
         aIPilot.enabled = false;
-        Debug.Log($"Changing {newVehicle.name}'s position and rotation\nPos:{rb.position} Rotation:{rb.rotation.eulerAngles}");
+        DebugCustom.Log($"Changing {newVehicle.name}'s position and rotation\nPos:{rb.position} Rotation:{rb.rotation.eulerAngles}");
         aIPilot.kPlane.SetToKinematic();
         aIPilot.kPlane.enabled = false;
         rb.interpolation = RigidbodyInterpolation.None;
@@ -1636,7 +1662,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         aIPilot.kPlane.SetToDynamic();
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
-        Debug.Log($"Finished changing {newVehicle.name}\n Pos:{rb.position} Rotation:{rb.rotation.eulerAngles}");
+        DebugCustom.Log($"Finished changing {newVehicle.name}\n Pos:{rb.position} Rotation:{rb.rotation.eulerAngles}");
 
         AvatarManager.SetupAircraftRoundels(newVehicle.transform, players[playerID].vehicleType, players[playerID].cSteamID, Vector3.zero);
 
@@ -1653,7 +1679,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         }
         else
         {
-            Debug.Log("Player has disabled name tags.");
+            DebugCustom.Log("Player has disabled name tags.");
         }
         if (isLeft != PlayerManager.teamLeftie)
         {
@@ -1750,11 +1776,11 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         f45Prefab = UnitCatalogue.GetUnitPrefab("F-45A AI");
 
         if (!av42cPrefab)
-            Debug.LogError("Couldn't find the prefab for the AV-42C");
+            DebugCustom.LogError("Couldn't find the prefab for the AV-42C");
         if (!fa26bPrefab)
-            Debug.LogError("Couldn't find the prefab for the F/A-26B");
+            DebugCustom.LogError("Couldn't find the prefab for the F/A-26B");
         if (!f45Prefab)
-            Debug.LogError("Couldn't find the prefab for the F-45A");
+            DebugCustom.LogError("Couldn't find the prefab for the F-45A");
 
     }
 
@@ -1766,13 +1792,13 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     /// <param name="startPosition">The location of where the first spawn should be</param>
     public static void GenerateSpawns(Transform startPosition)
     {
-        Debug.Log("Generating Spawns!");
+        DebugCustom.Log("Generating Spawns!");
         Actor curPlayer = FlightSceneManager.instance.playerActor;
         GameObject lastSpawn;
         spawnPoints = new List<Transform>();
         //int spawnCounter = 0;
         //If the player starts on the ground
-        Debug.Log($"The player's velocity is {curPlayer.velocity.magnitude}");
+        DebugCustom.Log($"The player's velocity is {curPlayer.velocity.magnitude}");
 
         /*bool carrier = curPlayer.unitSpawn.unitSpawner.linkedToCarrier;
 
@@ -1828,7 +1854,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
     {
         if (leftie) //leftie
         {
-            Debug.Log($"Spawing a leftie");
+            DebugCustom.Log($"Spawing a leftie");
             var rearmPoints = GameObject.FindObjectsOfType<ReArmingPoint>();
 
             ReArmingPoint rearmPoint = GameObject.FindObjectOfType<ReArmingPoint>();
@@ -1845,7 +1871,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
 
             if (EnemyPoints.Count() > 0)
             {
-                Debug.Log($"found leftie spawn");
+                DebugCustom.Log($"found leftie spawn");
                 rearmPoint = EnemyPoints[UnityEngine.Random.Range(0, EnemyPoints.Count - 1)];
                 return rearmPoint.transform;
             }
@@ -1927,7 +1953,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
         gameLoaded = false;
         spawnedVehicles?.Clear();
         localUID = 0;
-        worldData = null;
+        GameObject.Destroy(worldData);
         players?.Clear();
         buttonMade = false;
         text = null;

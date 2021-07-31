@@ -67,11 +67,11 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (kplane != null)
         {
             kplane.enabled = false;
-            Debug.Log("Dissabled kplane on " + gameObject.name);
+            DebugCustom.Log("Dissabled kplane on " + gameObject.name);
         }
         else
         {
-            Debug.Log("Could not find kplane on " + gameObject.name);
+            DebugCustom.Log("Could not find kplane on " + gameObject.name);
         }
 
         rb = GetComponent<Rigidbody>();
@@ -94,13 +94,13 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
         if (rb == null)
         {
             return;
-            Debug.LogError("Rigid body is null on object " + gameObject.name);
+            DebugCustom.LogError("Rigid body is null on object " + gameObject.name);
 
         }
         if (rb.isKinematic == false)
         {
             rb.isKinematic = true;
-            Debug.Log("Rigidbody was not kinematic on " + gameObject.name);
+            DebugCustom.Log("Rigidbody was not kinematic on " + gameObject.name);
         }
 
         if (kplane != null) // yes this can be null on objects that arent airplanes
@@ -108,7 +108,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
             if (kplane.enabled == true)
             {
                 kplane.enabled = false;
-                Debug.Log("Disabled kplane again on " + gameObject.name);
+                DebugCustom.Log("Disabled kplane again on " + gameObject.name);
             }
         }
         if (playerWeRepresent == null)
@@ -207,7 +207,7 @@ public class RigidbodyNetworker_Receiver : MonoBehaviour
             recieverDict[networkUID].Remove(this);
         }
 
-        Debug.Log("Destroyed Rigidbody Update");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed Rigidbody Update");
+        DebugCustom.Log(gameObject.name);
     }
 }

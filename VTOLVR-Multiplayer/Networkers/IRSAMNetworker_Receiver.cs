@@ -22,19 +22,19 @@ class IRSAMNetworker_Reciever : MonoBehaviour
             Actor lastActor;
             foreach (var uID in radarUIDS)
             {
-                Debug.Log($"Try adding uID {uID} to SAM's radars.");
+                DebugCustom.Log($"Try adding uID {uID} to SAM's radars.");
                 if (VTOLVR_Multiplayer.AIDictionaries.allActors.TryGetValue(uID, out lastActor))
                 {
-                    Debug.Log("Got the actor.");
+                    DebugCustom.Log("Got the actor.");
                     foreach (var radar in lastActor.gameObject.GetComponentsInChildren<LockingRadar>())
                     {
                         lockingRadars.Add(radar);
-                        Debug.Log("Added radar to a sam launcher!");
+                        DebugCustom.Log("Added radar to a sam launcher!");
                     }
                 }
                 else
                 {
-                    Debug.LogError($"Could not resolve actor from uID {uID}.");
+                    DebugCustom.LogError($"Could not resolve actor from uID {uID}.");
                 }
             }
             samLauncher.lockingRadars = lockingRadars.ToArray();
@@ -49,19 +49,19 @@ class IRSAMNetworker_Reciever : MonoBehaviour
             Actor lastActor;
             foreach (var uID in radarUIDS)
             {
-                Debug.Log($"Try adding uID {uID} to SAM's radars.");
+                DebugCustom.Log($"Try adding uID {uID} to SAM's radars.");
                 if (VTOLVR_Multiplayer.AIDictionaries.allActors.TryGetValue(uID, out lastActor))
                 {
-                    Debug.Log("Got the actor.");
+                    DebugCustom.Log("Got the actor.");
                     foreach (var radar in lastActor.gameObject.GetComponentsInChildren<LockingRadar>())
                     {
                         lockingRadars.Add(radar);
-                        Debug.Log("Added radar to a sam launcher!");
+                        DebugCustom.Log("Added radar to a sam launcher!");
                     }
                 }
                 else
                 {
-                    Debug.LogError($"Could not resolve actor from uID {uID}.");
+                    DebugCustom.LogError($"Could not resolve actor from uID {uID}.");
                 }
             }
             samLauncher.lockingRadars = lockingRadars.ToArray();
@@ -69,16 +69,16 @@ class IRSAMNetworker_Reciever : MonoBehaviour
         lastMessage = (Message_SamUpdate)((PacketSingle)packet).message;
         if (lastMessage.senderUID != networkUID)
             return;
-        Debug.Log("Got a sam update message.");
+        DebugCustom.Log("Got a sam update message.");
         if (VTOLVR_Multiplayer.AIDictionaries.allActors.TryGetValue(lastMessage.actorUID, out lastActor))
         {
             foreach (var radar in samLauncher.lockingRadars)
             {
-                Debug.Log("Found a suitable radar for this sam.");
+                DebugCustom.Log("Found a suitable radar for this sam.");
                 radar.ForceLock(lastActor, out lastData);
                 if (lastData.locked)
                 {
-                    Debug.Log("Beginning sam launch routine for reciever.");
+                    DebugCustom.Log("Beginning sam launch routine for reciever.");
                     int j = 0;
                     Missile[] missiles = (Missile[])Traverse.Create(samLauncher).Field("missiles").GetValue();
                     bool needToLoad = true;
@@ -98,14 +98,14 @@ class IRSAMNetworker_Reciever : MonoBehaviour
                     {
                         if (missiles[i] != null)
                         {
-                            Debug.Log("Found a suitable missile to attach a reciever to.");
+                            DebugCustom.Log("Found a suitable missile to attach a reciever to.");
                             MissileNetworker_Receiver missileReciever = missiles[i].gameObject.AddComponent<MissileNetworker_Receiver>();
                             missileReciever.networkUID = lastMessage.missileUID;
-                            Debug.Log($"Made new missile receiver with uID {missileReciever.networkUID}");
+                            DebugCustom.Log($"Made new missile receiver with uID {missileReciever.networkUID}");
                             break;
                         }
                     }
-                    Debug.Log("Firing sam.");
+                    DebugCustom.Log("Firing sam.");
                     samLauncher.FireMissile(lastData);
                     /*Missile missile = (Missile)Traverse.Create(samLauncher).Field("firedMissile").GetValue();
                     MissileNetworker_Receiver reciever = missile.gameObject.AddComponent<MissileNetworker_Receiver>();
@@ -114,20 +114,20 @@ class IRSAMNetworker_Reciever : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Couldn't force a lock, trying with another radar.");
+                    DebugCustom.Log("Couldn't force a lock, trying with another radar.");
                 }
             }
         }
         else
         {
-            Debug.Log($"Could not resolve lock for sam {networkUID}.");
+            DebugCustom.Log($"Could not resolve lock for sam {networkUID}.");
         }
     }
 
     public void OnDestroy()
     {
         Networker.SAMUpdate -= SamUpdate;
-        Debug.Log("Destroyed SamUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed SamUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 }

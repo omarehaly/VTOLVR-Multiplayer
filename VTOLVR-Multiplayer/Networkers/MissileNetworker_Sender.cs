@@ -40,7 +40,7 @@ public class MissileNetworker_Sender : MonoBehaviour
     {
         if (thisMissile == null)
         {
-            Debug.LogError("thisMissile null.");
+            DebugCustom.LogError("thisMissile null.");
             return;
         }
         tick += Time.fixedDeltaTime;
@@ -49,7 +49,7 @@ public class MissileNetworker_Sender : MonoBehaviour
             tick = 0.0f;
             if (hasFired != thisMissile.fired)
             {
-                Debug.Log("Missile fired " + thisMissile.name);
+                DebugCustom.Log("Missile fired " + thisMissile.name);
                 hasFired = true;
 
                 RigidbodyNetworker_Sender rbSender = gameObject.AddComponent<RigidbodyNetworker_Sender>();
@@ -62,7 +62,7 @@ public class MissileNetworker_Sender : MonoBehaviour
             {
                 if (lastMessage == null)
                 {
-                    Debug.LogError("lastMessage null");
+                    DebugCustom.LogError("lastMessage null");
                 }
                 lastMessage.networkUID = networkUID;
                 lastMessage.guidanceMode = thisMissile.guidanceMode;
@@ -152,7 +152,7 @@ public class MissileNetworker_Sender : MonoBehaviour
         {
             if (act != missile.actor)
             {
-                Debug.Log("APassed damage radius checkS");
+                DebugCustom.Log("APassed damage radius checkS");
                 if (AIDictionaries.reverseAllActors.ContainsKey(act))
                 {
                     Message_MissileDamage dmgMessage = new Message_MissileDamage(PlayerManager.localUID);
@@ -165,7 +165,7 @@ public class MissileNetworker_Sender : MonoBehaviour
                             dmgMessage.damageSourceActor = AIDictionaries.reverseAllActors[ownerActor];
                         }
 
-                    Debug.Log("sending missile damage");
+                    DebugCustom.Log("sending missile damage");
                     if (Networker.isHost)
                     {
                         NetworkSenderThread.Instance.SendPacketAsHostToAllClients(dmgMessage, Steamworks.EP2PSend.k_EP2PSendReliable);

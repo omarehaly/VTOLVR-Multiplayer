@@ -5,29 +5,33 @@ class WorldDataNetworker_Sender : MonoBehaviour
 
     private Message_WorldData lastMessage;
     float lastTimeScale;
-
+    float tick = 0;
     private void Awake()
     {
         lastTimeScale = Time.timeScale;
         lastMessage = new Message_WorldData(lastTimeScale);
     }
 
-    void LateUpdate()
+    void FixedUpdate()
     {
 
         float curTimeScale = Time.timeScale;
-
-        if (curTimeScale != lastTimeScale)
+        tick += Time.fixedDeltaTime;
+     if(tick>0.5f)
         {
+            tick = 0.0f;
             lastMessage.timeScale = curTimeScale;
             if (Networker.isHost)
             {
                 //Debug.Log($"Sending the timescale {lastMessage.timeScale}");
-                NetworkSenderThread.Instance.SendPacketAsHostToAllClients(lastMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
+                NetworkSenderThread.Instance.SendPacketAsHostToAllClients(lastMessage, Steamworks.EP2PSend.k_EP2PSendUnreliable);
             }
 
-            lastTimeScale = curTimeScale;
+          
         }
+         
+        
+       
     }
 
     public void OnDisconnect(Packet packet)

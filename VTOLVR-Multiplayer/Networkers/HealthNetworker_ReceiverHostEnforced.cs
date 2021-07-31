@@ -50,7 +50,7 @@ class HealthNetworker_ReceiverHostEnforced : MonoBehaviour
     public void OnDestroy()
     {
         Networker.Death -= Death;
-        Debug.Log("Destroyed DeathUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed DeathUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 }

@@ -26,8 +26,8 @@ class AAANetworker_Reciever : MonoBehaviour
     public void OnDestroy()
     {
         Networker.AAAUpdate -= AAAUpdate;
-        Debug.Log("Destroyed AAAUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed AAAUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 }
 
@@ -47,14 +47,14 @@ class RocketLauncherNetworker_Reciever : MonoBehaviour
         lastMessage = (Message_RocketLauncherUpdate)((PacketSingle)packet).message;
         if (lastMessage.networkUID != networkUID)
             return;
-        Debug.Log("Launching rocket!");
+        DebugCustom.Log("Launching rocket!");
         rocketLauncher.FireRocket();
     }
 
     public void OnDestroy()
     {
         Networker.RocketUpdate -= RocketUpdate;
-        Debug.Log("Destroyed RocketUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed RocketUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 }

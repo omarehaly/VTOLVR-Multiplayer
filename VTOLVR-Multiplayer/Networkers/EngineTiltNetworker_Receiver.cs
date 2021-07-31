@@ -24,7 +24,7 @@ class EngineTiltNetworker_Receiver : MonoBehaviour
     public void OnDestroy()
     {
         Networker.EngineTiltUpdate -= EngineTiltUpdate;
-        Debug.Log("Destroyed Engine Tilt Update");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed Engine Tilt Update");
+        DebugCustom.Log(gameObject.name);
     }
 }

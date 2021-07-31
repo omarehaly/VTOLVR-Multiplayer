@@ -62,7 +62,7 @@ class GroundNetworker_Receiver : MonoBehaviour
 
         if (soldier != null)
         {
-            Debug.Log("uwu, i am a soldier!");
+            DebugCustom.Log("uwu, i am a soldier!");
             soldier.enabled = false;
             isSoldier = true;
         }
@@ -130,7 +130,7 @@ class GroundNetworker_Receiver : MonoBehaviour
 
         if ((VTMapManager.GlobalToWorldPoint(lastMessage.position) - pln.groundUnitMover.transform.position).magnitude > 100)
         {
-            Debug.Log("Ground mover is too far, teleporting.");
+            DebugCustom.Log("Ground mover is too far, teleporting.");
                 pln.groundUnitMover.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
             Quaternion qs = lastMessage.rotation;
             qs = qs.normalized;
@@ -152,7 +152,7 @@ class GroundNetworker_Receiver : MonoBehaviour
         {
             recieverDict[networkUID].Remove(this);
         }
-        Debug.Log("Destroyed GroundMoverUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed GroundMoverUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 }

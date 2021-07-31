@@ -9,7 +9,7 @@ class Patch_ActorExtensions_DebugName
     {
 
         __result = a.actorName + a.gameObject.name;
-        Debug.Log("DebugName");
+        DebugCustom.Log("DebugName");
         return false;
     }
 }

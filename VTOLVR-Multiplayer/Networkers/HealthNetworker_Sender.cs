@@ -16,10 +16,10 @@ class HealthNetworker_Sender : MonoBehaviour
         health = ownerActor.health;
 
         if (health == null)
-            Debug.LogError("health was null on vehicle " + gameObject.name);
+            DebugCustom.LogError("health was null on vehicle " + gameObject.name);
         else
             health.OnDeath.AddListener(Death);
-        Debug.LogError("found health on " + gameObject.name);
+        DebugCustom.LogError("found health on " + gameObject.name);
 
         ownerActor.hideDeathLog = true;
         Networker.BulletHit += BulletHit;

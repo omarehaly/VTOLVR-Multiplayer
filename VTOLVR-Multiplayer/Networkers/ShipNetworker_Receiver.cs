@@ -75,6 +75,7 @@ class ShipNetworker_Receiver : MonoBehaviour
 
     public static void ShipUpdate(Packet packet)
     {
+        Networker.shipUpdates += 1;
         Message_ShipUpdate lastMessage = (Message_ShipUpdate)((PacketSingle)packet).message;
         List<ShipNetworker_Receiver> plnl = null;
         if (!recieverDict.TryGetValue(lastMessage.UID, out plnl))
@@ -90,7 +91,7 @@ class ShipNetworker_Receiver : MonoBehaviour
 
             if (( lastMessage.position  - VTMapManager.WorldToGlobalPoint(pln.ship.transform.position)).magnitude > 100)
             {
-                Debug.Log("Ship is too far, teleporting. This message should apear once per ship at spawn, if ur seeing more something is probably fucky");
+                DebugCustom.Log("Ship is too far, teleporting. This message should apear once per ship at spawn, if ur seeing more something is probably fucky");
                 pln.ship.transform.position = VTMapManager.GlobalToWorldPoint(lastMessage.position);
                 pln.ship.rb.MovePosition(VTMapManager.GlobalToWorldPoint(lastMessage.position));
             }
@@ -111,8 +112,8 @@ class ShipNetworker_Receiver : MonoBehaviour
         {
             recieverDict[networkUID].Remove(this);
         }
-        Debug.Log("Destroyed ShipUpdate");
-        Debug.Log(gameObject.name);
+        DebugCustom.Log("Destroyed ShipUpdate");
+        DebugCustom.Log(gameObject.name);
     }
 
     private IEnumerator CloseDeflector(CarrierCatapult ctp)

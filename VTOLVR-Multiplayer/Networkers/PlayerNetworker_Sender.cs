@@ -32,6 +32,9 @@ class PlayerNetworker_Sender : MonoBehaviour
 
 
     GameObject button = null;
+
+
+    GameObject button2 = null;
     public float respawnTimer = 10.0f;
 
     void Awake()
@@ -41,7 +44,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         health = actor.health;
 
         if (health == null)
-            Debug.LogError("health was null on player " + gameObject.name);
+            DebugCustom.LogError("health was null on player " + gameObject.name);
         else
             health.OnDeath.AddListener(Death);
 
@@ -71,13 +74,15 @@ class PlayerNetworker_Sender : MonoBehaviour
 
     IEnumerator RespawnTimer()
     {
-        Debug.Log("Starting respawn timer.");
+        DebugCustom.Log("Starting respawn timer.");
 
         yield return new WaitForSeconds(respawnTimer);
         if (button != null)
             Destroy(button);
+                 if (button2!= null)
+            Destroy(button2);
         PlayerManager.safeToForceDetect = false;
-        Debug.Log("Finished respawn timer.");
+        DebugCustom.Log("Finished respawn timer.");
 
         ReArmingPoint[] rearmPoints = GameObject.FindObjectsOfType<ReArmingPoint>();
         ReArmingPoint rearmPoint = rearmPoints[Random.Range(0, rearmPoints.Length - 1)];
@@ -99,7 +104,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         else
             foreach (ReArmingPoint rep in rearmPoints)
             {
-                Debug.Log("finding rearm pt");
+                DebugCustom.Log("finding rearm pt");
                 if (rep.team == Teams.Allied && rep.CheckIsClear(actor))
                 {
 
@@ -206,12 +211,12 @@ class PlayerNetworker_Sender : MonoBehaviour
         PilotSaveManager.currentCampaign = campref;
         if (PilotSaveManager.currentVehicle == null)
         {
-            Debug.LogError("current vehicle is null");
+            DebugCustom.LogError("current vehicle is null");
         }
         GameObject newPlayer = Instantiate(PilotSaveManager.currentVehicle.vehiclePrefab);
         if (newPlayer == null)
         {
-            Debug.LogError("new vehicle is null");
+            DebugCustom.LogError("new vehicle is null");
         }
         newPlayer.GetComponent<Actor>().designation = FlightSceneManager.instance.playerActor.designation;//reassigning designation
  
@@ -345,7 +350,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         }
         else
         {
-            Debug.Log("Could not fix flight assists");
+            DebugCustom.Log("Could not fix flight assists");
         }
 
         RCSController rcsController = GetComponentInChildren<RCSController>();
@@ -355,7 +360,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         }
         else
         {
-            Debug.Log("Could not fix rcs controller");
+            DebugCustom.Log("Could not fix rcs controller");
         }
 
         Battery battery = GetComponentInChildren<Battery>();
@@ -366,7 +371,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         }
         else
         {
-            Debug.Log("Could not fix battery");
+            DebugCustom.Log("Could not fix battery");
         }
 
         GameObject hud = GameObject.Find("CollimatedHud");
@@ -376,7 +381,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         }
         else
         {
-            Debug.Log("Could not fix hud");
+            DebugCustom.Log("Could not fix hud");
         }
 
         GameObject hudWaypoint = GameObject.Find("WaypointLead");
@@ -386,7 +391,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         }
         else
         {
-            Debug.Log("Could not fix hudWaypoint");
+            DebugCustom.Log("Could not fix hudWaypoint");
         }
 
         VRJoystick joystick = GetComponentInChildren<VRJoystick>();
@@ -396,7 +401,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         }
         else
         {
-            Debug.Log("Could not fix joystick");
+            DebugCustom.Log("Could not fix joystick");
         }
 
         VRInteractable[] levers = GetComponentsInChildren<VRInteractable>();
@@ -404,7 +409,7 @@ class PlayerNetworker_Sender : MonoBehaviour
         {
             lever.enabled = true;
         }
-        Debug.Log("Fixed " + levers.Length + " levers");
+        DebugCustom.Log("Fixed " + levers.Length + " levers");
     }
 
     void Eject()
@@ -469,6 +474,8 @@ class PlayerNetworker_Sender : MonoBehaviour
 
         if (!Networker.equipLocked)
             button = Multiplayer.CreateVehicleButton();
+        if (!Networker.equipLocked)
+            button2 = Multiplayer.CreateCustomPlaneButton(); 
         repspawnTimer = StartCoroutine("RespawnTimer");
 
 

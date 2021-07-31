@@ -1,4 +1,4 @@
-﻿public static class Debug
+﻿public static class DebugCustom
 {
     private const string modPrefix = "[Multiplayer]";
     public static bool ShowDebugMessages = false;
