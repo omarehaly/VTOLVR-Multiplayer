@@ -167,8 +167,11 @@ public class Multiplayer : VTOLMOD
        
         Callback_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
         debugLog_Settings(debugLogs);
-        UnityEngine.Debug.logger.logEnabled = false;
-        UnityEngine.Debug.unityLogger.logEnabled = false;
+      
+        PlayerManager.CustomPlaneIndex = 0;
+
+        PlayerManager.RegisterCustomPlane("none", "none");
+        PlayerManager.RegisterCustomPlane("a10", "AV-42C");
 
         Networker.setupHooks();
     }
@@ -300,8 +303,12 @@ public class Multiplayer : VTOLMOD
     public void debugLog_Settings(bool newval)
     {
         debugLogs = newval;
-        if (ModVersionString.ReleaseBranch == "Release")
+        if (newval == false)
+        {
+            UnityEngine.Debug.logger.logEnabled = false;
+            UnityEngine.Debug.unityLogger.logEnabled = false;
             DebugCustom.ShowDebugMessages = newval;
+        } 
         else
         {
             if (DebugCustom.ShowDebugMessages != true)
@@ -341,6 +348,7 @@ public class Multiplayer : VTOLMOD
     public void DisplayCloud_Settings(bool newval)
     {
         displayClouds = newval;
+      
         GameSettings.SetGameSettingValue("USE_OVERCLOUD", displayClouds, true);
     }
     public void ptt_Settings(bool newval)
@@ -1347,8 +1355,8 @@ public class Multiplayer : VTOLMOD
                     textS = "Custom Plane: " + PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex];
                   
                     PlayerManager.LoadedCustomPlaneString = PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex];
-                   
-                    if(PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex]!="none")
+                    PlayerManager.PlayerIsCustomPlane = true;
+                    if (PlayerManager.CustomPlaneNames[PlayerManager.CustomPlaneIndex]!="none")
                     {
 
                         PlayerManager.PlayerIsCustomPlane = true;

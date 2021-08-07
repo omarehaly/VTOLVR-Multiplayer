@@ -116,20 +116,19 @@ class PlayerNetworker_Sender : MonoBehaviour
                 }
             }
 
+      
 
+            //UnEject();
+            //PutPlayerBackInAircraft();
+            //RepairAircraft();
 
-        //UnEject();
-        //PutPlayerBackInAircraft();
-        //RepairAircraft();
+            //foreach (GearAnimator gear in gears) {
+            //    gear.ExtendImmediate();
+            //}
 
-        //foreach (GearAnimator gear in gears) {
-        //    gear.ExtendImmediate();
-        //}
-
-        //GetComponent<Rigidbody>().velocity = Vector3.zero;
-        //transform.position = rearmPoint.transform.position + Vector3.up * 10;
-        //transform.rotation = rearmPoint.transform.rotation;
-
+            //GetComponent<Rigidbody>().velocity = Vector3.zero;
+            //transform.position = rearmPoint.transform.position + Vector3.up * 10;
+            //transform.rotation = rearmPoint.transform.rotation; 
         Destroy(FlightSceneManager.instance.playerActor.gameObject);
         Destroy(detacher.cameraRig);
         Destroy(detacher.gameObject);

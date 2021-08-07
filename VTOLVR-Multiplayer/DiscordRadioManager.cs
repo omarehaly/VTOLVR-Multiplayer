@@ -377,6 +377,7 @@ public static class DiscordRadioManager
     }
     public static void makeLobby()
     {
+        lobbyID = 0;
         if (!connectedToDiscord)
             return;
         //lobbyManager = discord.GetLobbyManager();

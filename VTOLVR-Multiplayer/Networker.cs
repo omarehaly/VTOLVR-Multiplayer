@@ -858,6 +858,7 @@ public class Networker : MonoBehaviour
                 PilotSaveManager.currentVehicle = pv;
                 PilotSaveManager.currentCampaign = cc;
                 PlayerManager.selectedVehicle = name;*/
+                if(messsageLobby.lobbyDiscordID!=0)
                 DiscordRadioManager.joinLobby(messsageLobby.lobbyDiscordID, messsageLobby.lobbySecret);
 
                 StartCoroutine(FlyButton());

@@ -125,6 +125,11 @@ public static class PlayerManager
             if (CustomPlaneNames[i] == name)
                 CustomPlaneIndex = i;
             }
+        if(CustomPlaneNames[CustomPlaneIndex]!="none")
+        {
+            PlayerIsCustomPlane = true;
+            LoadedCustomPlaneString = CustomPlaneNames[CustomPlaneIndex];
+        }
 
     }
     /// <summary>
@@ -132,16 +137,28 @@ public static class PlayerManager
     /// when the player first can interact with the vehicle.
     /// </summary>
     /// 
+    public static void downscaleOC(GameObject plane)
+    {
+        if (!Multiplayer._instance.displayClouds)
+            return;
+       // OC.OverCloud.instance.enabled = false;
+       
+          
+      
+        //foreach (var cam in plane.GetComponentsInChildren<OC.OverCloudCamera>(true))
+        {
+         //   cam.downsampleFactor = OC.DownSampleFactor.Eight;
 
+           // cam.downsample2DClouds=true;
+
+        }
+       // OC.OverCloud.instance.enabled = true;
+    }
     public static IEnumerator MapLoaded()
     {
 
-        CustomPlaneIndex = 0;
        
-        RegisterCustomPlane("none", "none");
-
-        RegisterCustomPlane("f16", "F/A-26B");
-        RegisterCustomPlane("A10", "AV-42C");
+     
         DebugCustom.Log("map loading started");
         if (!Networker.isHost)
         {
@@ -456,8 +473,9 @@ public static class PlayerManager
         clip = GameObject.FindObjectOfType<VRQuadHandMenu>().pressSound;
         PilotSaveManager.currentCampaign = Networker._instance.pilotSaveManagerControllerCampaign;
         PilotSaveManager.currentScenario = Networker._instance.pilotSaveManagerControllerCampaignScenario;
+        downscaleOC(FlightSceneManager.instance.playerActor.gameObject);
 
-       
+
     }
 
 public static void SpawnPlayersInPlayerSpawnQueue()
@@ -678,14 +696,16 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             //  }
             PlaneNetworker_Receiver.manObjects.Sort(manObjectSorter.CompareByDist);
             int maxMan = 5;
-            if (PlaneNetworker_Receiver.manObjects.Count < maxMan)
-                maxMan = PlaneNetworker_Receiver.manObjects.Count;
-            for (int i= 0;i< maxMan; i++)
+            
+            for (int i= 0;i< PlaneNetworker_Receiver.manObjects.Count; i++)
                 {
                 if(PlaneNetworker_Receiver.manObjects[i].man != null)
                 if (!PlaneNetworker_Receiver.manObjects[i].farMan)
+                        if(i<maxMan)
                     PlaneNetworker_Receiver.manObjects[i].man.SetActive(true);
-                }
+                else
+                 PlaneNetworker_Receiver.manObjects[i].man.SetActive(false);
+            }
             PlayerManager.timeinGame += 1;
             if (FrequenceyButton != null)
             {
@@ -1046,21 +1066,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
       
 
         //rb.detectCollisions = false;
-        if (PlayerManager.carrierStart)
-        {
-            foreach (ReArmingPoint rep in rearmPoints)
-            {
-
-                if (rep.team == Teams.Allied)
-                {
-                   // if (rep.radius > 18.0f && rep.radius < 19.0f)
-                    {
-                        rearmPoint = rep;
-                    }
-                }
-            }
-        }
-        else
+    
             foreach (ReArmingPoint rep in rearmPoints)
             {
                 if (rep.team == Teams.Allied && rep.CheckIsClear(actor))
@@ -1073,6 +1079,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                     }
                 }
             }
+        if(!carrierStart)
         if(!teamLeftie)
         {
             AirportManager closestAirport = null;
@@ -1105,8 +1112,24 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                 }
 
         }
+        float radiusn = 0;
+        if (PlayerManager.carrierStart)
+        {
+            foreach (ReArmingPoint rep in rearmPoints)
+            {
 
-        if (Networker.isHost && firstSpawnDone == false)
+                if (rep.team == Teams.Allied && rep.GetComponentInParent<ShipMover>() && rep.CheckIsClear(actor))
+                {
+                     if (rep.radius > radiusn)
+                    {
+                        rearmPoint = rep;
+                        radiusn = rep.radius;
+                    }
+                }
+            }
+        }
+       
+    if (Networker.isHost && firstSpawnDone == false)
         {
 
            // StartRearm(rearmPoint);
@@ -1373,7 +1396,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             if (!part.partName.Contains("ngine"))
                 part.detachOnDeath = true;
         }
-
+        downscaleOC(FlightSceneManager.instance.playerActor.gameObject);
         //FlightSceneManager.instance.playerActor.gameObject.GetComponentInChildren<HUDGunDirectorSight>().lockAllActors = true;
 
     }
