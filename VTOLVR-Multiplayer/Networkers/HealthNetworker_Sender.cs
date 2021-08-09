@@ -8,7 +8,7 @@ class HealthNetworker_Sender : MonoBehaviour
     public bool immediateFlag;
     public Actor ownerActor;
     private Message_BulletHit bulletMessage;
-
+    public bool isPlayer =false;
     private void Awake()
     {
         lastMessage = new Message_Death(networkUID, false, "empty");
@@ -57,6 +57,8 @@ class HealthNetworker_Sender : MonoBehaviour
     }
     public void Death()
     {
+        if (isPlayer)
+            PlayerManager.parentplane=null;
         lastMessage.UID = networkUID;
         lastMessage.immediate = immediateFlag;
 
@@ -88,5 +90,14 @@ class HealthNetworker_Sender : MonoBehaviour
             NetworkSenderThread.Instance.SendPacketAsHostToAllClients(lastMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
         else
             NetworkSenderThread.Instance.SendPacketToSpecificPlayer(Networker.hostID, lastMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
+    }
+
+    private void OnDestroy()
+    {
+        lastMessage.UID = networkUID;
+        lastMessage.immediate = true;
+
+        if (Networker.isHost)
+            NetworkSenderThread.Instance.SendPacketAsHostToAllClients(lastMessage, Steamworks.EP2PSend.k_EP2PSendReliable);
     }
 }

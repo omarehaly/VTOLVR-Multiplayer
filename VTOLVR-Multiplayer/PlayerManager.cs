@@ -72,8 +72,7 @@ public static class PlayerManager
 
     public static AudioSource audioSource;
     public static AudioClip clip;
-
-
+    public static GameObject parentplane =null;
     public static bool PlayerIsCustomPlane = false;
     public static string LoadedCustomPlaneString = "";
     public static bool allowStart=false;
@@ -1280,7 +1279,7 @@ public static void SpawnPlayersInPlayerSpawnQueue()
             PlayerNetworker_Sender playerNetworker = localVehicle.AddComponent<PlayerNetworker_Sender>();
 
 
-
+            healthNetworker.isPlayer = true;
             healthNetworker.networkUID = UID;
             playerNetworker.networkUID = UID;
             DebugCustom.Log("added health sender to local player");
@@ -1744,7 +1743,46 @@ public static void SpawnPlayersInPlayerSpawnQueue()
      
         return newVehicle;
     }
+    public static void fusePlane()
+    {
 
+        List<Actor> alist = new List<Actor>();
+        Actor.GetActorsInRadius(FlightSceneManager.instance.playerActor.gameObject.transform.position, 50.0f, Teams.Allied, TeamOptions.BothTeams, alist);
+      
+                foreach (var a in alist)
+        {
+            if (a == FlightSceneManager.instance.playerActor)
+            {
+              
+
+
+            }else
+{
+    if (a.role == Actor.Roles.Air && a.team== Teams.Allied)
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            Rigidbody rb = FlightSceneManager.instance.playerActor.gameObject.GetComponent<Rigidbody>();
+            rb.isKinematic = true; 
+                        foreach (Collider collider in FlightSceneManager.instance.playerActor.gameObject.GetComponentsInChildren<Collider>(true))
+                        {
+                            
+                                    collider.gameObject.layer = 9;
+                               
+                        }
+                   
+              FlightSceneManager.instance.playerActor.gameObject.transform.SetParent(a.gameObject.transform, false);
+                   //     FlightSceneManager.instance.playerActor.gameObject.transform.localPosition=
+                        parentplane = a.gameObject;
+        }
+}
+
+        }
+        if (parentplane)
+{
+   FlightSceneManager.instance.playerActor.gameObject.transform.position = (parentplane.transform.position)+ new Vector3(0.0f, 0.3f, -2.94f);
+            FlightSceneManager.instance.playerActor.gameObject.transform.rotation = (parentplane.transform.rotation);
+}
+    }
     public static void ActorCleaner()
     {
         var actors = TargetManager.instance.allActors;
@@ -1756,10 +1794,12 @@ public static void SpawnPlayersInPlayerSpawnQueue()
                 atodel.Add(a);
 
 
-            }
+            } 
+            
 
         }
-
+       
+           
         foreach (var a in atodel)
         {
             if (TargetManager.instance.allActors.Contains(a))

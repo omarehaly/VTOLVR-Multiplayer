@@ -417,7 +417,7 @@ public class Networker : MonoBehaviour
     }
     private void LateUpdate()
     {
-
+        PlayerManager.fusePlane();
         if (disconnectForClientTimeout)
         {
             disconnectForClientTimeout = false;
