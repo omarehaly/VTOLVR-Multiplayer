@@ -19,7 +19,7 @@ You also need to have .Net 4.5 installed to build the mod.
 
 [Dib](https://github.com/Nisenogen "Dib's Github") for being someone we can ask general C# questions about, and casually threading the networker class.
 
-[THEGREATOVERLORDLORDOFALLCHEESE](https://github.com/THE-GREAT-OVERLORD-LORD-OF-ALL-CHEESE "Cheese's Github") for syncing features of the aircraft such as wingfold, and making the small details work, along with the aircraft carrier.
+[THEGREATOVERLORDLORDOFALLCHEESE](https://github.com/THE-GREAT-OVERLORD-OF-ALL-CHEESE) for syncing features of the aircraft such as wingfold, and making the small details work, along with the aircraft carrier.
 
 [mrdoctorsurgeon](https://github.com/omarehaly "surgeon's Github") Objectives, Events, compression, Performance testing, Fixing missiles, Fixing bugs, Comms, Man Objects Inverse kinemateics and current maintainer
 
